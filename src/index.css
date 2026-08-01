@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply w-full bg-white hover:bg-neutral-100 active:bg-neutral-200 text-neutral-900 font-semibold py-4 px-6 rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply w-full bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border border-neutral-700;
+  }
+
+  .btn-success {
+    @apply w-full bg-white hover:bg-neutral-100 active:bg-neutral-200 text-neutral-900 font-semibold py-4 px-6 rounded-lg transition-all duration-200 active:scale-95;
+  }
+
+  .btn-danger {
+    @apply w-full bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 active:scale-95 border border-neutral-700;
+  }
+
+  .card {
+    @apply bg-neutral-900 rounded-xl border border-neutral-800 p-6;
+  }
+
+  .input-field {
+    @apply w-full px-6 py-4 text-2xl text-center bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:border-white focus:bg-neutral-900 transition-all placeholder-neutral-500 text-white;
+  }
+
+  .select-field {
+    @apply w-full px-4 py-3 text-lg bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:border-white focus:bg-neutral-900 transition-all appearance-none cursor-pointer text-white;
+  }
+
+  .numpad-btn {
+    @apply w-20 h-20 text-3xl font-semibold bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 active:bg-neutral-600 active:scale-95 transition-all duration-150 text-white;
+  }
+
+  .tag-available {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 text-white border border-white/20;
+  }
+
+  .tag-out-of-stock {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-950/50 text-red-400 border border-red-900/50;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Scrollbar personalizado - Dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-700 hover:bg-neutral-600 rounded-full;
+}
+
+/* Prevenir zoom en input focus en iOS */
+@supports (-webkit-touch-callout: none) {
+  .input-field, .select-field {
+    font-size: 16px !important;
+  }
+}
+
+/* Efecto de brillo sutil en cards */
+.card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%);
+}
