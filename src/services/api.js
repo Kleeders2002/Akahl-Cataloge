@@ -188,13 +188,108 @@ export const resetPinsAPI = () => {
 // ============================================
 
 /**
+ * Transforma datos del backend al formato del frontend
+ * @param {Object} fabric - Tela del backend
+ * @returns {Object} Tela en formato frontend
+ */
+const transformFabricFromBackend = (fabric) => {
+  // Mapeo de disponibilidad
+  const availabilityMap = {
+    'disponible': 'available',
+    'agotado': 'out_of_stock',
+    'por_pedido': 'available', // 'available by request' -> available
+    'descontinuado': 'out_of_stock'
+  };
+
+  return {
+    id: fabric.id_tela,
+    codigo: fabric.codigo,
+    name: fabric.color, // Backend usa 'color' como nombre visible
+    color: fabric.color,
+    basePricePerMeter: fabric.precio_por_yarda,
+    availability: availabilityMap[fabric.disponibilidad] || 'available',
+    supplier: fabric.coleccion?.proveedor || 'Unknown',
+    coleccion: fabric.coleccion?.nombre || 'Unknown',
+    // Campos adicionales del backend
+    descuento: fabric.descuento,
+    visible_publico: fabric.visible_publico,
+    id_coleccion: fabric.id_coleccion
+  };
+};
+
+/**
+ * Transforma configuración de precios del backend al formato frontend
+ * @param {Object} config - Config del backend
+ * @returns {Object} Config en formato frontend
+ */
+const transformPricingFromBackend = (config) => {
+  // Mapeo inverso de códigos de prenda (backend -> frontend)
+  const garmentCodeMap = {
+    'chaqueta': 'jacket',
+    'pantalon': 'trousers',
+    'chaleco': 'vest',
+    'traje_2_piezas': '2-piece-suit',
+    'traje_3_piezas': '3-piece-suit',
+    'vestido_ejecutivo': 'dress-executive'
+  };
+
+  // Construir estructura de multiplicadores
+  const multipliers = {
+    bespoke: {},
+    industrial: {}
+  };
+
+  if (config.multiplicadores) {
+    for (const [key, value] of Object.entries(config.multiplicadores)) {
+      // key formato: "bespoke_chaqueta", "industrial_pantalon", etc.
+      const [tipo_manufactura, tipo_prenda_codigo] = key.split('_');
+      const frontendGarment = garmentCodeMap[tipo_prenda_codigo] || tipo_prenda_codigo;
+
+      if (multipliers[tipo_manufactura] !== undefined) {
+        multipliers[tipo_manufactura][frontendGarment] = value.valor;
+      }
+    }
+  }
+
+  // Si no hay multiplicadores personalizados, usar defaults
+  if (Object.keys(multipliers.bespoke).length === 0) {
+    multipliers.bespoke = {
+      jacket: 8.5,
+      trousers: 4.5,
+      vest: 3.5,
+      '2-piece-suit': 12.0,
+      '3-piece-suit': 15.0,
+      'dress-executive': 10.0
+    };
+  }
+
+  if (Object.keys(multipliers.industrial).length === 0) {
+    multipliers.industrial = {
+      jacket: 5.5,
+      trousers: 3.0,
+      vest: 2.5,
+      '2-piece-suit': 7.5,
+      '3-piece-suit': 9.5,
+      'dress-executive': 6.5
+    };
+  }
+
+  return {
+    multipliers
+  };
+};
+
+/**
  * Obtener todas las telas
  * @returns {Promise<Array>} Lista de telas
  * ENDPOINT: GET /api/fabrics
  */
 export const getAllFabrics = async () => {
   const response = await api.get('/fabrics');
-  return response.data;
+
+  // Transformar datos del backend al formato frontend
+  const fabrics = response.data.data || response.data;
+  return Array.isArray(fabrics) ? fabrics.map(transformFabricFromBackend) : [];
 };
 
 /**
@@ -229,23 +324,52 @@ export const searchFabrics = async (query) => {
 /**
  * Actualizar información de una tela (ADMIN only)
  * @param {number} id - ID de la tela
- * @param {Object} data - Datos a actualizar
+ * @param {Object} data - Datos a actualizar (formato frontend)
  * @returns {Promise<Object>} Tela actualizada
  * ENDPOINT: PUT /api/fabrics/:id
  */
 export const updateFabric = async (id, data) => {
-  const response = await api.put(`/fabrics/${id}`, data);
+  // Mapear campos del frontend al backend
+  const backendData = {};
+
+  if (data.basePricePerMeter !== undefined) {
+    backendData.precio_por_yarda = data.basePricePerMeter;
+  }
+
+  if (data.availability !== undefined) {
+    const availabilityMap = {
+      'available': 'disponible',
+      'out_of_stock': 'agotado'
+    };
+    backendData.disponibilidad = availabilityMap[data.availability] || data.availability;
+  }
+
+  // Campos adicionales que puedan venir
+  if (data.codigo !== undefined) backendData.codigo = data.codigo;
+  if (data.color !== undefined) backendData.color = data.color;
+  if (data.id_coleccion !== undefined) backendData.id_coleccion = data.id_coleccion;
+
+  const response = await api.put(`/fabrics/${id}`, backendData);
   return response.data;
 };
 
 /**
  * Cambiar disponibilidad de tela (ADMIN only)
  * @param {number} id - ID de la tela
- * @param {string} availability - 'available' | 'out_of_stock'
+ * @param {string} availability - 'available' | 'out_of_stock' (frontend)
+ *                          - 'disponible' | 'agotado' (backend)
  * ENDPOINT: PATCH /api/fabrics/:id/availability
  */
 export const toggleFabricAvailability = async (id, availability) => {
-  const response = await api.patch(`/fabrics/${id}/availability`, { availability });
+  // Mapear valores del frontend al backend
+  const availabilityMap = {
+    'available': 'disponible',
+    'out_of_stock': 'agotado'
+  };
+
+  const response = await api.patch(`/fabrics/${id}/availability`, {
+    disponibilidad: availabilityMap[availability] || availability
+  });
   return response.data;
 };
 
@@ -260,7 +384,10 @@ export const toggleFabricAvailability = async (id, availability) => {
  */
 export const getPricingConfig = async () => {
   const response = await api.get('/pricing/config');
-  return response.data;
+
+  // Transformar datos del backend al formato frontend
+  const config = response.data.data || response.data;
+  return transformPricingFromBackend(config);
 };
 
 /**
@@ -364,12 +491,39 @@ export const getQuotations = async () => {
 
 /**
  * Actualizar multiplicadores de precio (ADMIN only)
- * @param {Object} multipliers - Nuevos multiplicadores
+ * @param {Object} multipliers - Nuevos multiplicadores (formato frontend)
+ *                           { bespoke: { jacket: 8.5, ... }, industrial: { ... } }
  * @returns {Promise<Object>} Configuración actualizada
  * ENDPOINT: PUT /api/pricing/multipliers
  */
 export const updatePricingMultipliers = async (multipliers) => {
-  const response = await api.put('/pricing/multipliers', { multipliers });
+  // Transformar del formato frontend al formato backend
+  const multiplicadores = [];
+
+  // Mapeo de códigos de prenda del frontend al backend
+  const garmentCodeMap = {
+    'jacket': 'chaqueta',
+    'trousers': 'pantalon',
+    'vest': 'chaleco',
+    '2-piece-suit': 'traje_2_piezas',
+    '3-piece-suit': 'traje_3_piezas',
+    'dress-executive': 'vestido_ejecutivo'
+  };
+
+  // Procesar cada tipo de manufactura
+  for (const [manufacturingType, garments] of Object.entries(multipliers)) {
+    for (const [garmentKey, value] of Object.entries(garments)) {
+      const backendCode = garmentCodeMap[garmentKey] || garmentKey;
+
+      multiplicadores.push({
+        tipo_manufactura: manufacturingType, // 'bespoke' o 'industrial'
+        tipo_prenda_codigo: backendCode,
+        valor: value
+      });
+    }
+  }
+
+  const response = await api.put('/pricing/multipliers', { multiplicadores });
   return response.data;
 };
 
