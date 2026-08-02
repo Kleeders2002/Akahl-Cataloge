@@ -1,7 +1,7 @@
 /**
  * Componente: PriceDisplay
  *
- * Muestra el precio calculado de forma destacada - Estilo AKAHL.
+ * Muestra el precio calculado de forma destacada - Estilo AKAHL Premium.
  * Incluye desglose de costos y botón para nueva cotización.
  */
 
@@ -10,87 +10,114 @@ import { useState } from 'react';
 function PriceDisplay({ price, desglose, fabric, garmentType, manufacturingType, onNewQuotation }) {
   const [showDesglose, setShowDesglose] = useState(false);
 
+  // Format garment type for display
+  const formatGarmentType = (type) => {
+    return type.replace(/-/g, ' ');
+  };
+
   return (
-    <div className="card bg-gradient-to-br from-white to-neutral-100 overflow-hidden">
-      {/* Elemento decorativo */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-neutral-900 opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+    <div className="card-premium overflow-hidden relative">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-akahl-secondary/5 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-akahl-primary/30 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+      </div>
 
       <div className="relative">
+        {/* Premium accent line */}
+        <div className="h-px bg-gradient-to-r from-akahl-secondary via-akahl-secondary/50 to-akahl-secondary mb-6"></div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <p className="text-neutral-600 text-sm uppercase tracking-wide">Final Price</p>
-            <p className="text-xs text-neutral-500 mt-1">
-              {manufacturingType} • {garmentType}
+            <p className="text-akahl-secondary/60 text-xs uppercase tracking-[0.2em] mb-1">Final Quotation</p>
+            <p className="text-neutral-400 text-xs tracking-wider uppercase">
+              {manufacturingType} • {formatGarmentType(garmentType)}
             </p>
           </div>
           <button
             onClick={() => setShowDesglose(!showDesglose)}
-            className="px-3 py-1.5 bg-neutral-900/5 hover:bg-neutral-900/10 rounded-lg text-sm text-neutral-700 transition-colors border border-neutral-900/10"
+            className="px-4 py-2 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 rounded-lg text-sm text-akahl-secondary transition-all border border-akahl-secondary/30 active:scale-95"
           >
             {showDesglose ? 'Hide' : 'View'} Details
           </button>
         </div>
 
-        {/* Precio principal */}
-        <div className="text-center py-8">
-          <p className="text-7xl sm:text-8xl font-display font-semibold bg-gradient-to-br from-neutral-900 to-neutral-700 bg-clip-text text-transparent tracking-tight">
-            ${price.toFixed(2)}
-          </p>
-          <p className="text-neutral-600 mt-2 tracking-wide">Retail Price</p>
+        {/* Precio principal Premium */}
+        <div className="text-center py-10 relative">
+          {/* Decorative swirl */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-akahl-secondary/10 rounded-full"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-akahl-secondary/5 rounded-full"></div>
+
+          <div className="relative">
+            <p className="text-8xl sm:text-9xl font-display font-bold text-gradient-gold tracking-tight animate-scale-in">
+              ${price.toFixed(2)}
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-akahl-secondary/50"></div>
+              <p className="text-akahl-secondary/60 text-sm tracking-[0.2em] uppercase">Retail Price</p>
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-akahl-secondary/50"></div>
+            </div>
+          </div>
         </div>
 
         {/* Desglose de costos (expandible) */}
         {showDesglose && (
-          <div className="mt-6 p-4 bg-neutral-900 rounded-xl animate-fadeIn">
-            <h4 className="text-sm font-semibold text-white mb-3 tracking-wide">PRICE BREAKDOWN</h4>
+          <div className="mt-6 p-5 bg-akahl-primary-dark/50 rounded-xl animate-fadeIn border border-akahl-secondary/20">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-5 bg-akahl-secondary rounded-full"></div>
+              <h4 className="text-sm font-semibold text-akahl-secondary tracking-[0.15em] uppercase">Price Breakdown</h4>
+            </div>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Base fabric price (meter)</span>
                 <span className="font-medium text-white">${fabric.basePricePerMeter.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Meters required</span>
-                <span className="font-medium text-white">{desglose.meters} m</span>
+                <span className="font-medium text-white badge-green">{desglose.meters} m</span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Total fabric cost</span>
-                <span className="font-medium text-white">${desglose.fabricCost.toFixed(2)}</span>
+                <span className="font-medium text-akahl-secondary">${desglose.fabricCost.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Labor multiplier</span>
-                <span className="font-medium text-white">{desglose.multiplier}x</span>
+                <span className="font-medium text-white badge-gold">{desglose.multiplier}x</span>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Labor cost</span>
-                <span className="font-medium text-white">${desglose.laborCost.toFixed(2)}</span>
+                <span className="font-medium text-akahl-secondary">${desglose.laborCost.toFixed(2)}</span>
               </div>
 
-              <div className="border-t border-white/10 my-2 pt-2 flex justify-between text-base">
-                <span className="font-semibold text-white">Total</span>
-                <span className="font-bold text-white">${price.toFixed(2)}</span>
+              <div className="border-t border-akahl-secondary/20 my-3 pt-3 flex justify-between text-base">
+                <span className="font-semibold text-white tracking-wide">Total</span>
+                <span className="font-bold text-gradient-gold text-lg">${price.toFixed(2)}</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* Botón de nueva cotización */}
+        {/* Botón de nueva cotización Premium */}
         <div className="mt-6">
           <button
             onClick={onNewQuotation}
-            className="w-full py-4 bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-700 text-white font-semibold rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2 border border-white/20"
+            className="w-full py-4 bg-gradient-to-r from-akahl-secondary to-akahl-secondary-dark hover:from-akahl-secondary-light hover:to-akahl-secondary active:from-akahl-secondary-dark active:to-akahl-secondary-dark text-akahl-primary font-bold rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2 border border-akahl-secondary/40 shadow-premium"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            New Quotation
+            <span className="tracking-[0.1em] uppercase">New Quotation</span>
           </button>
         </div>
+
+        {/* Bottom accent */}
+        <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/40 to-transparent mt-6"></div>
       </div>
     </div>
   );

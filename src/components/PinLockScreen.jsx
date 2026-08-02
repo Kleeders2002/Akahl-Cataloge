@@ -1,7 +1,7 @@
 /**
  * Componente: PinLockScreen
  *
- * Pantalla de bloqueo por PIN numérico - Estilo AKAHL
+ * Pantalla de bloqueo por PIN numérico - Estilo AKAHL Premium
  * Sistema de autenticación local para uso interno.
  *
  * Features:
@@ -9,7 +9,7 @@
  * - Indicador visual de dígitos ingresados
  * - Validación local (sin backend)
  * - Animaciones de error y éxito
- * - Diseño minimalista negro/blanco
+ * - Diseño premium con colores de marca
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -119,35 +119,69 @@ function PinLockScreen({ onSuccess }) {
   // ============================================
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo/Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 border border-white/20 rounded-full mb-4">
-            {/* Needle icon - representing bespoke tailoring */}
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background ambient effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-akahl-secondary/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-akahl-primary/40 rounded-full blur-3xl animate-float" style={{animationDelay: '-2s'}}></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo/Branding Premium */}
+        <div className="text-center mb-8 animate-slideDown">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center justify-center mb-6">
+            <div className="relative">
+              {/* Outer ring with glow */}
+              <div className="absolute inset-0 bg-akahl-secondary/20 rounded-full blur-xl animate-pulse-gold"></div>
+
+              {/* Main icon container */}
+              <div className="relative w-24 h-24 border-2 border-akahl-secondary/40 rounded-full flex items-center justify-center bg-akahl-primary/50 backdrop-blur-sm shadow-premium">
+                {/* Needle icon - representing bespoke tailoring */}
+                <svg
+                  className="w-10 h-10 text-akahl-secondary"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+
+              {/* Decorative dots */}
+              <div className="absolute -top-1 left-1/2 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
+              <div className="absolute -bottom-1 left-1/2 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
+              <div className="absolute top-1/2 -left-1 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
+              <div className="absolute top-1/2 -right-1 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
+            </div>
           </div>
-          <h1 className="text-3xl font-display font-semibold text-white tracking-wide">AKAHL</h1>
-          <p className="text-neutral-500 mt-1 text-sm tracking-widest uppercase">Internal Quotation</p>
+
+          {/* Brand text */}
+          <h1 className="text-5xl font-display font-bold text-gradient-gold tracking-[0.3em] mb-3">
+            AKAHL
+          </h1>
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-akahl-secondary/50"></div>
+            <span className="badge-gold text-xs py-1 px-3 tracking-widest">
+              ATELIER
+            </span>
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-akahl-secondary/50"></div>
+          </div>
+          <p className="text-akahl-secondary/60 mt-4 text-sm tracking-[0.2em] uppercase font-light">
+            Internal Quotation System
+          </p>
         </div>
 
-        {/* Tarjeta de PIN */}
-        <div className="card">
+        {/* Tarjeta de PIN Premium */}
+        <div className="card-premium mb-6 animate-scale-in">
           {/* Indicador de PIN */}
           <div className="mb-8">
-            <p className="text-center text-neutral-400 mb-4 font-medium text-sm tracking-wide">
-              ENTER ACCESS CODE
+            <p className="text-center text-neutral-400 mb-6 font-medium text-sm tracking-[0.15em] uppercase">
+              Enter Access Code
             </p>
             <div
-              className={`flex justify-center gap-4 transition-all duration-200 ${
+              className={`flex justify-center gap-5 transition-all duration-300 ${
                 error ? 'animate-pulse' : ''
               }`}
             >
@@ -158,33 +192,47 @@ function PinLockScreen({ onSuccess }) {
                 return (
                   <div
                     key={i}
-                    className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                      isError
-                        ? 'bg-red-500 scale-125'
-                        : isFilled
-                        ? 'bg-white scale-100'
-                        : 'bg-neutral-700 scale-100'
-                    }`}
-                  />
+                    className="relative"
+                  >
+                    {/* Outer ring for filled state */}
+                    {isFilled && !error && (
+                      <div className="absolute inset-[-4px] bg-akahl-secondary/20 rounded-full blur-sm"></div>
+                    )}
+                    <div
+                      className={`w-4 h-4 rounded-full transition-all duration-300 relative ${
+                        isError
+                          ? 'bg-red-500 scale-125 shadow-red-500/50'
+                          : isFilled
+                          ? 'bg-akahl-secondary scale-100 shadow-gold-glow'
+                          : 'bg-neutral-700/50 scale-100 border border-akahl-secondary/20'
+                      }`}
+                    />
+                  </div>
                 );
               })}
             </div>
             {error && (
-              <p className="text-center text-red-400 mt-4 font-medium text-sm animate-fadeIn tracking-wide">
+              <p className="text-center text-red-400 mt-5 font-medium text-sm animate-fadeIn tracking-wide">
                 Invalid access code
+              </p>
+            )}
+            {verifying && (
+              <p className="text-center text-akahl-secondary/60 mt-5 font-medium text-sm tracking-wide">
+                Verifying...
               </p>
             )}
           </div>
 
-          {/* Numpad */}
+          {/* Numpad Premium */}
           <div className="grid grid-cols-3 gap-4 max-w-xs mx-auto">
             {/* Números 1-9 */}
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num, index) => (
               <button
                 key={num}
                 onClick={() => handleDigit(String(num))}
                 disabled={verifying}
                 className={`numpad-btn ${verifying ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{animationDelay: `${index * 50}ms`}}
               >
                 {num}
               </button>
@@ -194,11 +242,11 @@ function PinLockScreen({ onSuccess }) {
             <button
               onClick={handleClear}
               disabled={verifying || !pin}
-              className={`numpad-btn text-base font-medium tracking-wide ${
+              className={`numpad-btn text-sm font-medium tracking-wider ${
                 verifying || !pin ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              Clear
+              CLR
             </button>
 
             <button
@@ -233,11 +281,18 @@ function PinLockScreen({ onSuccess }) {
           </div>
         </div>
 
-        {/* Footer informativo */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-neutral-600 tracking-wide">
-            INTERNAL USE ONLY
+        {/* Footer informativo Premium */}
+        <div className="text-center space-y-2">
+          <p className="text-xs text-akahl-secondary/40 tracking-[0.2em] uppercase">
+            Authorized Personnel Only
           </p>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-8 h-px bg-gradient-to-r from-transparent to-akahl-secondary/30"></div>
+            <svg className="w-3 h-3 text-akahl-secondary/30" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <div className="w-8 h-px bg-gradient-to-l from-transparent to-akahl-secondary/30"></div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 /**
  * Componente: QuotationScreen
  *
- * Pantalla principal de cotización - Estilo AKAHL.
+ * Pantalla principal de cotización - Estilo AKAHL Premium.
  * Permite buscar telas por código y calcular precios según:
  * - Tipo de manufactura (Bespoke / Industrial)
  * - Tipo de prenda (Chaqueta, Pantalón, etc.)
@@ -218,32 +218,46 @@ function QuotationScreen({ onActivity }) {
 
   return (
     <div className="space-y-6">
-      {/* Buscador */}
-      <div className="card animate-fadeIn">
-        <label className="block text-sm font-medium text-neutral-400 mb-2 tracking-wide">
-          FABRIC CODE
-        </label>
-        <div className="flex gap-3">
-          <input
-            type="text"
-            value={fabricCode}
-            onChange={(e) => {
-              setFabricCode(e.target.value.toUpperCase());
-              setNotFound(false);
-              onActivity?.();
-            }}
-            placeholder="e.g., TL-402"
-            className="input-field flex-1"
-            maxLength={20}
-            autoFocus
-          />
+      {/* Buscador Premium */}
+      <div className="card-premium animate-slide-up">
+        <div className="h-px bg-gradient-to-r from-akahl-secondary via-akahl-secondary/50 to-transparent mb-5"></div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
+          <label className="text-sm font-semibold text-akahl-secondary/80 tracking-[0.2em] uppercase">
+            Fabric Search
+          </label>
+        </div>
+
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              value={fabricCode}
+              onChange={(e) => {
+                setFabricCode(e.target.value.toUpperCase());
+                setNotFound(false);
+                onActivity?.();
+              }}
+              placeholder="Enter fabric code..."
+              className="input-field flex-1 text-2xl bg-akahl-primary/50 border-akahl-secondary/30 placeholder:text-akahl-secondary/30"
+              maxLength={20}
+              autoFocus
+            />
+            {/* Search icon */}
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-akahl-secondary/40">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
           <button
             onClick={searchFabric}
             disabled={searching || !fabricCode.trim()}
-            className="btn-primary px-8 max-w-xs border border-white/20"
+            className="btn-primary px-10 shadow-premium disabled:opacity-50"
           >
             {searching ? (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-3">
                 <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -251,23 +265,28 @@ function QuotationScreen({ onActivity }) {
                 SEARCHING
               </span>
             ) : (
-              'SEARCH'
+              <span className="flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                SEARCH
+              </span>
             )}
           </button>
         </div>
 
         {/* Mensaje de no encontrado */}
         {notFound && (
-          <div className="mt-4 p-4 bg-red-950/30 border border-red-900/50 rounded-lg animate-fadeIn">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <div className="mt-5 p-4 bg-red-950/40 border border-red-900/50 rounded-xl animate-fadeIn">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-red-950/60 rounded-xl flex items-center justify-center flex-shrink-0 border border-red-900/50">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <p className="font-medium text-red-400">Fabric not found</p>
-                <p className="text-sm text-red-400/70">
+                <p className="font-semibold text-red-400 tracking-wide">Fabric Not Found</p>
+                <p className="text-sm text-red-400/70 mt-1">
                   Verify the code and try again
                 </p>
               </div>
@@ -275,19 +294,20 @@ function QuotationScreen({ onActivity }) {
           </div>
         )}
 
-        {/* Códigos sugeridos */}
+        {/* Códigos sugeridos Premium */}
         {!fabric && !notFound && !searching && (
-          <div className="mt-4">
-            <p className="text-sm text-neutral-500 mb-2 tracking-wide">Sample codes:</p>
+          <div className="mt-5">
+            <p className="text-sm text-akahl-secondary/50 mb-3 tracking-[0.1em] uppercase">Sample Fabric Codes</p>
             <div className="flex flex-wrap gap-2">
-              {['TL-402', 'TL-405', 'TL-408', 'TL-420', 'TL-425', 'TL-440'].map((code) => (
+              {['TL-402', 'TL-405', 'TL-408', 'TL-420', 'TL-425', 'TL-440'].map((code, index) => (
                 <button
                   key={code}
                   onClick={() => {
                     setFabricCode(code);
                     onActivity?.();
                   }}
-                  className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 rounded-lg text-sm font-medium text-neutral-400 transition-colors border border-white/10"
+                  className="px-4 py-2 bg-akahl-primary/50 hover:bg-akahl-secondary/20 active:bg-akahl-secondary/30 rounded-lg text-sm font-medium text-akahl-secondary/80 transition-all border border-akahl-secondary/20 hover:border-akahl-secondary/40 animate-scale-in"
+                  style={{animationDelay: `${index * 50}ms`}}
                 >
                   {code}
                 </button>
@@ -295,13 +315,15 @@ function QuotationScreen({ onActivity }) {
             </div>
           </div>
         )}
+
+        <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/30 to-transparent mt-5"></div>
       </div>
 
       {/* Contenido cuando hay tela */}
       {fabric && (
         <>
           {/* Tarjeta de tela */}
-          <div className="animate-slideIn">
+          <div className="animate-slide-up">
             <FabricCard fabric={fabric} />
           </div>
 
@@ -330,7 +352,7 @@ function QuotationScreen({ onActivity }) {
 
           {/* Display de precio */}
           {priceResult && (
-            <div className="animate-fadeIn">
+            <div className="animate-scale-in">
               <PriceDisplay
                 price={priceResult.finalPrice}
                 desglose={priceResult.desglose}

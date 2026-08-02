@@ -1,7 +1,7 @@
 /**
  * Componente: AdminPanel
  *
- * Panel de administración - Estilo AKAHL.
+ * Panel de administración - Estilo AKAHL Premium.
  * - Ver catálogo de telas
  * - Editar precios y disponibilidad
  * - Ajustar multiplicadores de precio
@@ -201,13 +201,15 @@ function AdminPanel({ onActivity }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <svg className="w-12 h-12 text-white animate-spin mx-auto" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <p className="text-neutral-500 mt-4 tracking-wide">Loading data...</p>
+          {/* Premium Spinner */}
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="absolute inset-0 border-4 border-akahl-secondary/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-transparent border-t-akahl-secondary rounded-full animate-spin"></div>
+            <div className="absolute inset-2 border-2 border-transparent border-t-akahl-secondary/50 rounded-full animate-spin" style={{animationDirection: 'reverse'}}></div>
+          </div>
+          <p className="text-akahl-secondary/60 tracking-[0.2em] uppercase text-sm">Loading...</p>
         </div>
       </div>
     );
@@ -215,14 +217,19 @@ function AdminPanel({ onActivity }) {
 
   return (
     <div className="space-y-6">
-      {/* Sección de multiplicadores */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-display font-semibold text-white tracking-wide">PRICE MULTIPLIERS</h3>
+      {/* Sección de multiplicadores Premium */}
+      <div className="card-premium animate-fadeIn">
+        <div className="h-px bg-gradient-to-r from-akahl-secondary via-akahl-secondary/50 to-transparent mb-5"></div>
+
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
+            <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Price Multipliers</h3>
+          </div>
           {!editingPricing && (
             <button
               onClick={() => setEditingPricing(true)}
-              className="px-4 py-2 bg-white hover:bg-neutral-100 text-neutral-900 font-medium rounded-lg transition-colors active:scale-95 border border-white/20"
+              className="px-4 py-2 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 text-akahl-secondary font-medium rounded-lg transition-all active:scale-95 border border-akahl-secondary/30"
             >
               Edit
             </button>
@@ -232,19 +239,19 @@ function AdminPanel({ onActivity }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="text-left py-2 px-3 font-medium text-neutral-400 tracking-wide">Garment</th>
-                <th className="text-center py-2 px-3 font-medium text-neutral-400 tracking-wide">Bespoke</th>
-                <th className="text-center py-2 px-3 font-medium text-neutral-400 tracking-wide">Industrial</th>
+              <tr className="border-b border-akahl-secondary/20">
+                <th className="text-left py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Garment</th>
+                <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Bespoke</th>
+                <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Industrial</th>
               </tr>
             </thead>
             <tbody>
-              {pricing && Object.keys(pricing.multipliers.bespoke).map((garment) => (
-                <tr key={garment} className="border-b border-white/5 last:border-0">
-                  <td className="py-2 px-3 text-neutral-300 capitalize">
+              {pricing && Object.keys(pricing.multipliers.bespoke).map((garment, index) => (
+                <tr key={garment} className="border-b border-akahl-secondary/10 last:border-0 hover:bg-akahl-secondary/5 transition-colors" style={{animationDelay: `${index * 30}ms`}}>
+                  <td className="py-3 px-3 text-neutral-300 capitalize">
                     {garment.replace('-', ' ')}
                   </td>
-                  <td className="py-2 px-3 text-center">
+                  <td className="py-3 px-3 text-center">
                     {editingPricing ? (
                       <input
                         type="number"
@@ -257,15 +264,15 @@ function AdminPanel({ onActivity }) {
                             bespoke: { ...prev.bespoke, [garment]: val }
                           }));
                         }}
-                        className="w-16 px-2 py-1 text-center bg-neutral-800 border border-neutral-700 rounded text-white focus:border-white focus:outline-none"
+                        className="w-20 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none focus:ring-1 focus:ring-akahl-secondary/50 transition-all"
                       />
                     ) : (
-                      <span className="font-medium text-white">
-                        {pricing.multipliers.bespoke[garment]}x
+                      <span className="font-semibold text-akahl-secondary">
+                        {pricing.multipliers.bespoke[garment]}<span className="text-neutral-500">x</span>
                       </span>
                     )}
                   </td>
-                  <td className="py-2 px-3 text-center">
+                  <td className="py-3 px-3 text-center">
                     {editingPricing ? (
                       <input
                         type="number"
@@ -278,11 +285,11 @@ function AdminPanel({ onActivity }) {
                             industrial: { ...prev.industrial, [garment]: val }
                           }));
                         }}
-                        className="w-16 px-2 py-1 text-center bg-neutral-800 border border-neutral-700 rounded text-white focus:border-white focus:outline-none"
+                        className="w-20 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none focus:ring-1 focus:ring-akahl-secondary/50 transition-all"
                       />
                     ) : (
-                      <span className="font-medium text-white">
-                        {pricing.multipliers.industrial[garment]}x
+                      <span className="font-semibold text-akahl-secondary">
+                        {pricing.multipliers.industrial[garment]}<span className="text-neutral-500">x</span>
                       </span>
                     )}
                   </td>
@@ -293,10 +300,10 @@ function AdminPanel({ onActivity }) {
         </div>
 
         {editingPricing && (
-          <div className="mt-4 flex gap-3">
+          <div className="mt-5 flex gap-3">
             <button
               onClick={handleSaveMultipliers}
-              className="btn-success border border-white/20"
+              className="btn-success border border-akahl-secondary/40 shadow-premium"
             >
               Save Changes
             </button>
@@ -311,67 +318,83 @@ function AdminPanel({ onActivity }) {
             </button>
           </div>
         )}
+
+        <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/30 to-transparent mt-5"></div>
       </div>
 
-      {/* Sección de gestión de PINs */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-display font-semibold text-white tracking-wide">ACCESS PINS</h3>
+      {/* Sección de gestión de PINs Premium */}
+      <div className="card-premium animate-fadeIn" style={{animationDelay: '100ms'}}>
+        <div className="h-px bg-gradient-to-r from-akahl-secondary via-akahl-secondary/50 to-transparent mb-5"></div>
+
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
+            <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Access Control</h3>
+          </div>
           <button
             onClick={() => setShowPinSection(!showPinSection)}
-            className="px-4 py-2 bg-white hover:bg-neutral-100 text-neutral-900 font-medium rounded-lg transition-colors active:scale-95 border border-white/20"
+            className="px-4 py-2 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 text-akahl-secondary font-medium rounded-lg transition-all active:scale-95 border border-akahl-secondary/30"
           >
             {showPinSection ? 'Hide' : 'Manage'}
           </button>
         </div>
 
         {/* Resumen de PINs */}
-        <div className="flex flex-wrap gap-4 text-sm text-neutral-500 mb-4">
-          <span>
-            <strong className="text-white">{Object.keys(pins).length}</strong> total PINs
-          </span>
-          <span>
-            <strong className="text-white">{Object.values(pins).filter(p => p.role === 'ADMIN').length}</strong> administrators
-          </span>
-          <span>
-            <strong className="text-white">{Object.values(pins).filter(p => p.role === 'USER').length}</strong> associates
-          </span>
+        <div className="flex flex-wrap gap-6 text-sm mb-5">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-akahl-secondary rounded-full"></div>
+            <span className="text-neutral-400">
+              <strong className="text-white">{Object.keys(pins).length}</strong> Total PINs
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-akahl-secondary/60 rounded-full"></div>
+            <span className="text-neutral-400">
+              <strong className="text-akahl-secondary">{Object.values(pins).filter(p => p.role === 'ADMIN').length}</strong> Administrators
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-neutral-600 rounded-full"></div>
+            <span className="text-neutral-400">
+              <strong className="text-white">{Object.values(pins).filter(p => p.role === 'USER').length}</strong> Associates
+            </span>
+          </div>
         </div>
 
         {showPinSection && (
           <div className="space-y-4 animate-fadeIn">
             {/* Lista de PINs */}
-            <div className="border border-white/10 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-neutral-400 mb-3 tracking-wide">ACTIVE PINS</h4>
-              <div className="space-y-2">
+            <div className="border border-akahl-secondary/20 rounded-xl p-5 bg-akahl-primary/30">
+              <h4 className="text-sm font-semibold text-akahl-secondary/80 mb-4 tracking-[0.1em] uppercase">Active Access Codes</h4>
+              <div className="space-y-3">
                 {Object.entries(pins).map(([pin, config]) => (
-                  <div key={pin} className="flex items-center justify-between p-3 bg-neutral-800/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center">
-                        <span className="text-lg font-display font-semibold text-white tracking-wider">
+                  <div key={pin} className="flex items-center justify-between p-4 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/10 hover:border-akahl-secondary/20 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-akahl-secondary/10 rounded-xl flex items-center justify-center border border-akahl-secondary/20">
+                        <span className="text-xl font-display font-bold text-akahl-secondary tracking-widest">
                           {'•'.repeat(pin.length)}
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-white">{config.name}</p>
-                        <p className="text-xs text-neutral-400">
+                        <p className="font-semibold text-white tracking-wide">{config.name}</p>
+                        <p className="text-xs text-neutral-400 mt-0.5">
                           {config.role === 'ADMIN' ? 'Administrator' : 'Associate'}
                           {pin === '1234' || pin === '9999' ? ' • Default' : ''}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${
                         config.role === 'ADMIN'
-                          ? 'bg-white/10 text-white border border-white/20'
-                          : 'bg-neutral-700 text-neutral-400 border border-white/10'
+                          ? 'bg-akahl-secondary/20 text-akahl-secondary border border-akahl-secondary/40'
+                          : 'bg-akahl-primary/50 text-neutral-400 border border-akahl-secondary/20'
                       }`}>
-                        {config.role === 'ADMIN' ? 'ADMIN' : 'USER'}
+                        {config.role === 'ADMIN' ? 'Admin' : 'User'}
                       </span>
                       {pin !== '1234' && pin !== '9999' && (
                         <button
                           onClick={() => handleDeletePin(pin)}
-                          className="p-2 rounded-lg hover:bg-red-950/30 text-red-400 hover:text-red-300 transition-colors"
+                          className="p-2.5 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
                           title="Delete PIN"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -386,9 +409,9 @@ function AdminPanel({ onActivity }) {
             </div>
 
             {/* Agregar nuevo PIN */}
-            <div className="border border-white/10 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-neutral-400 mb-3 tracking-wide">ADD NEW PIN</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="border border-akahl-secondary/20 rounded-xl p-5 bg-akahl-primary/30">
+              <h4 className="text-sm font-semibold text-akahl-secondary/80 mb-4 tracking-[0.1em] uppercase">Add New Access Code</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <input
                   type="text"
                   value={newPin}
@@ -416,7 +439,7 @@ function AdminPanel({ onActivity }) {
                   <button
                     onClick={handleSavePin}
                     disabled={!newPin || newPin.length !== 4 || !newPinName.trim()}
-                    className="btn-success px-6 border border-white/20 disabled:opacity-50"
+                    className="btn-success px-6 border border-akahl-secondary/40 disabled:opacity-50 shadow-premium"
                   >
                     Add
                   </button>
@@ -427,55 +450,64 @@ function AdminPanel({ onActivity }) {
             {/* Restablecer PINs */}
             <button
               onClick={handleResetPins}
-              className="w-full py-3 bg-red-950/30 hover:bg-red-950/50 text-red-400 font-medium rounded-lg transition-colors border border-red-900/50"
+              className="w-full py-3 bg-red-950/40 hover:bg-red-950/60 text-red-400 font-medium rounded-xl transition-all border border-red-900/50 active:scale-[0.99]"
             >
               Reset All PINs to Defaults
             </button>
           </div>
         )}
+
+        <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/30 to-transparent mt-5"></div>
       </div>
 
-      {/* Catálogo de telas */}
-      <div className="card">
+      {/* Catálogo de telas Premium */}
+      <div className="card-premium animate-fadeIn" style={{animationDelay: '200ms'}}>
+        <div className="h-px bg-gradient-to-r from-akahl-secondary via-akahl-secondary/50 to-transparent mb-5"></div>
+
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
+          <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Fabric Catalog</h3>
+        </div>
+
         {/* Filtros y búsqueda */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 mb-5">
           <div className="flex-1">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search fabrics..."
-              className="input-field text-lg"
+              className="input-field text-lg bg-akahl-primary/50 border-akahl-secondary/20"
             />
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 filter === 'all'
-                  ? 'bg-white text-neutral-900'
-                  : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 border border-white/10'
+                  ? 'bg-akahl-secondary text-akahl-primary shadow-gold-glow'
+                  : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
               }`}
             >
               All
             </button>
             <button
               onClick={() => setFilter('available')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 filter === 'available'
-                  ? 'bg-white text-neutral-900'
-                  : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 border border-white/10'
+                  ? 'bg-akahl-secondary text-akahl-primary shadow-gold-glow'
+                  : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
               }`}
             >
               In Stock
             </button>
             <button
               onClick={() => setFilter('out_of_stock')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 filter === 'out_of_stock'
-                  ? 'bg-white text-neutral-900'
-                  : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 border border-white/10'
+                  ? 'bg-akahl-secondary text-akahl-primary shadow-gold-glow'
+                  : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
               }`}
             >
               Out of Stock
@@ -487,31 +519,31 @@ function AdminPanel({ onActivity }) {
         <div className="overflow-x-auto -mx-2">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                <th className="text-left py-3 px-4 font-semibold text-white tracking-wide">Code</th>
-                <th className="text-left py-3 px-4 font-semibold text-white tracking-wide">Name</th>
-                <th className="text-left py-3 px-4 font-semibold text-white tracking-wide">Supplier</th>
-                <th className="text-right py-3 px-4 font-semibold text-white tracking-wide">Price/M</th>
-                <th className="text-center py-3 px-4 font-semibold text-white tracking-wide">Status</th>
-                <th className="text-center py-3 px-4 font-semibold text-white tracking-wide">Actions</th>
+              <tr className="border-b border-akahl-secondary/20 bg-akahl-secondary/5">
+                <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Code</th>
+                <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Supplier</th>
+                <th className="text-right py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Price/M</th>
+                <th className="text-center py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Status</th>
+                <th className="text-center py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredFabrics.map((fabric) => (
-                <tr key={fabric.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4 font-medium text-white tracking-wide">{fabric.code}</td>
-                  <td className="py-3 px-4 text-neutral-400">{fabric.name}</td>
+                <tr key={fabric.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
+                  <td className="py-3 px-4 font-medium text-akahl-secondary tracking-wide">{fabric.code}</td>
+                  <td className="py-3 px-4 text-neutral-300">{fabric.name}</td>
                   <td className="py-3 px-4 text-neutral-500">{fabric.supplier}</td>
                   <td className="py-3 px-4 text-right font-medium text-white">
                     ${fabric.basePricePerMeter.toFixed(2)}
                   </td>
                   <td className="py-3 px-4 text-center">
                     {fabric.availability === 'available' ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-white border border-white/20">
+                      <span className="tag-available">
                         In Stock
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-950/50 text-red-400 border border-red-900/50">
+                      <span className="tag-out-of-stock">
                         Out of Stock
                       </span>
                     )}
@@ -520,11 +552,11 @@ function AdminPanel({ onActivity }) {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => handleToggleAvailability(fabric)}
-                        className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
                         title="Toggle availability"
                       >
                         {fabric.availability === 'available' ? (
-                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-5 h-5 text-akahl-secondary" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                         ) : (
@@ -535,7 +567,7 @@ function AdminPanel({ onActivity }) {
                       </button>
                       <button
                         onClick={() => setEditingFabric(fabric)}
-                        className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
                         title="Edit price"
                       >
                         <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -557,34 +589,61 @@ function AdminPanel({ onActivity }) {
         )}
 
         {/* Resumen */}
-        <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-4 text-sm text-neutral-500">
-          <span>
-            <strong className="text-white">{fabrics.length}</strong> total fabrics
-          </span>
-          <span>
-            <strong className="text-white">{fabrics.filter(f => f.availability === 'available').length}</strong> in stock
-          </span>
-          <span>
-            <strong className="text-red-400">{fabrics.filter(f => f.availability === 'out_of_stock').length}</strong> out of stock
-          </span>
+        <div className="mt-5 pt-5 border-t border-akahl-secondary/20 flex flex-wrap gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-akahl-secondary rounded-full"></div>
+            <span className="text-neutral-400">
+              <strong className="text-white">{fabrics.length}</strong> Total Fabrics
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-akahl-secondary rounded-full"></div>
+            <span className="text-neutral-400">
+              <strong className="text-akahl-secondary">{fabrics.filter(f => f.availability === 'available').length}</strong> In Stock
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+            <span className="text-neutral-400">
+              <strong className="text-red-400">{fabrics.filter(f => f.availability === 'out_of_stock').length}</strong> Out of Stock
+            </span>
+          </div>
         </div>
+
+        <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/30 to-transparent mt-5"></div>
       </div>
 
-      {/* Modal de edición de tela */}
+      {/* Modal de edición de tela Premium */}
       {editingFabric && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-neutral-900 rounded-xl shadow-xl max-w-md w-full p-6 border border-white/10 animate-fadeIn">
-            <h3 className="text-xl font-display font-semibold text-white mb-4 tracking-wide">Edit Fabric</h3>
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="card-premium max-w-md w-full shadow-2xl relative">
+            {/* Close button */}
+            <button
+              onClick={() => setEditingFabric(null)}
+              className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-neutral-400 mb-1">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Edit Fabric</h3>
+              </div>
+              <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
+            </div>
+
+            <div className="space-y-5">
+              <div className="p-4 bg-akahl-primary/50 rounded-lg border border-akahl-secondary/10">
+                <p className="text-sm font-medium text-akahl-secondary">
                   {editingFabric.code} — {editingFabric.name}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-400 mb-2 tracking-wide">
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">
                   Price per Meter
                 </label>
                 <input
@@ -595,31 +654,52 @@ function AdminPanel({ onActivity }) {
                     ...editingFabric,
                     basePricePerMeter: parseFloat(e.target.value) || 0
                   })}
-                  className="input-field"
+                  className="input-field text-xl"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-400 mb-2 tracking-wide">
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">
                   Availability
                 </label>
-                <select
-                  value={editingFabric.availability}
-                  onChange={(e) => setEditingFabric({
-                    ...editingFabric,
-                    availability: e.target.value
-                  })}
-                  className="select-field"
-                >
-                  <option value="available">In Stock</option>
-                  <option value="out_of_stock">Out of Stock</option>
-                </select>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setEditingFabric({...editingFabric, availability: 'available'})}
+                    className={`p-4 rounded-xl border transition-all ${
+                      editingFabric.availability === 'available'
+                        ? 'border-akahl-secondary bg-akahl-secondary/10 text-akahl-secondary'
+                        : 'border-akahl-secondary/20 bg-akahl-primary/50 text-neutral-400 hover:border-akahl-secondary/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-medium">In Stock</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setEditingFabric({...editingFabric, availability: 'out_of_stock'})}
+                    className={`p-4 rounded-xl border transition-all ${
+                      editingFabric.availability === 'out_of_stock'
+                        ? 'border-red-900/50 bg-red-950/30 text-red-400'
+                        : 'border-akahl-secondary/20 bg-akahl-primary/50 text-neutral-400 hover:border-red-900/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-medium">Out of Stock</span>
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
 
             <div className="mt-6 flex gap-3">
-              <button onClick={handleSaveFabric} className="btn-success border border-white/20">
-                Save
+              <button onClick={handleSaveFabric} className="btn-success border border-akahl-secondary/40 shadow-premium">
+                Save Changes
               </button>
               <button
                 onClick={() => setEditingFabric(null)}
