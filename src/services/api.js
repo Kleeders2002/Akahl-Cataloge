@@ -1,12 +1,16 @@
 /**
  * Servicios API - Cotizador AKAHL
  *
- * Conexión con el backend existente de AKAHL Club:
- * - https://akahlclub.onrender.com
+ * Conexión con el backend AKAHL Atelier:
+ * - Base URL: https://akahlclub.onrender.com
  *
  * AUTENTICACIÓN:
- * - Sistema AKAHL Atelier: PIN local (ver config/pins.js)
- * - Sistema AKAHL Club: JWT Tokens
+ * - Sistema AKAHL Atelier: PIN local (ver config/pins.js) + JWT del backend
+ *
+ * ENDPOINTS CORREGIDOS:
+ * - Auth: /api/catalogo/auth/verify-pin
+ * - Fabrics: /api/catalogo/fabrics/*
+ * - Pricing: /api/pricing/*
  */
 
 import axios from 'axios';
@@ -42,14 +46,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido
       localStorage.removeItem('token');
-
-      // Si estamos en AKAHL Atelier, volver a pantalla de PIN
-      if (window.location.pathname !== '/login') {
-        // Recargar la página para volver al PIN lock
-        window.location.reload();
-      }
+      // Recargar para volver al PIN lock
+      window.location.reload();
     }
     return Promise.reject(error);
   }
@@ -60,19 +59,78 @@ api.interceptors.response.use(
 // ============================================
 
 /**
- * Login con email y contraseña
+ * Verificar PIN de acceso (Sistema Local + Backend JWT)
+ * @param {string} pin - PIN de 4 dígitos
+ * @returns {Object} { success, role, user, token }
+ * ENDPOINT: POST /api/catalogo/auth/verify-pin
+ */
+export const verifyPin = async (pin) => {
+  // 1. Verificación local (validación rápida)
+  const pinConfig = verifyPinLocal(pin);
+
+  if (!pinConfig) {
+    return {
+      success: false,
+      role: null,
+      user: null,
+      token: null
+    };
+  }
+
+  // 2. Obtener JWT del backend
+  try {
+    const response = await api.post('/catalogo/auth/verify-pin', { pin });
+
+    const { token, user } = response.data;
+
+    // Guardar JWT en localStorage
+    localStorage.setItem('token', token);
+
+    return {
+      success: true,
+      role: pinConfig.role,
+      user: {
+        name: pinConfig.name,
+        permissions: pinConfig.permissions,
+        pin: pin,
+        ...user // Datos adicionales del backend
+      },
+      token
+    };
+  } catch (error) {
+    console.error('Error getting JWT from backend:', error);
+
+    // Fallback: permitir acceso local solo lectura
+    return {
+      success: true,
+      role: pinConfig.role,
+      user: {
+        name: pinConfig.name,
+        permissions: pinConfig.permissions,
+        pin: pin
+      },
+      token: null,
+      offlineMode: true
+    };
+  }
+};
+
+/**
+ * Login con email y contraseña (para admin web)
  * @param {string} email - Email del usuario
  * @param {string} password - Contraseña
  * @returns {Promise} { success, token, must_change_pwd, role }
+ * ENDPOINT: POST /api/auth/login
  */
 export const login = async (email, password) => {
   const response = await api.post('/auth/login', { email, password });
-  return response.data; // { success, token, must_change_pwd, role, ... }
+  return response.data;
 };
 
 /**
  * Verificar token y obtener info del usuario
  * @returns {Promise} Información del usuario actual
+ * ENDPOINT: GET /api/auth/me
  */
 export const verifyToken = async () => {
   const response = await api.get('/auth/me');
@@ -87,101 +145,13 @@ export const logout = () => {
 };
 
 // ============================================
-// LONA AKN (4 digits)
-/**
- * Verificar PIN de acceso (Sistema Local AKAHL Atelier)
- * @param {string} pin - PIN de 4 dígitos
- * @returns {Object} { success, role, user, token }
- *
- * NOTA: Ahora esta función válida el PIN localmente Y obtiene un JWT del backend
- */
-export const verifyPin = async (pin) => {
-  // 1. Verificación local (primero, validación rápida)
-  const pinConfig = verifyPinLocal(pin);
+// GESTIÓN DE PINs (Local)
+// ============================================
 
-  if (!pinConfig) {
-    return {
-      success: false,
-      role: null,
-      user: null,
-      token: null
-    };
-  }
-
-  // 2. Si PIN es válido localmente, obtener JWT del backend
-  try {
-    const response = await api.post('/auth/verify-pin', { pin });
-
-    // Backend retornó un JWT válido
-    const { token, user } = response.data;
-
-    // Guardar JWT en localStorage para requests futuras
-    localStorage.setItem('token', token);
-
-    return {
-      success: true,
-      role: pinConfig.role,
-      user: {
-        name: pinConfig.name,
-        permissions: pinConfig.permissions,
-        pin: pin, // PIN actual para referencias futuras
-        ...user // Datos adicionales del backend
-      },
-      token // Retornar el token para uso inmediato si es necesario
-    };
-  } catch (error) {
-    console.error('Error getting JWT from backend:', error);
-
-    // Fallback: si el backend falla, permitir acceso local solo lectura
-    // (Esto mantiene compatibilidad si el backend está caído)
-    return {
-      success: true,
-      role: pinConfig.role,
-      user: {
-        name: pinConfig.name,
-        permissions: pinConfig.permissions,
-        pin: pin
-      },
-      token: null,
-      offlineMode: true // Indicar que estamos sin JWT
-    };
-  }
-};
-
-/**
- * Obtener todos los PINs configurados (para Admin Panel)
- * @returns {Object} Todos los PINs
- */
-export const getAllPinsAPI = () => {
-  return getAllPins();
-};
-
-/**
- * Guardar un nuevo PIN (para Admin Panel)
- * @param {string} pin - PIN a guardar
- * @param {Object} config - Configuración del PIN
- * @returns {boolean} Éxito de la operación
- */
-export const savePinAPI = (pin, config) => {
-  return savePin(pin, config);
-};
-
-/**
- * Eliminar un PIN (para Admin Panel)
- * @param {string} pin - PIN a eliminar
- * @returns {boolean} Éxito de la operación
- */
-export const deletePinAPI = (pin) => {
-  return deletePin(pin);
-};
-
-/**
- * Restablecer PINs a valores por defecto (para Admin Panel)
- * @returns {boolean} Éxito de la operación
- */
-export const resetPinsAPI = () => {
-  return resetPinsToDefaults();
-};
+export const getAllPinsAPI = () => getAllPins();
+export const savePinAPI = (pin, config) => savePin(pin, config);
+export const deletePinAPI = (pin) => deletePin(pin);
+export const resetPinsAPI = () => resetPinsToDefaults();
 
 // ============================================
 // TELAS (FABRICS)
@@ -193,29 +163,173 @@ export const resetPinsAPI = () => {
  * @returns {Object} Tela en formato frontend
  */
 const transformFabricFromBackend = (fabric) => {
-  // Mapeo de disponibilidad
   const availabilityMap = {
     'disponible': 'available',
     'agotado': 'out_of_stock',
-    'por_pedido': 'available', // 'available by request' -> available
+    'por_pedido': 'available',
     'descontinuado': 'out_of_stock'
   };
 
   return {
-    id: fabric.id_tela,
+    id: fabric.id_tela || fabric.id,
     codigo: fabric.codigo,
-    name: fabric.color, // Backend usa 'color' como nombre visible
+    code: fabric.codigo, // Para compatibilidad
+    name: fabric.color || fabric.nombre,
     color: fabric.color,
-    basePricePerMeter: fabric.precio_por_yarda,
+    nombre: fabric.nombre,
+    basePricePerMeter: fabric.precio_por_yarda || fabric.precio_por_metro,
+    price: fabric.precio_por_yarda || fabric.precio_por_metro, // Para compatibilidad
     availability: availabilityMap[fabric.disponibilidad] || 'available',
-    supplier: fabric.coleccion?.proveedor || 'Unknown',
-    coleccion: fabric.coleccion?.nombre || 'Unknown',
-    // Campos adicionales del backend
+    supplier: fabric.coleccion?.proveedor || fabric.proveedor || 'Unknown',
+    coleccion: fabric.coleccion?.nombre || fabric.coleccion || 'Unknown',
+    category: fabric.categoria || fabric.coleccion?.categoria || 'Fabric',
+    composition: fabric.composicion || 'N/A',
+    weight: fabric.peso || 'N/A',
+    // Campos adicionales
     descuento: fabric.descuento,
     visible_publico: fabric.visible_publico,
-    id_coleccion: fabric.id_coleccion
+    id_coleccion: fabric.id_coleccion,
+    imagen_url: fabric.imagen_url
   };
 };
+
+/**
+ * Transforma datos del frontend al formato del backend
+ * @param {Object} fabric - Tela en formato frontend
+ * @returns {Object} Tela en formato backend
+ */
+const transformFabricToBackend = (fabric) => {
+  const availabilityMap = {
+    'available': 'disponible',
+    'out_of_stock': 'agotado'
+  };
+
+  return {
+    codigo: fabric.codigo,
+    color: fabric.name || fabric.color,
+    nombre: fabric.nombre || fabric.name,
+    precio_por_yarda: fabric.basePricePerMeter || fabric.price,
+    disponibilidad: availabilityMap[fabric.availability] || 'disponible',
+    id_coleccion: fabric.id_coleccion,
+    composicion: fabric.composition,
+    peso: fabric.weight,
+    categoria: fabric.category,
+    imagen_url: fabric.imagen_url
+  };
+};
+
+/**
+ * Obtener todas las telas
+ * @returns {Promise<Array>} Lista de telas
+ * ENDPOINT: GET /api/catalogo/fabrics
+ */
+export const getAllFabrics = async () => {
+  const response = await api.get('/catalogo/fabrics');
+  const fabrics = response.data.data || response.data;
+  return Array.isArray(fabrics) ? fabrics.map(transformFabricFromBackend) : [];
+};
+
+/**
+ * Buscar tela por código
+ * @param {string} code - Código de tela (ej. "TL-402")
+ * @returns {Promise<Object|null>} Tela encontrada o null
+ * ENDPOINT: GET /api/catalogo/fabrics/code/:code
+ */
+export const getFabricByCode = async (code) => {
+  try {
+    const response = await api.get(`/catalogo/fabrics/code/${encodeURIComponent(code)}`);
+    const fabric = response.data.data || response.data;
+    return transformFabricFromBackend(fabric);
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+/**
+ * Buscar telas por texto
+ * @param {string} query - Texto a buscar
+ * @returns {Promise<Array>} Lista de telas coincidentes
+ * ENDPOINT: GET /api/catalogo/fabrics/search?q=query
+ */
+export const searchFabrics = async (query) => {
+  try {
+    const response = await api.get('/catalogo/fabrics/search', {
+      params: { q: query }
+    });
+    const fabrics = response.data.data || response.data;
+    return Array.isArray(fabrics) ? fabrics.map(transformFabricFromBackend) : [];
+  } catch (error) {
+    // Fallback: buscar localmente si el endpoint falla
+    const allFabrics = await getAllFabrics();
+    const filtered = allFabrics.filter(f =>
+      f.codigo.toLowerCase().includes(query.toLowerCase()) ||
+      f.name.toLowerCase().includes(query.toLowerCase()) ||
+      f.supplier.toLowerCase().includes(query.toLowerCase())
+    );
+    return filtered;
+  }
+};
+
+/**
+ * Crear nueva tela (ADMIN only)
+ * @param {Object} fabric - Datos de la tela (formato frontend)
+ * @returns {Promise<Object>} Tela creada
+ * ENDPOINT: POST /api/catalogo/fabrics
+ */
+export const createFabric = async (fabric) => {
+  const backendData = transformFabricToBackend(fabric);
+  const response = await api.post('/catalogo/fabrics', backendData);
+  return transformFabricFromBackend(response.data.data || response.data);
+};
+
+/**
+ * Actualizar información de una tela (ADMIN only)
+ * @param {number} id - ID de la tela
+ * @param {Object} data - Datos a actualizar (formato frontend)
+ * @returns {Promise<Object>} Tela actualizada
+ * ENDPOINT: PUT /api/catalogo/fabrics/:id
+ */
+export const updateFabric = async (id, data) => {
+  const backendData = transformFabricToBackend(data);
+  const response = await api.put(`/catalogo/fabrics/${id}`, backendData);
+  return transformFabricFromBackend(response.data.data || response.data);
+};
+
+/**
+ * Cambiar disponibilidad de tela (ADMIN only)
+ * @param {number} id - ID de la tela
+ * @param {string} availability - 'available' | 'out_of_stock'
+ * ENDPOINT: PATCH /api/catalogo/fabrics/:id/availability
+ */
+export const toggleFabricAvailability = async (id, availability) => {
+  const availabilityMap = {
+    'available': 'disponible',
+    'out_of_stock': 'agotado'
+  };
+
+  const response = await api.patch(`/catalogo/fabrics/${id}/availability`, {
+    disponibilidad: availabilityMap[availability] || availability
+  });
+  return transformFabricFromBackend(response.data.data || response.data);
+};
+
+/**
+ * Eliminar una tela (ADMIN only)
+ * @param {number} id - ID de la tela
+ * @returns {Promise<Object>} Respuesta de eliminación
+ * ENDPOINT: DELETE /api/catalogo/fabrics/:id
+ */
+export const deleteFabric = async (id) => {
+  const response = await api.delete(`/catalogo/fabrics/${id}`);
+  return response.data;
+};
+
+// ============================================
+// PRECIOS Y COTIZACIONES
+// ============================================
 
 /**
  * Transforma configuración de precios del backend al formato frontend
@@ -223,7 +337,6 @@ const transformFabricFromBackend = (fabric) => {
  * @returns {Object} Config en formato frontend
  */
 const transformPricingFromBackend = (config) => {
-  // Mapeo inverso de códigos de prenda (backend -> frontend)
   const garmentCodeMap = {
     'chaqueta': 'jacket',
     'pantalon': 'trousers',
@@ -233,7 +346,6 @@ const transformPricingFromBackend = (config) => {
     'vestido_ejecutivo': 'dress-executive'
   };
 
-  // Construir estructura de multiplicadores
   const multipliers = {
     bespoke: {},
     industrial: {}
@@ -241,7 +353,6 @@ const transformPricingFromBackend = (config) => {
 
   if (config.multiplicadores) {
     for (const [key, value] of Object.entries(config.multiplicadores)) {
-      // key formato: "bespoke_chaqueta", "industrial_pantalon", etc.
       const [tipo_manufactura, tipo_prenda_codigo] = key.split('_');
       const frontendGarment = garmentCodeMap[tipo_prenda_codigo] || tipo_prenda_codigo;
 
@@ -251,7 +362,7 @@ const transformPricingFromBackend = (config) => {
     }
   }
 
-  // Si no hay multiplicadores personalizados, usar defaults
+  // Defaults si no hay datos
   if (Object.keys(multipliers.bespoke).length === 0) {
     multipliers.bespoke = {
       jacket: 8.5,
@@ -274,108 +385,8 @@ const transformPricingFromBackend = (config) => {
     };
   }
 
-  return {
-    multipliers
-  };
+  return { multipliers };
 };
-
-/**
- * Obtener todas las telas
- * @returns {Promise<Array>} Lista de telas
- * ENDPOINT: GET /api/fabrics
- */
-export const getAllFabrics = async () => {
-  const response = await api.get('/fabrics');
-
-  // Transformar datos del backend al formato frontend
-  const fabrics = response.data.data || response.data;
-  return Array.isArray(fabrics) ? fabrics.map(transformFabricFromBackend) : [];
-};
-
-/**
- * Buscar tela por código
- * @param {string} code - Código de tela (ej. "TL-402")
- * @returns {Promise<Object|null>} Tela encontrada o null
- * ENDPOINT: GET /api/fabrics/code/:code
- */
-export const getFabricByCode = async (code) => {
-  try {
-    const response = await api.get(`/fabrics/code/${encodeURIComponent(code)}`);
-    return response.data;
-  } catch (error) {
-    if (error.response?.status === 404) {
-      return null;
-    }
-    throw error;
-  }
-};
-
-/**
- * Buscar telas por texto
- * @param {string} query - Texto a buscar
- * @returns {Promise<Array>} Lista de telas coincidentes
- * ENDPOINT: GET /api/fabrics?q=query
- */
-export const searchFabrics = async (query) => {
-  const response = await api.get('/fabrics', { params: { q: query } });
-  return response.data;
-};
-
-/**
- * Actualizar información de una tela (ADMIN only)
- * @param {number} id - ID de la tela
- * @param {Object} data - Datos a actualizar (formato frontend)
- * @returns {Promise<Object>} Tela actualizada
- * ENDPOINT: PUT /api/fabrics/:id
- */
-export const updateFabric = async (id, data) => {
-  // Mapear campos del frontend al backend
-  const backendData = {};
-
-  if (data.basePricePerMeter !== undefined) {
-    backendData.precio_por_yarda = data.basePricePerMeter;
-  }
-
-  if (data.availability !== undefined) {
-    const availabilityMap = {
-      'available': 'disponible',
-      'out_of_stock': 'agotado'
-    };
-    backendData.disponibilidad = availabilityMap[data.availability] || data.availability;
-  }
-
-  // Campos adicionales que puedan venir
-  if (data.codigo !== undefined) backendData.codigo = data.codigo;
-  if (data.color !== undefined) backendData.color = data.color;
-  if (data.id_coleccion !== undefined) backendData.id_coleccion = data.id_coleccion;
-
-  const response = await api.put(`/fabrics/${id}`, backendData);
-  return response.data;
-};
-
-/**
- * Cambiar disponibilidad de tela (ADMIN only)
- * @param {number} id - ID de la tela
- * @param {string} availability - 'available' | 'out_of_stock' (frontend)
- *                          - 'disponible' | 'agotado' (backend)
- * ENDPOINT: PATCH /api/fabrics/:id/availability
- */
-export const toggleFabricAvailability = async (id, availability) => {
-  // Mapear valores del frontend al backend
-  const availabilityMap = {
-    'available': 'disponible',
-    'out_of_stock': 'agotado'
-  };
-
-  const response = await api.patch(`/fabrics/${id}/availability`, {
-    disponibilidad: availabilityMap[availability] || availability
-  });
-  return response.data;
-};
-
-// ============================================
-// PRECIOS Y COTIZACIONES
-// ============================================
 
 /**
  * Obtener configuración de precios
@@ -384,32 +395,31 @@ export const toggleFabricAvailability = async (id, availability) => {
  */
 export const getPricingConfig = async () => {
   const response = await api.get('/pricing/config');
-
-  // Transformar datos del backend al formato frontend
   const config = response.data.data || response.data;
   return transformPricingFromBackend(config);
 };
 
 /**
- * Calcular precio de una prenda
+ * Calcular precio de una prenda usando el backend
  * @param {Object} params - Parámetros de cálculo
  * @returns {Object} Precio calculado
- * NOTA: Este cálculo puede hacerse en frontend o backend
- * ENDPOINT: POST /api/pricing/calculate (si existe en backend)
+ * ENDPOINT: POST /api/pricing/calculate
  */
-export const calculatePrice = async ({ manufacturingType, garmentType, fabricId }) => {
+export const calculatePrice = async ({ manufacturingType, garmentType, fabricId, fabricCode, basePrice }) => {
   try {
-    // Si el backend tiene endpoint de cálculo
     const response = await api.post('/pricing/calculate', {
       manufacturingType,
       garmentType,
       fabricId,
+      fabricCode,
+      basePrice
     });
+
     return response.data;
   } catch (error) {
-    // Si no existe, calcular en frontend
-    console.warn('Backend calculate endpoint not found, using frontend calculation');
-    return calculatePriceFrontend({ manufacturingType, garmentType, fabricId });
+    // Fallback: cálculo local
+    console.warn('Backend calculate failed, using frontend calculation:', error.message);
+    return calculatePriceFrontend({ manufacturingType, garmentType, basePrice });
   }
 };
 
@@ -417,7 +427,6 @@ export const calculatePrice = async ({ manufacturingType, garmentType, fabricId 
  * Calcular precio en frontend (fallback)
  */
 const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) => {
-  // Multiplicadores por defecto (pueden venir de config)
   const MULTIPLIERS = {
     bespoke: {
       jacket: 8.5,
@@ -465,42 +474,12 @@ const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) =
 };
 
 /**
- * Guardar cotización (crear registro)
- * @param {Object} quotationData - Datos de la cotización
- * @returns {Promise<Object>} Cotización creada
- * ENDPOINT: POST /api/quotations
- */
-export const saveQuotation = async (quotationData) => {
-  const response = await api.post('/quotations', quotationData);
-  return response.data;
-};
-
-/**
- * Obtener historial de cotizaciones
- * @returns {Promise<Array>} Lista de cotizaciones
- * ENDPOINT: GET /api/quotations
- */
-export const getQuotations = async () => {
-  const response = await api.get('/quotations');
-  return response.data;
-};
-
-// ============================================
-// ADMINISTRACIÓN - MULTIPLICADORES
-// ============================================
-
-/**
  * Actualizar multiplicadores de precio (ADMIN only)
  * @param {Object} multipliers - Nuevos multiplicadores (formato frontend)
- *                           { bespoke: { jacket: 8.5, ... }, industrial: { ... } }
  * @returns {Promise<Object>} Configuración actualizada
- * ENDPOINT: PUT /api/pricing/multipliers
+ * ENDPOINT: PUT /api/pricing/tipos-prenda
  */
 export const updatePricingMultipliers = async (multipliers) => {
-  // Transformar del formato frontend al formato backend
-  const multiplicadores = [];
-
-  // Mapeo de códigos de prenda del frontend al backend
   const garmentCodeMap = {
     'jacket': 'chaqueta',
     'trousers': 'pantalon',
@@ -510,21 +489,63 @@ export const updatePricingMultipliers = async (multipliers) => {
     'dress-executive': 'vestido_ejecutivo'
   };
 
-  // Procesar cada tipo de manufactura
+  const multiplicadores = [];
+
   for (const [manufacturingType, garments] of Object.entries(multipliers)) {
     for (const [garmentKey, value] of Object.entries(garments)) {
       const backendCode = garmentCodeMap[garmentKey] || garmentKey;
 
       multiplicadores.push({
-        tipo_manufactura: manufacturingType, // 'bespoke' o 'industrial'
+        tipo_manufactura: manufacturingType,
         tipo_prenda_codigo: backendCode,
         valor: value
       });
     }
   }
 
-  const response = await api.put('/pricing/multipliers', { multiplicadores });
+  const response = await api.put('/pricing/tipos-prenda', { multiplicadores });
+  return transformPricingFromBackend(response.data.data || response.data);
+};
+
+/**
+ * Obtener historial de cotizaciones (ADMIN only)
+ * @returns {Promise<Array>} Lista de cotizaciones
+ * ENDPOINT: GET /api/pricing/quotations
+ */
+export const getQuotations = async () => {
+  const response = await api.get('/pricing/quotations');
+  return response.data.data || response.data;
+};
+
+/**
+ * Guardar una cotización
+ * @param {Object} quotationData - Datos de la cotización
+ * @returns {Promise<Object>} Cotización creada
+ * ENDPOINT: POST /api/pricing/quotations
+ */
+export const saveQuotation = async (quotationData) => {
+  const response = await api.post('/pricing/quotations', quotationData);
   return response.data;
+};
+
+/**
+ * Obtener vista interna con costos completos (ADMIN only)
+ * @returns {Promise<Object>} Vista interna
+ * ENDPOINT: GET /api/pricing/internal-view
+ */
+export const getInternalView = async () => {
+  const response = await api.get('/pricing/internal-view');
+  return response.data.data || response.data;
+};
+
+/**
+ * Obtener catálogo público (sin costos)
+ * @returns {Promise<Object>} Catálogo público
+ * ENDPOINT: GET /api/pricing/public-catalog
+ */
+export const getPublicCatalog = async () => {
+  const response = await api.get('/pricing/public-catalog');
+  return response.data.data || response.data;
 };
 
 // ============================================
