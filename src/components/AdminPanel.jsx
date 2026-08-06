@@ -31,6 +31,7 @@ import FabricCard from './FabricCard';
 import PriceDisplay from './PriceDisplay';
 import ManufacturingSelector from './ManufacturingSelector';
 import GarmentSelector from './GarmentSelector';
+import AdminPriceModal from './AdminPriceModal';
 
 // ============================================
 // TIPOS DE MANUFACTURA (duplicado para quick quote)
@@ -157,6 +158,9 @@ function AdminPanel({ onActivity }) {
   const [quotations, setQuotations] = useState([]);
   const [showQuotations, setShowQuotations] = useState(false);
   const [loadingQuotations, setLoadingQuotations] = useState(false);
+
+  // Modal de precios administrativos
+  const [priceModalFabric, setPriceModalFabric] = useState(null);
 
   // Nueva tela (para crear)
   const [newFabricData, setNewFabricData] = useState({
@@ -748,69 +752,95 @@ function AdminPanel({ onActivity }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-akahl-secondary/20 bg-akahl-secondary/5">
-                <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Code</th>
-                <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Name</th>
-                <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Supplier</th>
-                <th className="text-right py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Price/M</th>
-                <th className="text-center py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Status</th>
-                <th className="text-center py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
+                <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Code</th>
+                <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Brand</th>
+                <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Collection</th>
+                <th className="text-right py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Price/Yard</th>
+                <th className="text-right py-3 px-3 font-semibold text-akahl-secondary tracking-[0.1em] uppercase text-xs">Net Price</th>
+                <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Status</th>
+                <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredFabrics.map((fabric) => (
-                <tr key={fabric.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
-                  <td className="py-3 px-4 font-medium text-akahl-secondary tracking-wide">{fabric.codigo}</td>
-                  <td className="py-3 px-4 text-neutral-300">{fabric.name}</td>
-                  <td className="py-3 px-4 text-neutral-500">{fabric.supplier}</td>
-                  <td className="py-3 px-4 text-right font-medium text-white">
-                    ${fabric.basePricePerMeter?.toFixed(2) || '0.00'}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {fabric.availability === 'available' ? (
-                      <span className="tag-available">In Stock</span>
-                    ) : (
-                      <span className="tag-out-of-stock">Out of Stock</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleToggleAvailability(fabric)}
-                        className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                        title="Toggle availability"
-                      >
-                        {fabric.availability === 'available' ? (
-                          <svg className="w-5 h-5 text-akahl-secondary" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              {filteredFabrics.map((fabric) => {
+                // Calcular precio neto con descuento
+                const precioNeto = fabric.precio_neto ||
+                  (fabric.descuento
+                    ? fabric.basePricePerMeter * (1 - fabric.descuento)
+                    : fabric.basePricePerMeter);
+
+                return (
+                  <tr key={fabric.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
+                    <td className="py-3 px-3 font-medium text-akahl-secondary tracking-wide">{fabric.codigo}</td>
+                    <td className="py-3 px-3 text-neutral-300">{fabric.marca || fabric.supplier}</td>
+                    <td className="py-3 px-3 text-neutral-500 text-xs">{fabric.coleccion}</td>
+                    <td className="py-3 px-3 text-right font-medium text-white">
+                      ${fabric.basePricePerMeter?.toFixed(2) || '0.00'}
+                    </td>
+                    <td className="py-3 px-3 text-right font-semibold text-akahl-secondary">
+                      ${precioNeto?.toFixed(2) || '0.00'}
+                      {fabric.descuento && fabric.descuento > 0 && (
+                        <span className="text-xs text-emerald-400 ml-1">
+                          ({(fabric.descuento * 100).toFixed(0)}% OFF)
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-center">
+                      {fabric.availability === 'available' ? (
+                        <span className="tag-available">In Stock</span>
+                      ) : (
+                        <span className="tag-out-of-stock">Out of Stock</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setPriceModalFabric(fabric)}
+                          className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
+                          title="View price breakdown"
+                        >
+                          <svg className="w-5 h-5 text-akahl-secondary" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                           </svg>
-                        ) : (
-                          <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleAvailability(fabric)}
+                          className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
+                          title="Toggle availability"
+                        >
+                          {fabric.availability === 'available' ? (
+                            <svg className="w-5 h-5 text-akahl-secondary" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setEditingFabric(fabric)}
+                          className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
+                          title="Edit price"
+                        >
+                          <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setEditingFabric(fabric)}
-                        className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                        title="Edit price"
-                      >
-                        <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteFabric(fabric.id)}
-                        className="p-2 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
-                        title="Delete fabric"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteFabric(fabric.id)}
+                          className="p-2 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
+                          title="Delete fabric"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -1211,6 +1241,18 @@ function AdminPanel({ onActivity }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ============================================
+          MODAL DE PRECIOS ADMINISTRATIVOS
+          ============================================ */}
+      {priceModalFabric && (
+        <AdminPriceModal
+          fabric={priceModalFabric}
+          pricing={pricing}
+          onClose={() => setPriceModalFabric(null)}
+          onActivity={onActivity}
+        />
       )}
     </div>
   );

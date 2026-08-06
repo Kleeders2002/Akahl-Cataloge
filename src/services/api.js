@@ -170,6 +170,24 @@ const transformFabricFromBackend = (fabric) => {
     'descontinuado': 'out_of_stock'
   };
 
+  // Extraer marca de la estructura anidada
+  const marca = fabric.coleccion?.marca?.nombre ||
+                fabric.marca?.nombre ||
+                fabric.marca ||
+                fabric.proveedor ||
+                'Unknown';
+
+  const coleccion = fabric.coleccion?.nombre ||
+                    fabric.coleccion ||
+                    fabric.categoria ||
+                    'Unknown';
+
+  const precioPorYarda = parseFloat(fabric.precio_por_yarda || fabric.precio_por_metro || 0);
+  const descuento = parseFloat(fabric.descuento || 0);
+  const precioNeto = descuento > 0
+    ? precioPorYarda * (1 - descuento)
+    : precioPorYarda;
+
   return {
     id: fabric.id_tela || fabric.id,
     codigo: fabric.codigo,
@@ -177,16 +195,19 @@ const transformFabricFromBackend = (fabric) => {
     name: fabric.color || fabric.nombre,
     color: fabric.color,
     nombre: fabric.nombre,
-    basePricePerMeter: fabric.precio_por_yarda || fabric.precio_por_metro,
-    price: fabric.precio_por_yarda || fabric.precio_por_metro, // Para compatibilidad
+    basePricePerMeter: precioPorYarda,
+    price: precioPorYarda, // Para compatibilidad
+    precio_neto: precioNeto,
+    precio_por_yarda: precioPorYarda,
+    descuento: descuento,
     availability: availabilityMap[fabric.disponibilidad] || 'available',
-    supplier: fabric.coleccion?.proveedor || fabric.proveedor || 'Unknown',
-    coleccion: fabric.coleccion?.nombre || fabric.coleccion || 'Unknown',
+    marca: marca,
+    supplier: marca, // Para compatibilidad con código existente
+    coleccion: coleccion,
     category: fabric.categoria || fabric.coleccion?.categoria || 'Fabric',
     composition: fabric.composicion || 'N/A',
     weight: fabric.peso || 'N/A',
     // Campos adicionales
-    descuento: fabric.descuento,
     visible_publico: fabric.visible_publico,
     id_coleccion: fabric.id_coleccion,
     imagen_url: fabric.imagen_url
