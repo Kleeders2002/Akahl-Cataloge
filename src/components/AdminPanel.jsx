@@ -228,11 +228,8 @@ function AdminPanel({ onActivity }) {
 
         // Calcular precio
         const price = await calculatePrice({
-          manufacturingType: quickManufacturingType,
           garmentType: quickGarmentType,
-          fabricId: result.id,
           fabricCode: result.codigo,
-          basePrice: result.basePricePerMeter,
         });
         setQuickPriceResult(price);
       } else {
@@ -254,10 +251,8 @@ function AdminPanel({ onActivity }) {
     if (quickSearchResult && quickManufacturingType && quickGarmentType) {
       const recalculate = async () => {
         const price = await calculatePrice({
-          manufacturingType: quickManufacturingType,
           garmentType: quickGarmentType,
-          fabricId: quickSearchResult.id,
-          basePrice: quickSearchResult.basePricePerMeter,
+          fabricCode: quickSearchResult.codigo,
         });
         setQuickPriceResult(price);
       };

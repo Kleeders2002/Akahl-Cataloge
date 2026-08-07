@@ -426,21 +426,31 @@ export const getPricingConfig = async () => {
  * @returns {Object} Precio calculado
  * ENDPOINT: POST /api/pricing/calculate
  */
-export const calculatePrice = async ({ manufacturingType, garmentType, fabricId, fabricCode, basePrice }) => {
+export const calculatePrice = async ({ garmentType, fabricCode }) => {
   try {
     const response = await api.post('/pricing/calculate', {
-      manufacturingType,
-      garmentType,
-      fabricId,
-      fabricCode,
-      basePrice
+      tipo_prenda_codigo: garmentType,
+      codigo_tela: fabricCode
     });
 
-    return response.data;
+    // Transformar respuesta del backend al formato del frontend
+    const data = response.data.data || response.data;
+
+    return {
+      finalPrice: data.precio_final,
+      desglose: {
+        fabricCost: data.desglose?.costo_tela,
+        fixedCosts: data.desglose?.gastos_fijos,
+        totalCost: data.desglose?.costo_total,
+        markup: data.desglose?.markup,
+        meters: data.desglose?.yardas_requeridas
+      },
+      tela: data.tela
+    };
   } catch (error) {
-    // Fallback: cálculo local
-    console.warn('Backend calculate failed, using frontend calculation:', error.message);
-    return calculatePriceFrontend({ manufacturingType, garmentType, basePrice });
+    // Si falla el backend, no hacer fallback - propagar el error
+    console.error('Backend calculate failed:', error);
+    throw error;
   }
 };
 

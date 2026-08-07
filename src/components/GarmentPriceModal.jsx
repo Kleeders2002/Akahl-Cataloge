@@ -35,11 +35,8 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
       for (const garment of GARMENT_TYPES) {
         try {
           const result = await calculatePrice({
-            manufacturingType: selectedManufacturing,
             garmentType: garment.id,
-            fabricId: fabric.id,
             fabricCode: fabric.codigo,
-            basePrice: fabric.precio_neto || fabric.basePricePerMeter,
           });
           priceResults[garment.id] = result.finalPrice;
         } catch (error) {

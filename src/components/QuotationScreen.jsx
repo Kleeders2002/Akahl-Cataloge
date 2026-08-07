@@ -247,10 +247,8 @@ function QuotationScreen({ onActivity }) {
     const calculate = async () => {
       try {
         const price = await calculatePrice({
-          manufacturingType: 'bespoke',
           garmentType: '2-piece-suit',
-          fabricId: fabric.id,
-          basePrice: safePrice(fabric.precio_neto || fabric.basePricePerMeter),
+          fabricCode: fabric.codigo,
         });
         setPriceResult(price);
       } catch (error) {
@@ -273,10 +271,8 @@ function QuotationScreen({ onActivity }) {
       const recalculate = async () => {
         try {
           const price = await calculatePrice({
-            manufacturingType,
-            garmentType,
-            fabricId: selectedFabric.id,
-            basePrice: selectedFabric.precio_neto || selectedFabric.basePricePerMeter,
+            garmentType: garmentType,
+            fabricCode: selectedFabric.codigo,
           });
           setPriceResult(price);
         } catch (error) {
