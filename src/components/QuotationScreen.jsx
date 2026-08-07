@@ -250,7 +250,7 @@ function QuotationScreen({ onActivity }) {
           manufacturingType: 'bespoke',
           garmentType: '2-piece-suit',
           fabricId: fabric.id,
-          basePrice: safePrice(fabric.basePricePerMeter),
+          basePrice: safePrice(fabric.precio_neto || fabric.basePricePerMeter),
         });
         setPriceResult(price);
       } catch (error) {
@@ -276,7 +276,7 @@ function QuotationScreen({ onActivity }) {
             manufacturingType,
             garmentType,
             fabricId: selectedFabric.id,
-            basePrice: selectedFabric.basePricePerMeter,
+            basePrice: selectedFabric.precio_neto || selectedFabric.basePricePerMeter,
           });
           setPriceResult(price);
         } catch (error) {
