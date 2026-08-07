@@ -39,7 +39,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
             garmentType: garment.id,
             fabricId: fabric.id,
             fabricCode: fabric.codigo,
-            basePrice: fabric.basePricePerMeter,
+            basePrice: fabric.precio_neto || fabric.basePricePerMeter,
           });
           priceResults[garment.id] = result.finalPrice;
         } catch (error) {
