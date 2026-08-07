@@ -175,43 +175,8 @@ function QuotationScreen({ onActivity }) {
         console.error('❌ Error loading fabrics:', error);
         console.error('Error details:', error.message, error.response?.data);
 
-        // Mostrar alerta al usuario
-        alert(`Error loading fabrics: ${error.message}\n\nCheck console for details.`);
-
-        // Cargar telas de muestra como fallback
-        console.log('📦 Using fallback fabrics...');
-        setAllFabrics([
-          {
-            id: 1,
-            codigo: 'TL-402',
-            name: 'Italian Linen Navy Blue',
-            supplier: 'Loro Piana',
-            basePricePerMeter: 85.00,
-            availability: 'available',
-            composition: '100% Linen',
-            weight: '280g'
-          },
-          {
-            id: 2,
-            codigo: 'TL-405',
-            name: 'Super 120S Wool Charcoal',
-            supplier: 'Ermenegildo Zegna',
-            basePricePerMeter: 120.00,
-            availability: 'available',
-            composition: '100% Wool',
-            weight: '300g'
-          },
-          {
-            id: 3,
-            codigo: 'TL-408',
-            name: 'Super 150S Wool Black',
-            supplier: 'Scabal',
-            basePricePerMeter: 180.00,
-            availability: 'available',
-            composition: '100% Wool',
-            weight: '280g'
-          },
-        ]);
+        // No cargar datos mock - dejar el array vacío para mostrar error
+        setAllFabrics([]);
       } finally {
         setLoadingFabrics(false);
       }
