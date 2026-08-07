@@ -17,9 +17,8 @@ const GARMENT_TYPES = [
   { id: 'jacket', name: 'Jacket', meters: 2.5 },
   { id: 'trousers', name: 'Trousers', meters: 1.8 },
   { id: 'vest', name: 'Vest', meters: 1.2 },
-  { id: '2-piece-suit', name: '2-Piece Suit', meters: 4.3 },
-  { id: '3-piece-suit', name: '3-Piece Suit', meters: 5.5 },
-  { id: 'dress-executive', name: 'Executive Dress', meters: 3.0 },
+  { id: '2-piece', name: '2-Piece Suit', meters: 4.3 },
+  { id: '3-piece', name: '3-Piece Suit', meters: 5.5 },
 ];
 
 const MULTIPLIERS = {
@@ -27,17 +26,15 @@ const MULTIPLIERS = {
     jacket: 8.5,
     trousers: 4.5,
     vest: 3.5,
-    '2-piece-suit': 12.0,
-    '3-piece-suit': 15.0,
-    'dress-executive': 10.0,
+    '2-piece': 12.0,
+    '3-piece': 15.0,
   },
   industrial: {
     jacket: 5.5,
     trousers: 3.0,
     vest: 2.5,
-    '2-piece-suit': 7.5,
-    '3-piece-suit': 9.5,
-    'dress-executive': 6.5,
+    '2-piece': 7.5,
+    '3-piece': 9.5,
   },
 };
 

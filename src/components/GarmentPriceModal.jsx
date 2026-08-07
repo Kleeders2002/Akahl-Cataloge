@@ -17,9 +17,8 @@ const GARMENT_TYPES = [
   { id: 'jacket', name: 'Jacket', icon: '🥼' },
   { id: 'trousers', name: 'Trousers', icon: '👖' },
   { id: 'vest', name: 'Vest', icon: '🦺' },
-  { id: '2-piece-suit', name: '2-Piece Suit', icon: '🤵' },
-  { id: '3-piece-suit', name: '3-Piece Suit', icon: '🎩' },
-  { id: 'dress-executive', name: 'Executive Dress', icon: '👗' },
+  { id: '2-piece', name: '2-Piece Suit', icon: '🤵' },
+  { id: '3-piece', name: '3-Piece Suit', icon: '🎩' },
 ];
 
 function GarmentPriceModal({ fabric, onClose, onActivity }) {
