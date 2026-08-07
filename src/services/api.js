@@ -412,10 +412,10 @@ const transformPricingFromBackend = (config) => {
 /**
  * Obtener configuración de precios
  * @returns {Promise<Object>} Multiplicadores y configuración
- * ENDPOINT: GET /api/pricing/config
+ * ENDPOINT: GET /api/catalogo/pricing/config
  */
 export const getPricingConfig = async () => {
-  const response = await api.get('/pricing/config');
+  const response = await api.get('/catalogo/pricing/config');
   const config = response.data.data || response.data;
   return transformPricingFromBackend(config);
 };
@@ -424,13 +424,13 @@ export const getPricingConfig = async () => {
  * Calcular precio de una prenda usando el backend
  * @param {Object} params - Parámetros de cálculo
  * @returns {Object} Precio calculado
- * ENDPOINT: POST /api/pricing/calculate
+ * ENDPOINT: POST /api/catalogo/pricing/calculate
  */
 export const calculatePrice = async ({ garmentType, fabricCode }) => {
   console.log('🧮 calculatePrice called with:', { garmentType, fabricCode });
 
   try {
-    const response = await api.post('/pricing/calculate', {
+    const response = await api.post('/catalogo/pricing/calculate', {
       tipo_prenda_codigo: garmentType,
       codigo_tela: fabricCode
     });
@@ -521,7 +521,7 @@ const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) =
  * Actualizar multiplicadores de precio (ADMIN only)
  * @param {Object} multipliers - Nuevos multiplicadores (formato frontend)
  * @returns {Promise<Object>} Configuración actualizada
- * ENDPOINT: PUT /api/pricing/tipos-prenda
+ * ENDPOINT: PUT /api/catalogo/pricing/tipos-prenda
  */
 export const updatePricingMultipliers = async (multipliers) => {
   const garmentCodeMap = {
@@ -547,17 +547,17 @@ export const updatePricingMultipliers = async (multipliers) => {
     }
   }
 
-  const response = await api.put('/pricing/tipos-prenda', { multiplicadores });
+  const response = await api.put('/catalogo/pricing/tipos-prenda', { multiplicadores });
   return transformPricingFromBackend(response.data.data || response.data);
 };
 
 /**
  * Obtener historial de cotizaciones (ADMIN only)
  * @returns {Promise<Array>} Lista de cotizaciones
- * ENDPOINT: GET /api/pricing/quotations
+ * ENDPOINT: GET /api/catalogo/pricing/quotations
  */
 export const getQuotations = async () => {
-  const response = await api.get('/pricing/quotations');
+  const response = await api.get('/catalogo/pricing/quotations');
   return response.data.data || response.data;
 };
 
@@ -565,30 +565,30 @@ export const getQuotations = async () => {
  * Guardar una cotización
  * @param {Object} quotationData - Datos de la cotización
  * @returns {Promise<Object>} Cotización creada
- * ENDPOINT: POST /api/pricing/quotations
+ * ENDPOINT: POST /api/catalogo/pricing/quotations
  */
 export const saveQuotation = async (quotationData) => {
-  const response = await api.post('/pricing/quotations', quotationData);
+  const response = await api.post('/catalogo/pricing/quotations', quotationData);
   return response.data;
 };
 
 /**
  * Obtener vista interna con costos completos (ADMIN only)
  * @returns {Promise<Object>} Vista interna
- * ENDPOINT: GET /api/pricing/internal-view
+ * ENDPOINT: GET /api/catalogo/pricing/internal-view
  */
 export const getInternalView = async () => {
-  const response = await api.get('/pricing/internal-view');
+  const response = await api.get('/catalogo/pricing/internal-view');
   return response.data.data || response.data;
 };
 
 /**
  * Obtener catálogo público (sin costos)
  * @returns {Promise<Object>} Catálogo público
- * ENDPOINT: GET /api/pricing/public-catalog
+ * ENDPOINT: GET /api/catalogo/pricing/public-catalog
  */
 export const getPublicCatalog = async () => {
-  const response = await api.get('/pricing/public-catalog');
+  const response = await api.get('/catalogo/pricing/public-catalog');
   return response.data.data || response.data;
 };
 
