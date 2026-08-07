@@ -427,16 +427,25 @@ export const getPricingConfig = async () => {
  * ENDPOINT: POST /api/pricing/calculate
  */
 export const calculatePrice = async ({ garmentType, fabricCode }) => {
+  console.log('🧮 calculatePrice called with:', { garmentType, fabricCode });
+
   try {
     const response = await api.post('/pricing/calculate', {
       tipo_prenda_codigo: garmentType,
       codigo_tela: fabricCode
     });
 
+    console.log('✅ Backend response:', response.data);
+
     // Transformar respuesta del backend al formato del frontend
     const data = response.data.data || response.data;
 
-    return {
+    console.log('📋 Transformed data:', {
+      precio_final: data.precio_final,
+      desglose: data.desglose
+    });
+
+    const result = {
       finalPrice: data.precio_final,
       desglose: {
         fabricCost: data.desglose?.costo_tela,
@@ -447,9 +456,13 @@ export const calculatePrice = async ({ garmentType, fabricCode }) => {
       },
       tela: data.tela
     };
+
+    console.log('📤 Returning:', result);
+    return result;
   } catch (error) {
     // Si falla el backend, no hacer fallback - propagar el error
-    console.error('Backend calculate failed:', error);
+    console.error('❌ Backend calculate failed:', error);
+    console.error('Error response:', error.response?.data);
     throw error;
   }
 };
