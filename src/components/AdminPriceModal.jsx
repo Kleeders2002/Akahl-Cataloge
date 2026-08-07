@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { calculatePrice } from '../services/api';
+import { calculateAllPrices } from '../services/api';
 
 const MANUFACTURING_TYPES = [
   { id: 'bespoke', name: 'Bespoke', label: 'Bespoke' },
@@ -43,37 +43,64 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
   const [priceDetails, setPriceDetails] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Calcular precios y desglose
+  // Calcular precios y desglose usando el nuevo endpoint
   useEffect(() => {
-    const calculateAllPrices = async () => {
+    const loadPrices = async () => {
       setLoading(true);
-      const details = {};
+      try {
+        const result = await calculateAllPrices({
+          fabricCode: fabric.codigo,
+        });
 
-      const basePrice = fabric.precio_neto || fabric.basePricePerMeter;
+        // Transformar los datos al formato esperado por el componente
+        const details = {};
+        const basePrice = fabric.precio_neto || fabric.basePricePerMeter;
 
-      for (const garment of GARMENT_TYPES) {
-        const meters = garment.meters;
-        const multiplier = MULTIPLIERS[selectedManufacturing][garment.id];
+        GARMENT_TYPES.forEach((garment) => {
+          const finalPrice = result.prices[garment.id];
+          const breakdown = result.breakdown[garment.id];
 
-        const fabricCost = basePrice * meters;
-        const laborCost = basePrice * multiplier;
-        const finalPrice = fabricCost + laborCost;
+          details[garment.id] = {
+            fabricCost: breakdown?.fabricCost || 0,
+            laborCost: (finalPrice || 0) - (breakdown?.fabricCost || 0),
+            finalPrice: finalPrice || 0,
+            meters: breakdown?.meters || garment.meters,
+            multiplier: breakdown?.markup || MULTIPLIERS[selectedManufacturing][garment.id],
+          };
+        });
 
-        details[garment.id] = {
-          fabricCost: Math.round(fabricCost * 100) / 100,
-          laborCost: Math.round(laborCost * 100) / 100,
-          finalPrice: Math.round(finalPrice * 100) / 100,
-          meters,
-          multiplier,
-        };
+        setPriceDetails(details);
+      } catch (error) {
+        console.error('Error loading prices:', error);
+        // Fallback al cálculo local si falla el endpoint
+        const details = {};
+        const basePrice = fabric.precio_neto || fabric.basePricePerMeter;
+
+        GARMENT_TYPES.forEach((garment) => {
+          const meters = garment.meters;
+          const multiplier = MULTIPLIERS[selectedManufacturing][garment.id];
+
+          const fabricCost = basePrice * meters;
+          const laborCost = basePrice * multiplier;
+          const finalPrice = fabricCost + laborCost;
+
+          details[garment.id] = {
+            fabricCost: Math.round(fabricCost * 100) / 100,
+            laborCost: Math.round(laborCost * 100) / 100,
+            finalPrice: Math.round(finalPrice * 100) / 100,
+            meters,
+            multiplier,
+          };
+        });
+
+        setPriceDetails(details);
+      } finally {
+        setLoading(false);
       }
-
-      setPriceDetails(details);
-      setLoading(false);
     };
 
-    calculateAllPrices();
-  }, [fabric, selectedManufacturing]);
+    loadPrices();
+  }, [fabric.codigo, selectedManufacturing]);
 
   const precioNeto = fabric.precio_neto ||
     (fabric.descuento

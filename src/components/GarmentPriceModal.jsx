@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { calculatePrice } from '../services/api';
+import { calculateAllPrices } from '../services/api';
 
 const MANUFACTURING_TYPES = [
   { id: 'bespoke', name: 'Bespoke', label: 'Bespoke' },
@@ -27,29 +27,23 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const calculateAllPrices = async () => {
+    const loadPrices = async () => {
       setLoading(true);
-      const priceResults = {};
-
-      for (const garment of GARMENT_TYPES) {
-        try {
-          const result = await calculatePrice({
-            garmentType: garment.id,
-            fabricCode: fabric.codigo,
-          });
-          priceResults[garment.id] = result.finalPrice;
-        } catch (error) {
-          console.error(`Error calculating price for ${garment.id}:`, error);
-          priceResults[garment.id] = null;
-        }
+      try {
+        const result = await calculateAllPrices({
+          fabricCode: fabric.codigo,
+        });
+        setPrices(result.prices);
+      } catch (error) {
+        console.error('Error loading prices:', error);
+        setPrices({});
+      } finally {
+        setLoading(false);
       }
-
-      setPrices(priceResults);
-      setLoading(false);
     };
 
-    calculateAllPrices();
-  }, [fabric, selectedManufacturing]);
+    loadPrices();
+  }, [fabric.codigo]);
 
   const handleGarmentSelect = (garment) => {
     // Aquí podrías expandir para mostrar más detalles o seleccionar la prenda

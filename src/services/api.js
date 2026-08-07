@@ -465,6 +465,59 @@ export const calculatePrice = async ({ garmentType, fabricCode }) => {
 };
 
 /**
+ * Calcular precios de todas las prendas en una sola llamada
+ * @param {string} fabricCode - Código de la tela
+ * @returns {Object} Precios de todas las prendas
+ * ENDPOINT: POST /api/catalogo/pricing/calculate-all
+ */
+export const calculateAllPrices = async ({ fabricCode }) => {
+  console.log('🧮 calculateAllPrices called with:', { fabricCode });
+
+  try {
+    const response = await api.post('/catalogo/pricing/calculate-all', {
+      codigo_tela: fabricCode
+    });
+
+    console.log('✅ Backend response:', response.data);
+
+    // Transformar respuesta del backend al formato del frontend
+    const data = response.data.data || response.data;
+
+    // Mapear los precios por código de prenda para fácil acceso
+    const pricesByGarment = {};
+    const breakdownByGarment = {};
+
+    if (data.precios && Array.isArray(data.precios)) {
+      data.precios.forEach((item) => {
+        const garmentCode = item.codigo;
+        pricesByGarment[garmentCode] = item.precio_final;
+        breakdownByGarment[garmentCode] = {
+          fabricCost: item.desglose?.costo_tela,
+          fixedCosts: item.desglose?.gastos_fijos,
+          totalCost: item.desglose?.costo_total,
+          markup: item.desglose?.markup,
+          meters: item.desglose?.yardas_requeridas
+        };
+      });
+    }
+
+    const result = {
+      tela: data.tela,
+      prices: pricesByGarment,
+      breakdown: breakdownByGarment,
+      rawPrices: data.precios
+    };
+
+    console.log('📤 Returning:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Backend calculate-all failed:', error);
+    console.error('Error response:', error.response?.data);
+    throw error;
+  }
+};
+
+/**
  * Calcular precio en frontend (fallback)
  */
 const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) => {
