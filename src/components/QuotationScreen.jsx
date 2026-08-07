@@ -77,7 +77,7 @@ const GARMENT_TYPES = [
     )
   },
   {
-    id: '2-piece-suit',
+    id: '2-piece',
     name: '2-Piece Suit',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -86,20 +86,11 @@ const GARMENT_TYPES = [
     )
   },
   {
-    id: '3-piece-suit',
+    id: '3-piece',
     name: '3-Piece Suit',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 21v-8m0 0V3l5 4 5-4v10m0 0v8M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 10l-4.553-2.276A1 1 0 003 8.618v6.764a1 1 0 001.447.894L9 14" />
-      </svg>
-    )
-  },
-  {
-    id: 'dress-executive',
-    name: 'Executive Dress',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m-4-8h8" />
       </svg>
     )
   },
@@ -146,7 +137,7 @@ function QuotationScreen({ onActivity }) {
   // Tela seleccionada para cotización
   const [selectedFabric, setSelectedFabric] = useState(null);
   const [manufacturingType, setManufacturingType] = useState('bespoke');
-  const [garmentType, setGarmentType] = useState('2-piece-suit');
+  const [garmentType, setGarmentType] = useState('2-piece');
   const [priceResult, setPriceResult] = useState(null);
 
   // Modal de precios de prendas
@@ -241,13 +232,13 @@ function QuotationScreen({ onActivity }) {
   const handleSelectForQuotation = useCallback((fabric) => {
     setSelectedFabric(fabric);
     setManufacturingType('bespoke');
-    setGarmentType('2-piece-suit');
+    setGarmentType('2-piece');
 
     // Calcular precio automáticamente
     const calculate = async () => {
       try {
         const price = await calculatePrice({
-          garmentType: '2-piece-suit',
+          garmentType: '2-piece',
           fabricCode: fabric.codigo,
         });
         setPriceResult(price);
@@ -292,7 +283,7 @@ function QuotationScreen({ onActivity }) {
     setSelectedFabric(null);
     setPriceResult(null);
     setManufacturingType('bespoke');
-    setGarmentType('2-piece-suit');
+    setGarmentType('2-piece');
     onActivity?.();
   }, [onActivity]);
 

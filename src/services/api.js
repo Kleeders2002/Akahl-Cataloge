@@ -362,9 +362,8 @@ const transformPricingFromBackend = (config) => {
     'chaqueta': 'jacket',
     'pantalon': 'trousers',
     'chaleco': 'vest',
-    'traje_2_piezas': '2-piece-suit',
-    'traje_3_piezas': '3-piece-suit',
-    'vestido_ejecutivo': 'dress-executive'
+    'traje_2_piezas': '2-piece',
+    'traje_3_piezas': '3-piece',
   };
 
   const multipliers = {
@@ -389,9 +388,8 @@ const transformPricingFromBackend = (config) => {
       jacket: 8.5,
       trousers: 4.5,
       vest: 3.5,
-      '2-piece-suit': 12.0,
-      '3-piece-suit': 15.0,
-      'dress-executive': 10.0
+      '2-piece': 12.0,
+      '3-piece': 15.0,
     };
   }
 
@@ -400,9 +398,8 @@ const transformPricingFromBackend = (config) => {
       jacket: 5.5,
       trousers: 3.0,
       vest: 2.5,
-      '2-piece-suit': 7.5,
-      '3-piece-suit': 9.5,
-      'dress-executive': 6.5
+      '2-piece': 7.5,
+      '3-piece': 9.5,
     };
   }
 
@@ -476,17 +473,15 @@ const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) =
       jacket: 8.5,
       trousers: 4.5,
       vest: 3.5,
-      '2-piece-suit': 12.0,
-      '3-piece-suit': 15.0,
-      'dress-executive': 10.0,
+      '2-piece': 12.0,
+      '3-piece': 15.0,
     },
     industrial: {
       jacket: 5.5,
       trousers: 3.0,
       vest: 2.5,
-      '2-piece-suit': 7.5,
-      '3-piece-suit': 9.5,
-      'dress-executive': 6.5,
+      '2-piece': 7.5,
+      '3-piece': 9.5,
     },
   };
 
@@ -494,9 +489,8 @@ const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) =
     jacket: 2.5,
     trousers: 1.8,
     vest: 1.2,
-    '2-piece-suit': 4.3,
-    '3-piece-suit': 5.5,
-    'dress-executive': 3.0,
+    '2-piece': 4.3,
+    '3-piece': 5.5,
   };
 
   const multiplier = MULTIPLIERS[manufacturingType]?.[garmentType] || 1;
@@ -528,9 +522,8 @@ export const updatePricingMultipliers = async (multipliers) => {
     'jacket': 'chaqueta',
     'trousers': 'pantalon',
     'vest': 'chaleco',
-    '2-piece-suit': 'traje_2_piezas',
-    '3-piece-suit': 'traje_3_piezas',
-    'dress-executive': 'vestido_ejecutivo'
+    '2-piece': 'traje_2_piezas',
+    '3-piece': 'traje_3_piezas',
   };
 
   const multiplicadores = [];

@@ -90,7 +90,7 @@ const GARMENT_TYPES = [
     )
   },
   {
-    id: '2-piece-suit',
+    id: '2-piece',
     name: '2-Piece Suit',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -99,20 +99,11 @@ const GARMENT_TYPES = [
     )
   },
   {
-    id: '3-piece-suit',
+    id: '3-piece',
     name: '3-Piece Suit',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 21v-8m0 0V3l5 4 5-4v10m0 0v8M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 10l-4.553-2.276A1 1 0 003 8.618v6.764a1 1 0 001.447.894L9 14" />
-      </svg>
-    )
-  },
-  {
-    id: 'dress-executive',
-    name: 'Executive Dress',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m-4-8h8" />
       </svg>
     )
   },
@@ -135,7 +126,7 @@ function AdminPanel({ onActivity }) {
   const [quickSearching, setQuickSearching] = useState(false);
   const [quickNotFound, setQuickNotFound] = useState(false);
   const [quickManufacturingType, setQuickManufacturingType] = useState('bespoke');
-  const [quickGarmentType, setQuickGarmentType] = useState('2-piece-suit');
+  const [quickGarmentType, setQuickGarmentType] = useState('2-piece');
   const [quickPriceResult, setQuickPriceResult] = useState(null);
 
   // Estado de multiplicadores
@@ -266,7 +257,7 @@ function AdminPanel({ onActivity }) {
     setQuickNotFound(false);
     setQuickPriceResult(null);
     setQuickManufacturingType('bespoke');
-    setQuickGarmentType('2-piece-suit');
+    setQuickGarmentType('2-piece');
     onActivity?.();
   };
 
