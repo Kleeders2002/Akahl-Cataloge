@@ -129,42 +129,14 @@ function PinLockScreen({ onSuccess }) {
       <div className="w-full max-w-md relative z-10">
         {/* Logo/Branding Premium */}
         <div className="text-center mb-8 animate-slideDown">
-          {/* Premium Badge */}
-          <div className="inline-flex items-center justify-center mb-6">
-            <div className="relative">
-              {/* Outer ring with glow */}
-              <div className="absolute inset-0 bg-akahl-secondary/20 rounded-full blur-xl animate-pulse-gold"></div>
+          {/* Logotipo AKAHL Cataloge (imagen completa, no reconstruir con texto) */}
+          <img
+            src="/logo-akahl.png"
+            alt="AKAHL Cataloge"
+            className="w-64 sm:w-72 mx-auto mb-4 select-none pointer-events-none"
+          />
 
-              {/* Main icon container */}
-              <div className="relative w-24 h-24 border-2 border-akahl-secondary/40 rounded-full flex items-center justify-center bg-akahl-primary/50 backdrop-blur-sm shadow-premium overflow-hidden">
-                {/* AKAHL Logo */}
-                <img
-                  src="/logo-akahl.png"
-                  alt="AKAHL Logo"
-                  className="w-full h-full object-contain p-3"
-                />
-              </div>
-
-              {/* Decorative dots */}
-              <div className="absolute -top-1 left-1/2 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
-              <div className="absolute -bottom-1 left-1/2 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
-              <div className="absolute top-1/2 -left-1 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
-              <div className="absolute top-1/2 -right-1 w-1.5 h-1.5 bg-akahl-secondary rounded-full"></div>
-            </div>
-          </div>
-
-          {/* Brand text */}
-          <h1 className="text-5xl font-display font-bold text-gradient-gold tracking-[0.3em] mb-3">
-            AKAHL
-          </h1>
-          <div className="flex items-center justify-center gap-3">
-            <div className="h-px w-12 bg-gradient-to-r from-transparent to-akahl-secondary/50"></div>
-            <span className="badge-gold text-xs py-1 px-3 tracking-widest">
-              ATELIER
-            </span>
-            <div className="h-px w-12 bg-gradient-to-l from-transparent to-akahl-secondary/50"></div>
-          </div>
-          <p className="text-akahl-secondary/60 mt-4 text-sm tracking-[0.2em] uppercase font-light">
+          <p className="text-akahl-secondary/60 text-sm tracking-[0.25em] uppercase font-light">
             Internal Quotation System
           </p>
         </div>
