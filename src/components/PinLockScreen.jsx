@@ -136,17 +136,13 @@ function PinLockScreen({ onSuccess }) {
               <div className="absolute inset-0 bg-akahl-secondary/20 rounded-full blur-xl animate-pulse-gold"></div>
 
               {/* Main icon container */}
-              <div className="relative w-24 h-24 border-2 border-akahl-secondary/40 rounded-full flex items-center justify-center bg-akahl-primary/50 backdrop-blur-sm shadow-premium">
-                {/* Needle icon - representing bespoke tailoring */}
-                <svg
-                  className="w-10 h-10 text-akahl-secondary"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+              <div className="relative w-24 h-24 border-2 border-akahl-secondary/40 rounded-full flex items-center justify-center bg-akahl-primary/50 backdrop-blur-sm shadow-premium overflow-hidden">
+                {/* AKAHL Logo */}
+                <img
+                  src="/logo-akahl.png"
+                  alt="AKAHL Logo"
+                  className="w-full h-full object-contain p-3"
+                />
               </div>
 
               {/* Decorative dots */}
