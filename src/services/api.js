@@ -639,6 +639,164 @@ export const getPublicCatalog = async () => {
 };
 
 // ============================================
+// MARCAS (BRANDS)
+// ============================================
+
+/**
+ * Obtener todas las marcas
+ * @returns {Promise<Array>} Lista de marcas
+ * ENDPOINT: GET /api/catalogo/marcas
+ */
+export const getAllMarcas = async () => {
+  const response = await api.get('/catalogo/marcas');
+  return response.data.data || response.data;
+};
+
+/**
+ * Crear nueva marca
+ * @param {string} nombre - Nombre de la marca
+ * @returns {Promise<Object>} Marca creada
+ * ENDPOINT: POST /api/catalogo/marcas
+ */
+export const createMarca = async (nombre) => {
+  const response = await api.post('/catalogo/marcas', { nombre });
+  return response.data.data || response.data;
+};
+
+/**
+ * Actualizar marca
+ * @param {number} id - ID de la marca
+ * @param {string} nombre - Nuevo nombre
+ * @returns {Promise<Object>} Marca actualizada
+ * ENDPOINT: PUT /api/catalogo/marcas/:id
+ */
+export const updateMarca = async (id, nombre) => {
+  const response = await api.put(`/catalogo/marcas/${id}`, { nombre });
+  return response.data.data || response.data;
+};
+
+/**
+ * Eliminar marca
+ * @param {number} id - ID de la marca
+ * @returns {Promise<Object>} Respuesta de eliminación
+ * ENDPOINT: DELETE /api/catalogo/marcas/:id
+ */
+export const deleteMarca = async (id) => {
+  const response = await api.delete(`/catalogo/marcas/${id}`);
+  return response.data;
+};
+
+// ============================================
+// COLECCIONES (COLLECTIONS)
+// ============================================
+
+/**
+ * Obtener todas las colecciones
+ * @returns {Promise<Array>} Lista de colecciones
+ * ENDPOINT: GET /api/catalogo/colecciones
+ */
+export const getAllColecciones = async () => {
+  const response = await api.get('/catalogo/colecciones');
+  return response.data.data || response.data;
+};
+
+/**
+ * Crear nueva colección
+ * @param {number} id_marca - ID de la marca
+ * @param {string} nombre - Nombre de la colección
+ * @param {number} descuento_default - Descuento default (0.35 = 35%)
+ * @returns {Promise<Object>} Colección creada
+ * ENDPOINT: POST /api/catalogo/colecciones/marcas/:marcaId/colecciones
+ */
+export const createColeccion = async (id_marca, nombre, descuento_default) => {
+  const response = await api.post(`/catalogo/colecciones/marcas/${id_marca}/colecciones`, {
+    nombre,
+    descuento_default
+  });
+  return response.data.data || response.data;
+};
+
+/**
+ * Actualizar colección
+ * @param {number} id - ID de la colección
+ * @param {string} nombre - Nuevo nombre
+ * @param {number} descuento_default - Nuevo descuento default
+ * @returns {Promise<Object>} Colección actualizada
+ * ENDPOINT: PUT /api/catalogo/colecciones/:id
+ */
+export const updateColeccion = async (id, nombre, descuento_default) => {
+  const response = await api.put(`/catalogo/colecciones/${id}`, {
+    nombre,
+    descuento_default
+  });
+  return response.data.data || response.data;
+};
+
+/**
+ * Eliminar colección
+ * @param {number} id - ID de la colección
+ * @returns {Promise<Object>} Respuesta de eliminación
+ * ENDPOINT: DELETE /api/catalogo/colecciones/:id
+ */
+export const deleteColeccion = async (id) => {
+  const response = await api.delete(`/catalogo/colecciones/${id}`);
+  return response.data;
+};
+
+// ============================================
+// TELAS - OPERACIONES BATCH
+// ============================================
+
+/**
+ * Crear múltiples telas (BATCH)
+ * @param {number} id_coleccion - ID de la colección
+ * @param {Array<string>} codigos - Array de códigos de tela
+ * @param {number} precio_por_yarda - Precio por yarda
+ * @param {number} descuento - Descuento (0.35 = 35%)
+ * @returns {Promise<Object>} Resultado con telas creadas y errores
+ * ENDPOINT: POST /api/catalogo/fabrics/batch
+ */
+export const createFabricsBatch = async (id_coleccion, codigos, precio_por_yarda, descuento) => {
+  const response = await api.post('/catalogo/fabrics/batch', {
+    id_coleccion,
+    codigos,
+    precio_por_yarda,
+    descuento
+  });
+  return response.data;
+};
+
+/**
+ * Actualizar múltiples telas (BATCH)
+ * @param {Array<number>} ids - Array de IDs de telas
+ * @param {number} precio_por_yarda - Nuevo precio por yarda (opcional)
+ * @param {number} descuento - Nuevo descuento (opcional)
+ * @param {number} id_coleccion - Nueva colección (opcional)
+ * @returns {Promise<Object>} Resultado con telas actualizadas
+ * ENDPOINT: PUT /api/catalogo/fabrics/batch
+ */
+export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, id_coleccion) => {
+  const body = { ids };
+  if (precio_por_yarda !== undefined) body.precio_por_yarda = precio_por_yarda;
+  if (descuento !== undefined) body.descuento = descuento;
+  if (id_coleccion !== undefined) body.id_coleccion = id_coleccion;
+
+  const response = await api.put('/catalogo/fabrics/batch', body);
+  return response.data;
+};
+
+/**
+ * Eliminar múltiples telas (BATCH)
+ * @param {Array<number>} ids - Array de IDs de telas
+ * @returns {Promise<Object>} Resultado con telas eliminadas y errores
+ * ENDPOINT: DELETE /api/catalogo/fabrics/batch
+ */
+export const deleteFabricsBatch = async (ids) => {
+  const response = await api.delete('/catalogo/fabrics/batch', { data: { ids } });
+  return response.data;
+};
+
+// ============================================
 // EXPORTAR
 // ============================================
 
