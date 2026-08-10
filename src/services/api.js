@@ -592,40 +592,20 @@ const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) =
 
 /**
  * Actualizar multiplicadores de precio (ADMIN only)
- * @param {Object} multipliers - Nuevos multiplicadores (formato frontend)
- * @param {Array} tipos - Tipos de prenda existentes (para obtener IDs)
+ * @param {Array} tipos - Array de tipos de prenda con todos los campos editables
  * @returns {Promise<Object>} Configuración actualizada
  * ENDPOINT: POST /api/catalogo/multiplicadores
  */
-export const updatePricingMultipliers = async (multipliers, tipos = []) => {
-  // Mapeo de códigos frontend a nombres backend
-  const garmentNameMap = {
-    'jacket': 'JACKET',
-    'trousers': 'TROUSERS',
-    'vest': 'VEST',
-    '2-piece': '2 PIECES',
-    '3-piece': '3 PIECES'
-  };
-
-  const multiplicadores = [];
-
-  // Construir array de multiplicadores para el backend
-  for (const [garmentKey, bespokeValue] of Object.entries(multipliers.bespoke)) {
-    const nombre = garmentNameMap[garmentKey];
-    const tipoExistente = tipos.find(t => t.nombre === nombre);
-
-    if (tipoExistente) {
-      // Actualizar tipo existente - mantener otros valores, solo actualizar markup
-      multiplicadores.push({
-        id_tipo_prenda: tipoExistente.id,
-        yardas_requeridas: tipoExistente.yardas_requeridas,
-        costo_manufactura: tipoExistente.costo_manufactura,
-        costo_envio: tipoExistente.costo_envio,
-        costo_forro: tipoExistente.costo_forro || 0,
-        markup: parseFloat(bespokeValue) || 3
-      });
-    }
-  }
+export const updatePricingMultipliers = async (tipos = []) => {
+  // Transformar el array de tipos al formato que espera la API
+  const multiplicadores = tipos.map(tipo => ({
+    id_tipo_prenda: tipo.id,
+    yardas_requeridas: parseFloat(tipo.yardas_requeridas) || 0,
+    costo_manufactura: parseFloat(tipo.costo_manufactura) || 0,
+    costo_envio: parseFloat(tipo.costo_envio) || 0,
+    costo_forro: parseFloat(tipo.costo_forro) || 0,
+    markup: parseFloat(tipo.markup) || 3
+  }));
 
   const response = await api.post('/catalogo/multiplicadores', { multiplicadores });
   return response.data;

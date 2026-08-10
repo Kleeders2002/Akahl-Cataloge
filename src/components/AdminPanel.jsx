@@ -153,7 +153,8 @@ function AdminPanel({ onActivity }) {
       setColecciones(Array.isArray(coleccionesData) ? coleccionesData : []);
       setFabrics(Array.isArray(fabricsData) ? fabricsData : []);
       setPricing(pricingData);
-      setTempMultipliers(JSON.parse(JSON.stringify(pricingData?.multipliers || { bespoke: {}, industrial: {} })));
+      // Inicializar tempMultipliers con los tipos completos para edición
+      setTempMultipliers(JSON.parse(JSON.stringify(pricingData?.tipos || [])));
 
       // Set default colección para batch
       if (coleccionesData?.length > 0) {
@@ -530,8 +531,8 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const handleSaveMultipliers = async () => {
     try {
-      await updatePricingMultipliers(tempMultipliers, pricing?.tipos || []);
-      setPricing({ ...pricing, multipliers: tempMultipliers });
+      await updatePricingMultipliers(tempMultipliers);
+      setPricing({ ...pricing, tipos: tempMultipliers });
       setEditingPricing(false);
       onActivity?.();
     } catch (error) {
@@ -1210,31 +1211,34 @@ function AdminPanel({ onActivity }) {
               <thead>
                 <tr className="border-b border-akahl-secondary/20">
                   <th className="text-left py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Prenda</th>
-                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Bespoke</th>
-                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">No Bespoke</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Yardas Req.</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Costo Manuf.</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Costo Envío</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Costo Forro</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Markup</th>
                 </tr>
               </thead>
               <tbody>
-                {pricing && Object.keys(pricing.multipliers.bespoke).map((garment) => (
-                  <tr key={garment} className="border-b border-akahl-secondary/10 last:border-0 hover:bg-akahl-secondary/5 transition-colors">
-                    <td className="py-3 px-3 text-neutral-300 capitalize">
-                      {garment.replace('-', ' ')}
+                {tempMultipliers && tempMultipliers.map((tipo) => (
+                  <tr key={tipo.id} className="border-b border-akahl-secondary/10 last:border-0 hover:bg-akahl-secondary/5 transition-colors">
+                    <td className="py-3 px-3 font-medium text-white">
+                      {tipo.nombre}
                     </td>
                     <td className="py-3 px-3 text-center">
                       {editingPricing ? (
                         <input
                           type="number"
-                          step="0.1"
-                          value={tempMultipliers?.bespoke[garment] || 0}
+                          step="0.01"
+                          value={tipo.yardas_requeridas || 0}
                           onChange={(e) => {
                             const val = parseFloat(e.target.value) || 0;
-                            setTempMultipliers(prev => ({ ...prev, bespoke: { ...prev.bespoke, [garment]: val } }));
+                            setTempMultipliers(prev => prev.map(t => t.id === tipo.id ? { ...t, yardas_requeridas: val } : t));
                           }}
                           className="w-20 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none transition-all"
                         />
                       ) : (
-                        <span className="font-semibold text-akahl-secondary">
-                          {pricing.multipliers.bespoke[garment]}<span className="text-neutral-500">x</span>
+                        <span className="font-medium text-neutral-300">
+                          {tipo.yardas_requeridas || 0}
                         </span>
                       )}
                     </td>
@@ -1242,17 +1246,71 @@ function AdminPanel({ onActivity }) {
                       {editingPricing ? (
                         <input
                           type="number"
-                          step="0.1"
-                          value={tempMultipliers?.industrial[garment] || 0}
+                          step="0.01"
+                          value={tipo.costo_manufactura || 0}
                           onChange={(e) => {
                             const val = parseFloat(e.target.value) || 0;
-                            setTempMultipliers(prev => ({ ...prev, industrial: { ...prev.industrial, [garment]: val } }));
+                            setTempMultipliers(prev => prev.map(t => t.id === tipo.id ? { ...t, costo_manufactura: val } : t));
+                          }}
+                          className="w-24 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none transition-all"
+                        />
+                      ) : (
+                        <span className="font-medium text-neutral-300">
+                          ${tipo.costo_manufactura || 0}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-center">
+                      {editingPricing ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={tipo.costo_envio || 0}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setTempMultipliers(prev => prev.map(t => t.id === tipo.id ? { ...t, costo_envio: val } : t));
+                          }}
+                          className="w-20 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none transition-all"
+                        />
+                      ) : (
+                        <span className="font-medium text-neutral-300">
+                          ${tipo.costo_envio || 0}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-center">
+                      {editingPricing ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={tipo.costo_forro || 0}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setTempMultipliers(prev => prev.map(t => t.id === tipo.id ? { ...t, costo_forro: val } : t));
+                          }}
+                          className="w-20 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none transition-all"
+                        />
+                      ) : (
+                        <span className="font-medium text-neutral-300">
+                          ${tipo.costo_forro || 0}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-center">
+                      {editingPricing ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={tipo.markup || 0}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setTempMultipliers(prev => prev.map(t => t.id === tipo.id ? { ...t, markup: val } : t));
                           }}
                           className="w-20 px-3 py-2 text-center bg-akahl-primary/50 border border-akahl-secondary/30 rounded text-white focus:border-akahl-secondary focus:outline-none transition-all"
                         />
                       ) : (
                         <span className="font-semibold text-akahl-secondary">
-                          {pricing.multipliers.industrial[garment]}<span className="text-neutral-500">x</span>
+                          {tipo.markup || 0}<span className="text-neutral-500">x</span>
                         </span>
                       )}
                     </td>
@@ -1269,7 +1327,7 @@ function AdminPanel({ onActivity }) {
               </button>
               <button
                 onClick={() => {
-                  setTempMultipliers(JSON.parse(JSON.stringify(pricing.multipliers)));
+                  setTempMultipliers(JSON.parse(JSON.stringify(pricing?.tipos || [])));
                   setEditingPricing(false);
                 }}
                 className="btn-secondary"
