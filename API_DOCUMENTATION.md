@@ -271,7 +271,43 @@ GET /api/catalogo/colecciones/marcas/:marcaId/colecciones
 
 ---
 
-### 3. Crear colección
+### 3. Obtener una colección por ID
+
+```
+GET /api/catalogo/colecciones/:id
+```
+
+**Autenticación:** Pública (con token de PIN)
+
+**Ejemplo:** `GET /api/catalogo/colecciones/1`
+
+**Response Exitoso:**
+```json
+{
+  "success": true,
+  "data": {
+    "id_coleccion": 1,
+    "id_marca": 1,
+    "nombre": "SUPERNOVA",
+    "descuento_default": 0.35,
+    "marca": {
+      "id_marca": 1,
+      "nombre": "Holland & Sherry"
+    },
+    "telas": [
+      {
+        "id_tela": 1,
+        "codigo": "1425000",
+        "precio_por_yarda": 150.00
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 4. Crear colección
 
 ```
 POST /api/catalogo/colecciones/marcas/:marcaId/colecciones
@@ -308,33 +344,15 @@ POST /api/catalogo/colecciones/marcas/:marcaId/colecciones
 }
 ```
 
-**Response Error (marca no existe):**
-```json
-{
-  "success": false,
-  "message": "Marca not found"
-}
-```
-
-**Response Error (nombre duplicado):**
-```json
-{
-  "success": false,
-  "message": "A coleccion with this name already exists for this marca"
-}
-```
-
 ---
 
-### 4. Actualizar colección
+### 5. Actualizar colección
 
 ```
 PUT /api/catalogo/colecciones/:id
 ```
 
 **Autenticación:** Admin ✅
-
-**Ejemplo:** `PUT /api/catalogo/colecciones/9`
 
 **Body:**
 ```json
@@ -344,35 +362,15 @@ PUT /api/catalogo/colecciones/:id
 }
 ```
 
-**Response Exitoso:**
-```json
-{
-  "success": true,
-  "data": {
-    "id_coleccion": 9,
-    "id_marca": 1,
-    "nombre": "NEW COLLECTION 2025",
-    "descuento_default": 0.40,
-    "updatedAt": "2025-08-10T16:05:00.000Z",
-    "marca": {
-      "id_marca": 1,
-      "nombre": "Holland & Sherry"
-    }
-  }
-}
-```
-
 ---
 
-### 5. Eliminar colección
+### 6. Eliminar colección
 
 ```
 DELETE /api/catalogo/colecciones/:id
 ```
 
 **Autenticación:** Admin ✅
-
-**Ejemplo:** `DELETE /api/catalogo/colecciones/9`
 
 **Response Exitoso:**
 ```json
@@ -415,13 +413,9 @@ GET /api/catalogo/fabrics
       "precio_por_yarda": 150.00,
       "descuento": 0.35,
       "precio_neto": 97.50,
-      "createdAt": "2025-01-15T10:00:00.000Z",
-      "updatedAt": "2025-01-15T10:00:00.000Z",
       "coleccion": {
-        "id_coleccion": 1,
         "nombre": "SUPERNOVA",
         "marca": {
-          "id_marca": 1,
           "nombre": "Holland & Sherry"
         }
       }
@@ -442,24 +436,6 @@ GET /api/catalogo/fabrics/code/:code
 
 **Ejemplo:** `GET /api/catalogo/fabrics/code/1425000`
 
-**Response Exitoso:**
-```json
-{
-  "success": true,
-  "data": {
-    "id_tela": 1,
-    "codigo": "1425000",
-    "precio_por_yarda": 150.00,
-    "coleccion": {
-      "nombre": "SUPERNOVA",
-      "marca": {
-        "nombre": "Holland & Sherry"
-      }
-    }
-  }
-}
-```
-
 ---
 
 ### 3. Buscar telas por texto
@@ -469,23 +445,6 @@ GET /api/catalogo/fabrics/search?q=query
 ```
 
 **Autenticación:** Pública (con token de PIN)
-
-**Ejemplo:** `GET /api/catalogo/fabrics/search?q=SUPERNOVA`
-
-**Response Exitoso:**
-```json
-{
-  "success": true,
-  "count": 15,
-  "data": [
-    {
-      "codigo": "1425000",
-      "coleccion_nombre": "SUPERNOVA",
-      "marca_nombre": "Holland & Sherry"
-    }
-  ]
-}
-```
 
 ---
 
@@ -501,29 +460,9 @@ POST /api/catalogo/fabrics
 ```json
 {
   "id_coleccion": 1,
-  "codigo": "1425001",
+  "codigo": "1420001",
   "precio_por_yarda": 150,
   "descuento": 0.35
-}
-```
-
-**Response Exitoso (201):**
-```json
-{
-  "success": true,
-  "data": {
-    "id_tela": 151,
-    "codigo": "1425001",
-    "precio_por_yarda": 150.00,
-    "descuento": 0.35,
-    "precio_neto": 97.50,
-    "coleccion": {
-      "nombre": "SUPERNOVA",
-      "marca": {
-        "nombre": "Holland & Sherry"
-      }
-    }
-  }
 }
 ```
 
@@ -558,20 +497,6 @@ POST /api/catalogo/fabrics/batch
       "id_tela": 152,
       "codigo": "1425000",
       "precio_por_yarda": 150.00,
-      "descuento": 0.35,
-      "precio_neto": 97.50,
-      "coleccion": {
-        "nombre": "SUPERNOVA",
-        "marca": {
-          "nombre": "Holland & Sherry"
-        }
-      }
-    },
-    {
-      "id_tela": 153,
-      "codigo": "1425001",
-      "precio_por_yarda": 150.00,
-      "descuento": 0.35,
       "precio_neto": 97.50
     }
   ],
@@ -579,33 +504,19 @@ POST /api/catalogo/fabrics/batch
 }
 ```
 
-**Response Parcial (algunas con errores):**
+**Response Parcial:**
 ```json
 {
   "success": true,
   "created": 3,
   "total": 5,
-  "data": [
-    /* Las 3 que se crearon exitosamente */
-  ],
+  "data": [/* 3 telas creadas */],
   "errors": [
     {
       "codigo": "1425004",
       "message": "Ya existe una tela con este código"
-    },
-    {
-      "codigo": "",
-      "message": "Código vacío"
     }
   ]
-}
-```
-
-**Response Error (colección no existe):**
-```json
-{
-  "success": false,
-  "message": "Collection not found"
 }
 ```
 
@@ -628,46 +539,14 @@ PUT /api/catalogo/fabrics/batch
 }
 ```
 
-**Response Exitoso:**
+**Response:**
 ```json
 {
   "success": true,
   "updated": 3,
   "total": 3,
-  "data": [
-    {
-      "id_tela": 152,
-      "codigo": "1425000",
-      "precio_por_yarda": 160.00,
-      "descuento": 0.30,
-      "precio_neto": 112.00
-    }
-  ],
+  "data": [/* telas actualizadas */],
   "errors": []
-}
-```
-
-**Solo actualizar precio (descuento se mantiene):**
-```json
-{
-  "ids": [152, 153],
-  "precio_por_yarda": 170
-}
-```
-
-**Solo actualizar descuento:**
-```json
-{
-  "ids": [152, 153],
-  "descuento": 0.25
-}
-```
-
-**Cambiar de colección:**
-```json
-{
-  "ids": [152, 153],
-  "id_coleccion": 2
 }
 ```
 
@@ -688,53 +567,17 @@ DELETE /api/catalogo/fabrics/batch
 }
 ```
 
-**Response Exitoso:**
+**Response:**
 ```json
 {
   "success": true,
   "deleted": 3,
   "total": 3,
   "data": [
-    {
-      "id": 152,
-      "codigo": "1425000"
-    },
-    {
-      "id": 153,
-      "codigo": "1425001"
-    },
-    {
-      "id": 154,
-      "codigo": "1425002"
-    }
+    {"id": 152, "codigo": "1425000"},
+    {"id": 153, "codigo": "1425001"}
   ],
   "errors": []
-}
-```
-
-**Response Parcial (algunas no se pueden borrar):**
-```json
-{
-  "success": true,
-  "deleted": 1,
-  "total": 3,
-  "data": [
-    {
-      "id": 152,
-      "codigo": "1425000"
-    }
-  ],
-  "errors": [
-    {
-      "id": 153,
-      "codigo": "1425001",
-      "message": "Tiene cotizaciones asociadas"
-    },
-    {
-      "id": 154,
-      "message": "Tela no encontrada"
-    }
-  ]
 }
 ```
 
@@ -748,16 +591,6 @@ PUT /api/catalogo/fabrics/:id
 
 **Autenticación:** Admin ✅
 
-**Ejemplo:** `PUT /api/catalogo/fabrics/151`
-
-**Body:**
-```json
-{
-  "precio_por_yarda": 180,
-  "descuento": 0.30
-}
-```
-
 ---
 
 ### 9. Eliminar UNA tela (individual)
@@ -768,7 +601,139 @@ DELETE /api/catalogo/fabrics/:id
 
 **Autenticación:** Admin ✅
 
-**Ejemplo:** `DELETE /api/catalogo/fabrics/151`
+---
+
+## ✖️ MULTIPLICADORES (Tipos de Prenda)
+
+### 1. Obtener todos los multiplicadores
+
+```
+GET /api/catalogo/multiplicadores
+```
+
+**Autenticación:** Pública (con token de PIN)
+
+**Response Exitoso:**
+```json
+{
+  "success": true,
+  "count": 5,
+  "data": [
+    {
+      "id": 1,
+      "nombre": "JACKET",
+      "yardas_requeridas": 2.5,
+      "costo_manufactura": 150,
+      "costo_envio": 150,
+      "costo_forro": 0,
+      "markup": 3
+    },
+    {
+      "id": 2,
+      "nombre": "2 PIECES",
+      "yardas_requeridas": 4,
+      "costo_manufactura": 200,
+      "costo_envio": 150,
+      "costo_forro": 0,
+      "markup": 3
+    },
+    {
+      "id": 3,
+      "nombre": "3 PIECES",
+      "yardas_requeridas": 5,
+      "costo_manufactura": 250,
+      "costo_envio": 150,
+      "costo_forro": 0,
+      "markup": 3
+    },
+    {
+      "id": 4,
+      "nombre": "TROUSERS",
+      "yardas_requeridas": 2,
+      "costo_manufactura": 100,
+      "costo_envio": 100,
+      "costo_forro": 0,
+      "markup": 3
+    },
+    {
+      "id": 5,
+      "nombre": "VEST",
+      "yardas_requeridas": 1.75,
+      "costo_manufactura": 100,
+      "costo_envio": 75,
+      "costo_forro": 0,
+      "markup": 3
+    }
+  ]
+}
+```
+
+**Notas:**
+- ✅ SIN `codigo`
+- ✅ SIN `createdAt`
+- ✅ SIN `updatedAt`
+
+---
+
+### 2. Actualizar multiplicadores
+
+```
+POST /api/catalogo/multiplicadores
+```
+
+**Autenticación:** Admin ✅
+
+**Body:**
+```json
+{
+  "multiplicadores": [
+    {
+      "id_tipo_prenda": 1,
+      "yardas_requeridas": 2.5,
+      "costo_manufactura": 160,
+      "costo_envio": 150,
+      "costo_forro": 0,
+      "markup": 3
+    },
+    {
+      "id_tipo_prenda": 2,
+      "costo_manufactura": 210
+    }
+  ]
+}
+```
+
+**Response Exitoso:**
+```json
+{
+  "success": true,
+  "updated": 2,
+  "total": 2,
+  "data": [
+    {
+      "id": 1,
+      "nombre": "JACKET",
+      "yardas_requeridas": 2.5,
+      "costo_manufactura": 160,
+      "costo_envio": 150,
+      "costo_forro": 0,
+      "markup": 3
+    },
+    {
+      "id": 2,
+      "nombre": "2 PIECES",
+      "yardas_requeridas": 4,
+      "costo_manufactura": 210,
+      "costo_envio": 150,
+      "costo_forro": 0,
+      "markup": 3
+    }
+  ],
+  "errors": []
+}
+```
+
+**Solo actualiza campos enviados** - Los campos no incluidos se mantienen igual.
 
 ---
 
@@ -794,16 +759,6 @@ GET /api/catalogo/pricing/config
         "codigo": "jacket",
         "yardas_requeridas": 2.5,
         "costo_manufactura": 150,
-        "costo_envio": 150,
-        "costo_forro": 0,
-        "markup": 3
-      },
-      {
-        "id": 2,
-        "nombre": "2 PIECES",
-        "codigo": "2-piece",
-        "yardas_requeridas": 4,
-        "costo_manufactura": 200,
         "costo_envio": 150,
         "costo_forro": 0,
         "markup": 3
@@ -838,19 +793,13 @@ POST /api/catalogo/pricing/calculate
   "data": {
     "precio_final": 607.50,
     "tela": {
-      "id_tela": 1,
       "codigo": "1425000",
       "codigo_completo": "Holland & Sherry SUPERNOVA 1425000",
-      "coleccion": "SUPERNOVA",
-      "marca": "Holland & Sherry",
-      "precio_por_yarda": 150.00,
-      "descuento": 0.35,
       "precio_neto": 97.50
     },
     "tipo_prenda": {
       "id": 1,
-      "nombre": "JACKET",
-      "codigo": "jacket"
+      "nombre": "JACKET"
     },
     "desglose": {
       "costo_tela": 243.75,
@@ -886,7 +835,6 @@ POST /api/catalogo/pricing/calculate-all
   "success": true,
   "data": {
     "tela": {
-      "id_tela": 1,
       "codigo": "1425000",
       "codigo_completo": "Holland & Sherry SUPERNOVA 1425000",
       "precio_neto": 97.50
@@ -896,17 +844,10 @@ POST /api/catalogo/pricing/calculate-all
         "tipo_prenda": "JACKET",
         "codigo": "jacket",
         "precio_final": 607.50,
-        "desglose": {
-          "costo_tela": 243.75,
-          "gastos_fijos": 300,
-          "costo_total": 543.75,
-          "markup": 3,
-          "yardas_requeridas": 2.5
-        }
+        "desglose": { /* ... */ }
       },
       {
         "tipo_prenda": "2 PIECES",
-        "codigo": "2-piece",
         "precio_final": 810,
         "desglose": { /* ... */ }
       }
@@ -969,7 +910,7 @@ interface Coleccion {
   id_coleccion: number;
   id_marca: number;
   nombre: string;
-  descuento_default: number; // 0.35 = 35%
+  descuento_default: number;
   createdAt: string;
   updatedAt: string;
   marca?: Marca;
@@ -986,16 +927,27 @@ interface Tela {
   id_coleccion: number;
   codigo: string;
   precio_por_yarda: number;
-  descuento: number; // 0.35 = 35%
+  descuento: number;
   precio_neto: number;
   createdAt: string;
   updatedAt: string;
   coleccion?: {
     nombre: string;
-    marca?: {
-      nombre: string;
-    };
+    marca?: { nombre: string };
   };
+}
+```
+
+### Multiplicador (TipoPrenda simplificado)
+```typescript
+interface Multiplicador {
+  id: number;
+  nombre: string;
+  yardas_requeridas: number;
+  costo_manufactura: number;
+  costo_envio: number;
+  costo_forro: number;
+  markup: number;
 }
 ```
 
@@ -1021,6 +973,6 @@ interface Tela {
 1. **Para operaciones batch:** Siempre revisar el array `errors` aunque `success` sea `true`
 2. **Códigos de tela:** Se guardan en mayúsculas automáticamente
 3. **Descuentos:** Usar formato decimal (0.35 = 35%, no 35)
-4. **Eliminación en cascada:** Marca → Colección → Tela (no se puede eliminar si tiene hijos)
-5. **Paginación:** Usar parámetros `limit` y `offset` en endpoints de listas
-6. **Búsqueda:** Usar parámetro `q` para búsquedas tipo LIKE
+4. **Eliminación en cascada:** Marca → Colección → Tela
+5. **Multiplicadores GET:** No incluye `codigo`, `createdAt`, `updatedAt`
+6. **Multiplicadores POST:** Solo actualiza campos enviados

@@ -6,7 +6,6 @@
  * - CRUD completo de marcas y colecciones
  * - Gestión individual y batch de telas
  * - Gestión de multiplicadores de precio
- * - Gestión de PINs de acceso
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -15,10 +14,6 @@ import {
   updateFabric,
   getPricingConfig,
   updatePricingMultipliers,
-  getAllPinsAPI,
-  savePinAPI,
-  deletePinAPI,
-  resetPinsAPI,
   getFabricByCode,
   createFabric,
   deleteFabric,
@@ -32,13 +27,8 @@ import {
   deleteColeccion,
   createFabricsBatch,
   updateFabricsBatch,
-  deleteFabricsBatch,
-  calculatePrice
+  deleteFabricsBatch
 } from '../services/api';
-import FabricCard from './FabricCard';
-import PriceDisplay from './PriceDisplay';
-import ManufacturingSelector from './ManufacturingSelector';
-import GarmentSelector from './GarmentSelector';
 import AdminPriceModal from './AdminPriceModal';
 
 // ============================================
@@ -59,11 +49,10 @@ const GARMENT_TYPES = [
 ];
 
 const TABS = [
-  { id: 'marcas', label: 'Marcas', icon: '🏷️' },
-  { id: 'colecciones', label: 'Colecciones', icon: '📚' },
-  { id: 'telas', label: 'Telas', icon: '🧵' },
-  { id: 'multiplicadores', label: 'Multiplicadores', icon: '💰' },
-  { id: 'pins', label: 'PINs', icon: '🔐' },
+  { id: 'marcas', label: 'Marcas' },
+  { id: 'colecciones', label: 'Colecciones' },
+  { id: 'telas', label: 'Telas' },
+  { id: 'multiplicadores', label: 'Multiplicadores' },
 ];
 
 // ============================================
@@ -144,14 +133,6 @@ function AdminPanel({ onActivity }) {
   const [tempMultipliers, setTempMultipliers] = useState(null);
 
   // ============================================
-  // ESTADOS - PINs
-  // ============================================
-  const [pins, setPins] = useState({});
-  const [newPin, setNewPin] = useState('');
-  const [newPinName, setNewPinName] = useState('');
-  const [newPinRole, setNewPinRole] = useState('USER');
-
-  // ============================================
   // OTROS ESTADOS
   // ============================================
   const [priceModalFabric, setPriceModalFabric] = useState(null);
@@ -188,10 +169,6 @@ function AdminPanel({ onActivity }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  useEffect(() => {
-    setPins(getAllPinsAPI());
-  }, []);
 
   // ============================================
   // HANDLERS - MARCAS
@@ -553,58 +530,13 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const handleSaveMultipliers = async () => {
     try {
-      await updatePricingMultipliers(tempMultipliers);
+      await updatePricingMultipliers(tempMultipliers, pricing?.tipos || []);
       setPricing({ ...pricing, multipliers: tempMultipliers });
       setEditingPricing(false);
       onActivity?.();
     } catch (error) {
       console.error('Error saving multipliers:', error);
       alert('Error al guardar multiplicadores');
-    }
-  };
-
-  // ============================================
-  // HANDLERS - PINs
-  // ============================================
-  const handleSavePin = () => {
-    if (!newPin || newPin.length !== 4) {
-      alert('El PIN debe tener exactamente 4 dígitos');
-      return;
-    }
-    if (!newPinName.trim()) {
-      alert('El nombre es obligatorio');
-      return;
-    }
-    savePinAPI(newPin, {
-      role: newPinRole,
-      name: newPinName.trim(),
-      permissions: newPinRole === 'ADMIN' ? ['quotations', 'admin'] : ['quotations'],
-      description: newPinRole === 'ADMIN' ? 'Acceso completo' : 'Acceso a cotizaciones'
-    });
-    setPins(getAllPinsAPI());
-    setNewPin('');
-    setNewPinName('');
-    setNewPinRole('USER');
-    onActivity?.();
-  };
-
-  const handleDeletePin = (pinToDelete) => {
-    if (pinToDelete === '1234' || pinToDelete === '9999') {
-      alert('No puedes eliminar los PINs por defecto del sistema');
-      return;
-    }
-    if (confirm(`¿Eliminar PIN ${pinToDelete}?`)) {
-      deletePinAPI(pinToDelete);
-      setPins(getAllPinsAPI());
-      onActivity?.();
-    }
-  };
-
-  const handleResetPins = () => {
-    if (confirm('¿Restablecer todos los PINs a los valores por defecto?')) {
-      resetPinsAPI();
-      setPins(getAllPinsAPI());
-      onActivity?.();
     }
   };
 
@@ -652,7 +584,6 @@ function AdminPanel({ onActivity }) {
                     : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
                 }`}
               >
-                <span className="text-lg mr-2">{tab.icon}</span>
                 <span className="tracking-wide">{tab.label}</span>
               </button>
             );
@@ -1350,132 +1281,6 @@ function AdminPanel({ onActivity }) {
         </div>
       )}
 
-      {/* ============================================
-          SECCIÓN: PINs
-          ============================================ */}
-      {activeTab === 'pins' && (
-        <div className="card-premium animate-fadeIn">
-          <div className="h-px bg-gradient-to-r from-akahl-secondary via-akahl-secondary/50 to-transparent mb-5"></div>
-
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-            <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Control de Acceso (PINs)</h3>
-          </div>
-
-          <div className="flex flex-wrap gap-6 text-sm mb-5">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-akahl-secondary rounded-full"></div>
-              <span className="text-neutral-400">
-                <strong className="text-white">{Object.keys(pins).length}</strong> Total PINs
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-akahl-secondary/60 rounded-full"></div>
-              <span className="text-neutral-400">
-                <strong className="text-akahl-secondary">{Object.values(pins).filter(p => p.role === 'ADMIN').length}</strong> Administradores
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-neutral-600 rounded-full"></div>
-              <span className="text-neutral-400">
-                <strong className="text-white">{Object.values(pins).filter(p => p.role === 'USER').length}</strong> Asociados
-              </span>
-            </div>
-          </div>
-
-          {/* Lista de PINs activos */}
-          <div className="border border-akahl-secondary/20 rounded-xl p-5 bg-akahl-primary/30 mb-4">
-            <h4 className="text-sm font-semibold text-akahl-secondary/80 mb-4 tracking-[0.1em] uppercase">PINs Activos</h4>
-            <div className="space-y-3">
-              {Object.entries(pins).map(([pin, config]) => (
-                <div key={pin} className="flex items-center justify-between p-4 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/10 hover:border-akahl-secondary/20 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-akahl-secondary/10 rounded-xl flex items-center justify-center border border-akahl-secondary/20">
-                      <span className="text-xl font-display font-bold text-akahl-secondary tracking-widest">
-                        {'•'.repeat(pin.length)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white tracking-wide">{config.name}</p>
-                      <p className="text-xs text-neutral-400 mt-0.5">
-                        {config.role === 'ADMIN' ? 'Administrador' : 'Asociado'}
-                        {pin === '1234' || pin === '9999' ? ' • Por defecto' : ''}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${
-                      config.role === 'ADMIN'
-                        ? 'bg-akahl-secondary/20 text-akahl-secondary border border-akahl-secondary/40'
-                        : 'bg-akahl-primary/50 text-neutral-400 border border-akahl-secondary/20'
-                    }`}>
-                      {config.role === 'ADMIN' ? 'Admin' : 'User'}
-                    </span>
-                    {pin !== '1234' && pin !== '9999' && (
-                      <button
-                        onClick={() => handleDeletePin(pin)}
-                        className="p-2.5 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
-                        title="Eliminar PIN"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Agregar nuevo PIN */}
-          <div className="border border-akahl-secondary/20 rounded-xl p-5 bg-akahl-primary/30 mb-4">
-            <h4 className="text-sm font-semibold text-akahl-secondary/80 mb-4 tracking-[0.1em] uppercase">Agregar Nuevo PIN</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <input
-                type="text"
-                value={newPin}
-                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                placeholder="4-digit PIN"
-                className="input-field text-lg text-center"
-                maxLength={4}
-              />
-              <input
-                type="text"
-                value={newPinName}
-                onChange={(e) => setNewPinName(e.target.value)}
-                placeholder="Nombre (e.g., Juan Pérez)"
-                className="input-field"
-              />
-              <div className="flex gap-2">
-                <select
-                  value={newPinRole}
-                  onChange={(e) => setNewPinRole(e.target.value)}
-                  className="select-field flex-1"
-                >
-                  <option value="USER">Asociado</option>
-                  <option value="ADMIN">Administrador</option>
-                </select>
-                <button
-                  onClick={handleSavePin}
-                  disabled={!newPin || newPin.length !== 4 || !newPinName.trim()}
-                  className="btn-success px-6 border border-akahl-secondary/40 disabled:opacity-50 shadow-premium"
-                >
-                  Agregar
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Reset */}
-          <button
-            onClick={handleResetPins}
-            className="w-full py-3 bg-red-950/40 hover:bg-red-950/60 text-red-400 font-medium rounded-xl transition-all border border-red-900/50 active:scale-[0.99]"
-          >
-            Restablecer PINs a Valores por Defecto
-          </button>
-        </div>
-      )}
 
       {/* ============================================
           MODAL: CREAR MARCA

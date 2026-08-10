@@ -407,14 +407,40 @@ const transformPricingFromBackend = (config) => {
 };
 
 /**
- * Obtener configuración de precios
+ * Obtener configuración de precios (multiplicadores)
  * @returns {Promise<Object>} Multiplicadores y configuración
- * ENDPOINT: GET /api/catalogo/pricing/config
+ * ENDPOINT: GET /api/catalogo/multiplicadores
  */
 export const getPricingConfig = async () => {
-  const response = await api.get('/catalogo/pricing/config');
-  const config = response.data.data || response.data;
-  return transformPricingFromBackend(config);
+  const response = await api.get('/catalogo/multiplicadores');
+  const data = response.data.data || response.data;
+
+  // Transformar al formato esperado por el frontend
+  const tipos = Array.isArray(data) ? data : [];
+
+  // Mapear tipos de prenda al formato usado en el frontend
+  const garmentMap = {
+    'JACKET': 'jacket',
+    '2 PIECES': '2-piece',
+    '3 PIECES': '3-piece',
+    'TROUSERS': 'trousers',
+    'VEST': 'vest'
+  };
+
+  // Crear estructura de multiplicadores
+  const multipliers = {
+    bespoke: {},
+    industrial: {}
+  };
+
+  tipos.forEach(tipo => {
+    const frontendCode = garmentMap[tipo.nombre] || tipo.nombre.toLowerCase();
+    // Usar el markup como multiplicador base
+    multipliers.bespoke[frontendCode] = tipo.markup || 3;
+    multipliers.industrial[frontendCode] = tipo.markup ? tipo.markup * 0.65 : 2;
+  });
+
+  return { multipliers, tipos };
 };
 
 /**
@@ -567,34 +593,42 @@ const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) =
 /**
  * Actualizar multiplicadores de precio (ADMIN only)
  * @param {Object} multipliers - Nuevos multiplicadores (formato frontend)
+ * @param {Array} tipos - Tipos de prenda existentes (para obtener IDs)
  * @returns {Promise<Object>} Configuración actualizada
- * ENDPOINT: PUT /api/catalogo/pricing/tipos-prenda
+ * ENDPOINT: POST /api/catalogo/multiplicadores
  */
-export const updatePricingMultipliers = async (multipliers) => {
-  const garmentCodeMap = {
-    'jacket': 'chaqueta',
-    'trousers': 'pantalon',
-    'vest': 'chaleco',
-    '2-piece': 'traje_2_piezas',
-    '3-piece': 'traje_3_piezas',
+export const updatePricingMultipliers = async (multipliers, tipos = []) => {
+  // Mapeo de códigos frontend a nombres backend
+  const garmentNameMap = {
+    'jacket': 'JACKET',
+    'trousers': 'TROUSERS',
+    'vest': 'VEST',
+    '2-piece': '2 PIECES',
+    '3-piece': '3 PIECES'
   };
 
   const multiplicadores = [];
 
-  for (const [manufacturingType, garments] of Object.entries(multipliers)) {
-    for (const [garmentKey, value] of Object.entries(garments)) {
-      const backendCode = garmentCodeMap[garmentKey] || garmentKey;
+  // Construir array de multiplicadores para el backend
+  for (const [garmentKey, bespokeValue] of Object.entries(multipliers.bespoke)) {
+    const nombre = garmentNameMap[garmentKey];
+    const tipoExistente = tipos.find(t => t.nombre === nombre);
 
+    if (tipoExistente) {
+      // Actualizar tipo existente - mantener otros valores, solo actualizar markup
       multiplicadores.push({
-        tipo_manufactura: manufacturingType,
-        tipo_prenda_codigo: backendCode,
-        valor: value
+        id_tipo_prenda: tipoExistente.id,
+        yardas_requeridas: tipoExistente.yardas_requeridas,
+        costo_manufactura: tipoExistente.costo_manufactura,
+        costo_envio: tipoExistente.costo_envio,
+        costo_forro: tipoExistente.costo_forro || 0,
+        markup: parseFloat(bespokeValue) || 3
       });
     }
   }
 
-  const response = await api.put('/catalogo/pricing/tipos-prenda', { multiplicadores });
-  return transformPricingFromBackend(response.data.data || response.data);
+  const response = await api.post('/catalogo/multiplicadores', { multiplicadores });
+  return response.data;
 };
 
 /**
