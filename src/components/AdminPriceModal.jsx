@@ -10,7 +10,7 @@ import { calculateAllPrices } from '../services/api';
 
 const MANUFACTURING_TYPES = [
   { id: 'bespoke', name: 'Bespoke', label: 'Bespoke' },
-  { id: 'industrial', name: 'Industrial', label: 'Industrial' },
+  { id: 'industrial', name: 'No Bespoke', label: 'No Bespoke' },
 ];
 
 const GARMENT_TYPES = [
@@ -218,6 +218,8 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                   {GARMENT_TYPES.map((garment) => {
                     const details = priceDetails[garment.id];
                     if (!details) return null;
+                    // Restar 700 solo cuando es No Bespoke (Industrial)
+                    const adjustedPrice = selectedManufacturing === 'industrial' ? details.finalPrice - 700 : details.finalPrice;
 
                     return (
                       <tr key={garment.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
@@ -231,7 +233,7 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                           ${details.laborCost.toFixed(2)}
                         </td>
                         <td className="py-3 px-4 text-right font-bold text-akahl-secondary text-base">
-                          ${details.finalPrice.toFixed(2)}
+                          ${adjustedPrice.toFixed(2)}
                         </td>
                       </tr>
                     );
@@ -260,7 +262,10 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                 <div>
                   <p className="text-xs text-akahl-secondary/60 uppercase tracking-wider mb-1">Avg. Final Price</p>
                   <p className="text-lg font-semibold text-akahl-secondary">
-                    ${(Object.values(priceDetails).reduce((sum, d) => sum + d.finalPrice, 0) / GARMENT_TYPES.length).toFixed(2)}
+                    ${(Object.values(priceDetails).reduce((sum, d) => {
+                      const priceToShow = selectedManufacturing === 'industrial' ? d.finalPrice - 700 : d.finalPrice;
+                      return sum + priceToShow;
+                    }, 0) / GARMENT_TYPES.length).toFixed(2)}
                   </p>
                 </div>
               </div>

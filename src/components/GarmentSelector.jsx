@@ -32,15 +32,17 @@ function GarmentSelector({ types, selected, onSelect }) {
               )}
 
               <div className="flex flex-col items-center gap-2 relative">
-                {/* Icon */}
-                <div className={`p-2 rounded-lg transition-all duration-300 ${
+                {/* Image */}
+                <div className={`w-16 h-16 rounded-lg overflow-hidden transition-all duration-300 ${
                   isSelected
-                    ? 'bg-akahl-secondary/20 text-akahl-secondary'
-                    : 'bg-akahl-primary/50 text-neutral-500'
+                    ? 'ring-2 ring-akahl-secondary ring-offset-2 ring-offset-akahl-primary/50'
+                    : 'opacity-70 hover:opacity-100'
                 }`}>
-                  <div className={`transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}>
-                    {type.icon}
-                  </div>
+                  <img
+                    src={type.image}
+                    alt={type.name}
+                    className="w-full h-full object-cover transition-transform duration-300"
+                  />
                 </div>
 
                 {/* Name */}

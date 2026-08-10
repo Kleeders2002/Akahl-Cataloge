@@ -10,6 +10,9 @@ import { useState } from 'react';
 function PriceDisplay({ price, desglose, fabric, garmentType, manufacturingType, onNewQuotation }) {
   const [showDesglose, setShowDesglose] = useState(false);
 
+  // Restar 700 al precio solo cuando es No Bespoke (Industrial)
+  const adjustedPrice = manufacturingType === 'No Bespoke' ? price - 700 : price;
+
   // Format garment type for display
   const formatGarmentType = (type) => {
     return type.replace(/-/g, ' ');
@@ -51,7 +54,7 @@ function PriceDisplay({ price, desglose, fabric, garmentType, manufacturingType,
 
           <div className="relative">
             <p className="text-8xl sm:text-9xl font-display font-bold text-gradient-gold tracking-tight animate-scale-in">
-              ${price.toFixed(2)}
+              ${adjustedPrice.toFixed(2)}
             </p>
             <div className="flex items-center justify-center gap-2 mt-3">
               <div className="h-px w-12 bg-gradient-to-r from-transparent to-akahl-secondary/50"></div>
@@ -97,7 +100,7 @@ function PriceDisplay({ price, desglose, fabric, garmentType, manufacturingType,
 
               <div className="border-t border-akahl-secondary/20 my-3 pt-3 flex justify-between text-base">
                 <span className="font-semibold text-white tracking-wide">Total</span>
-                <span className="font-bold text-gradient-gold text-lg">${price.toFixed(2)}</span>
+                <span className="font-bold text-gradient-gold text-lg">${adjustedPrice.toFixed(2)}</span>
               </div>
             </div>
           </div>

@@ -42,22 +42,11 @@ const MANUFACTURING_TYPES = [
     id: 'bespoke',
     name: 'Bespoke',
     description: 'Handcrafted',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-      </svg>
-    ),
   },
   {
     id: 'industrial',
-    name: 'Industrial',
+    name: 'No Bespoke',
     description: 'Machine made',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
   },
 ];
 
@@ -65,47 +54,27 @@ const GARMENT_TYPES = [
   {
     id: 'jacket',
     name: 'Jacket',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 10l-4.553-2.276A1 1 0 003 8.618v6.764a1 1 0 001.447.894L9 14" />
-      </svg>
-    )
+    image: '/jacket.png',
   },
   {
     id: 'trousers',
     name: 'Trousers',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21v-8m0 0V3l5 4 5-4v10m0 0v8" />
-      </svg>
-    )
+    image: '/trousers.png',
   },
   {
     id: 'vest',
     name: 'Vest',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v18M9 3v18M15 3v18M19 3v18" />
-      </svg>
-    )
+    image: '/vest.png',
   },
   {
     id: '2-piece',
     name: '2-Piece Suit',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 10l-4.553-2.276A1 1 0 003 8.618v6.764a1 1 0 001.447.894L9 14M12 3v18" />
-      </svg>
-    )
+    image: '/2-piece.png',
   },
   {
     id: '3-piece',
     name: '3-Piece Suit',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 21v-8m0 0V3l5 4 5-4v10m0 0v8M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 10l-4.553-2.276A1 1 0 003 8.618v6.764a1 1 0 001.447.894L9 14" />
-      </svg>
-    )
+    image: '/3-piece.png',
   },
 ];
 
@@ -590,7 +559,7 @@ function AdminPanel({ onActivity }) {
               <tr className="border-b border-akahl-secondary/20">
                 <th className="text-left py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Garment</th>
                 <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Bespoke</th>
-                <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Industrial</th>
+                <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">No Bespoke</th>
               </tr>
             </thead>
             <tbody>

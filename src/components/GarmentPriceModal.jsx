@@ -10,15 +10,15 @@ import { calculateAllPrices } from '../services/api';
 
 const MANUFACTURING_TYPES = [
   { id: 'bespoke', name: 'Bespoke', label: 'Bespoke' },
-  { id: 'industrial', name: 'Industrial', label: 'Industrial' },
+  { id: 'industrial', name: 'No Bespoke', label: 'No Bespoke' },
 ];
 
 const GARMENT_TYPES = [
-  { id: 'jacket', name: 'Jacket', icon: '🥼' },
-  { id: 'trousers', name: 'Trousers', icon: '👖' },
-  { id: 'vest', name: 'Vest', icon: '🦺' },
-  { id: '2-piece', name: '2-Piece Suit', icon: '🤵' },
-  { id: '3-piece', name: '3-Piece Suit', icon: '🎩' },
+  { id: 'jacket', name: 'Jacket', image: '/jacket.png' },
+  { id: 'trousers', name: 'Trousers', image: '/trousers.png' },
+  { id: 'vest', name: 'Vest', image: '/vest.png' },
+  { id: '2-piece', name: '2-Piece Suit', image: '/2-piece.png' },
+  { id: '3-piece', name: '3-Piece Suit', image: '/3-piece.png' },
 ];
 
 function GarmentPriceModal({ fabric, onClose, onActivity }) {
@@ -117,6 +117,8 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
               {GARMENT_TYPES.map((garment) => {
                 const price = prices[garment.id];
                 const isCalculating = price === null;
+                // Restar 700 solo cuando es No Bespoke (Industrial)
+                const adjustedPrice = price ? (selectedManufacturing === 'industrial' ? price - 700 : price) : 0;
 
                 return (
                   <button
@@ -126,7 +128,11 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
                     className="p-5 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/20 hover:border-akahl-secondary/50 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-left group"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <span className="text-2xl">{garment.icon}</span>
+                      <img
+                        src={garment.image}
+                        alt={garment.name}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
                       <svg className="w-5 h-5 text-akahl-secondary/30 group-hover:text-akahl-secondary transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
@@ -136,7 +142,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
                       <div className="h-6 bg-akahl-secondary/10 rounded animate-pulse"></div>
                     ) : (
                       <p className="text-2xl font-display font-bold text-akahl-secondary">
-                        ${price?.toFixed(2) || '0.00'}
+                        ${adjustedPrice.toFixed(2)}
                       </p>
                     )}
                   </button>

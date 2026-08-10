@@ -32,17 +32,6 @@ function ManufacturingSelector({ types, selected, onSelect }) {
               )}
 
               <div className="flex flex-col items-center gap-3 relative">
-                {/* Icon container */}
-                <div className={`p-4 rounded-xl transition-all duration-300 ${
-                  isSelected
-                    ? 'bg-akahl-secondary/20 text-akahl-secondary shadow-gold-glow'
-                    : 'bg-akahl-primary/50 text-neutral-400'
-                }`}>
-                  <div className={`transition-transform duration-300 ${isSelected ? 'scale-110' : ''}`}>
-                    {type.icon}
-                  </div>
-                </div>
-
                 {/* Text content */}
                 <div className="text-center">
                   <p className={`font-semibold tracking-[0.1em] uppercase transition-colors ${
