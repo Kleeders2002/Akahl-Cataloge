@@ -2,7 +2,7 @@
  * Componente: Header
  *
  * Header premium AKAHL - Estilo de lujo con logo centrado.
- * Layout: Admin/Cotizar (izq) | Logo (centro) | Logout (der)
+ * Layout: Admin/User (izq) | Logo (centro absoluto) | Logout (der)
  */
 
 function Header({
@@ -24,9 +24,8 @@ function Header({
       <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/60 to-transparent"></div>
 
       <div className="max-w-6xl mx-auto px-4">
-        {/* Main section with logo center */}
-        <div className="flex items-center justify-center gap-8 md:gap-16 py-4">
-          {/* Left side - Admin/Cotizar button */}
+        <div className="flex items-center justify-between py-4 relative">
+          {/* Left side - Admin/User button */}
           {userRole === 'ADMIN' && (
             <div className="flex-shrink-0">
               {currentView === 'admin' ? (
@@ -41,9 +40,9 @@ function Header({
                     strokeWidth="1.5"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <span className="font-semibold text-akahl-secondary text-sm tracking-wide">Cotizar</span>
+                  <span className="font-semibold text-akahl-secondary text-sm tracking-wide">User</span>
                 </button>
               ) : (
                 <button
@@ -66,8 +65,8 @@ function Header({
             </div>
           )}
 
-          {/* Center - Logo */}
-          <div className="flex-shrink-0">
+          {/* Center - Logo (absolute centered) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <img
               src="/logo-akahl.png"
               alt="AKAHL Logo"
