@@ -97,6 +97,7 @@ function QuotationScreen({ onActivity }) {
   // Búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('all');
+  const [selectedCollection, setSelectedCollection] = useState('all');
   const [selectedPriceRange, setSelectedPriceRange] = useState('all');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
 
@@ -155,6 +156,12 @@ function QuotationScreen({ onActivity }) {
     return ['all', ...Array.from(brandSet).sort()];
   }, [allFabrics]);
 
+  // Obtener colecciones únicas de las lista de telas
+  const collections = useMemo(() => {
+    const collectionSet = new Set(allFabrics.map(f => f.coleccion).filter(Boolean));
+    return ['all', ...Array.from(collectionSet).sort()];
+  }, [allFabrics]);
+
   // Filtrar telas según todos los criterios
   const filteredFabrics = useMemo(() => {
     return allFabrics.filter((fabric) => {
@@ -163,10 +170,14 @@ function QuotationScreen({ onActivity }) {
       const matchesSearch =
         fabric.codigo?.toLowerCase().includes(searchLower) ||
         fabric.name?.toLowerCase().includes(searchLower) ||
-        fabric.supplier?.toLowerCase().includes(searchLower);
+        fabric.supplier?.toLowerCase().includes(searchLower) ||
+        fabric.coleccion?.toLowerCase().includes(searchLower);
 
       // Filtro de marca
       const matchesBrand = selectedBrand === 'all' || fabric.supplier === selectedBrand;
+
+      // Filtro de colección
+      const matchesCollection = selectedCollection === 'all' || fabric.coleccion === selectedCollection;
 
       // Filtro de precio
       const priceRange = PRICE_RANGES.find(r => r.id === selectedPriceRange);
@@ -181,9 +192,9 @@ function QuotationScreen({ onActivity }) {
         (availabilityFilter === 'available' && fabric.availability === 'available') ||
         (availabilityFilter === 'out_of_stock' && fabric.availability === 'out_of_stock');
 
-      return matchesSearch && matchesBrand && matchesPrice && matchesAvailability;
+      return matchesSearch && matchesBrand && matchesCollection && matchesPrice && matchesAvailability;
     });
-  }, [allFabrics, searchTerm, selectedBrand, selectedPriceRange, availabilityFilter]);
+  }, [allFabrics, searchTerm, selectedBrand, selectedCollection, selectedPriceRange, availabilityFilter]);
 
   // Telas a mostrar (con paginación)
   const displayedFabrics = filteredFabrics.slice(0, displayedCount);
@@ -316,7 +327,7 @@ function QuotationScreen({ onActivity }) {
         </div>
 
         {/* Filtros */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Filtro por Marca */}
           <div>
             <label className="block text-xs text-akahl-secondary/60 uppercase tracking-wider mb-2">
@@ -333,6 +344,27 @@ function QuotationScreen({ onActivity }) {
               {brands.map(brand => (
                 <option key={brand} value={brand}>
                   {brand === 'all' ? 'All Brands' : brand}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtro por Colección */}
+          <div>
+            <label className="block text-xs text-akahl-secondary/60 uppercase tracking-wider mb-2">
+              Collection
+            </label>
+            <select
+              value={selectedCollection}
+              onChange={(e) => {
+                setSelectedCollection(e.target.value);
+                onActivity?.();
+              }}
+              className="select-field"
+            >
+              {collections.map(collection => (
+                <option key={collection} value={collection}>
+                  {collection === 'all' ? 'All Collections' : collection}
                 </option>
               ))}
             </select>
@@ -411,6 +443,7 @@ function QuotationScreen({ onActivity }) {
               onClick={() => {
                 setSearchTerm('');
                 setSelectedBrand('all');
+                setSelectedCollection('all');
                 setSelectedPriceRange('all');
                 setAvailabilityFilter('all');
                 onActivity?.();
