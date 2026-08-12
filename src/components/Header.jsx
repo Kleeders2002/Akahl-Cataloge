@@ -1,7 +1,7 @@
 /**
  * Componente: Header
  *
- * Header premium AKAHL - Estilo de lujo.
+ * Header premium AKAHL - Estilo de lujo con logo centrado.
  * Muestra información del usuario y botones de navegación.
  */
 
@@ -108,25 +108,7 @@ function Header({
 
           {/* Right side - Controls */}
           <div className="flex items-center gap-3 flex-1 justify-end">
-
-          {/* Info y botones */}
-          <div className="flex items-center gap-3">
-            {/* Time info */}
-            <div className="hidden md:flex items-center gap-3 px-3 py-2 bg-akahl-primary-dark/50 rounded-lg border border-akahl-secondary/10">
-              {elapsedTime && (
-                <div className="text-right">
-                  <p className="text-xs text-akahl-secondary/60 uppercase tracking-wider">Session</p>
-                  <p className="text-sm font-semibold text-akahl-secondary">{elapsedTime}</p>
-                </div>
-              )}
-              <div className="w-px h-6 bg-akahl-secondary/20"></div>
-              <div className="text-right">
-                <p className="text-xs text-neutral-400">{formatDate(currentTime)}</p>
-                <p className="text-sm font-semibold text-white">{formatTime(currentTime)}</p>
-              </div>
-            </div>
-
-            {/* Time info */}
+            {/* Time info - Desktop */}
             <div className="hidden lg:flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-akahl-primary-dark/60 to-akahl-secondary/10 rounded-xl border border-akahl-secondary/20 shadow-premium">
               {elapsedTime && (
                 <div className="text-right">
