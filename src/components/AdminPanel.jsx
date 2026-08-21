@@ -803,7 +803,7 @@ function AdminPanel({ onActivity }) {
               <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Quick Fabric Entry</h3>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {/* Input de códigos */}
               <div className="space-y-4">
                 <div>
@@ -821,14 +821,14 @@ function AdminPanel({ onActivity }) {
                           handleBatchAddCode();
                         }
                       }}
-                      placeholder="Type code and press Enter..."
-                      className="input-field flex-1 text-2xl bg-akahl-primary/80 border-akahl-secondary/40 py-4 px-5 shadow-premium placeholder:text-akahl-secondary/20"
+                      placeholder="Escribe el código aquí..."
+                      className="flex-1 text-3xl font-bold text-white bg-akahl-primary border-2 border-akahl-secondary/50 rounded-xl py-5 px-6 shadow-premium placeholder:text-white/30 focus:border-akahl-secondary focus:outline-none focus:ring-2 focus:ring-akahl-secondary/30"
                     />
                     <button
                       onClick={handleBatchAddCode}
-                      className="btn-primary px-8 py-4 text-lg font-semibold shadow-premium hover:shadow-premium-lg border-2 border-akahl-secondary/50"
+                      className="px-10 py-5 bg-akahl-secondary text-akahl-primary text-xl font-bold rounded-xl border-2 border-akahl-secondary shadow-premium hover:shadow-premium-lg hover:bg-akahl-secondary/90 transition-all active:scale-95"
                     >
-                      Add
+                      ADD
                     </button>
                   </div>
                 </div>
@@ -944,47 +944,49 @@ function AdminPanel({ onActivity }) {
                   </div>
 
                   {/* Create Button */}
-                  <div className="flex items-end col-span-2">
+                  <div className="flex items-end">
                     <button
                       onClick={handleBatchCreate}
                       disabled={batchCodes.length === 0 || !batchColeccion || batchProcessing}
-                      className="btn-success w-full py-3 border border-akahl-secondary/40 shadow-premium disabled:opacity-50"
+                      className="btn-success w-full py-4 text-lg font-bold border border-akahl-secondary/40 shadow-premium disabled:opacity-50"
                     >
                       {batchProcessing ? 'Processing...' : `Create ${batchCodes.length} Fabric${batchCodes.length !== 1 ? 's' : ''}`}
                     </button>
                   </div>
                 </div>
               </div>
-
-              {/* Resultado - Solo mostrar cuando hay resultado */}
-              {batchResult && (
-                <div className={`p-5 rounded-xl border ${batchResult.errors?.length > 0 ? 'bg-amber-950/30 border-amber-900/50' : 'bg-emerald-950/30 border-emerald-900/50'} animate-fadeIn`}>
-                  <h4 className="text-sm font-semibold mb-3 tracking-[0.1em] uppercase">Result</h4>
-                  <div className="space-y-2 text-sm">
-                    <p className="text-emerald-400">
-                      ✓ {batchResult.created} of {batchResult.total} fabrics created successfully
-                    </p>
-                    {batchResult.errors?.length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-amber-400 mb-2">Errors:</p>
-                        {batchResult.errors.map((err, idx) => (
-                          <p key={idx} className="text-neutral-400 text-xs">
-                            • {err.codigo || err.id || 'N/A'}: {err.message}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={handleBatchClear}
-                    className="mt-4 w-full btn-secondary py-2"
-                  >
-                    New Batch
-                  </button>
-                </div>
-              )}
             </div>
           </div>
+
+          {/* Resultado - Solo mostrar cuando hay resultado */}
+          {batchResult && (
+            <div className="card-premium animate-fadeIn">
+              <div className={`w-full p-6 rounded-xl border ${batchResult.errors?.length > 0 ? 'bg-amber-950/30 border-amber-900/50' : 'bg-emerald-950/30 border-emerald-900/50'}`}>
+                <h4 className="text-base font-bold mb-4 tracking-[0.1em] uppercase">Result</h4>
+                <div className="space-y-3">
+                  <p className="text-emerald-400 text-lg font-semibold">
+                    ✓ {batchResult.created} of {batchResult.total} fabrics created successfully
+                  </p>
+                  {batchResult.errors?.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-amber-400 mb-3 font-semibold">Errors:</p>
+                      {batchResult.errors.map((err, idx) => (
+                        <p key={idx} className="text-neutral-400 text-sm ml-4">
+                          • {err.codigo || err.id || 'N/A'}: {err.message}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handleBatchClear}
+                  className="mt-5 w-full btn-secondary py-3 text-base font-semibold"
+                >
+                  New Batch
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* ============================================
               SECCIÓN: TELAS - GESTIÓN MASIVA
