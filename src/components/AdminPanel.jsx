@@ -1716,25 +1716,69 @@ function AdminPanel({ onActivity }) {
 
               {batchActionModal === 'coleccion' && (
                 <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">New Collection</label>
-                  <select
-                    value={batchUpdateData.id_coleccion}
-                    onChange={(e) => setBatchUpdateData({ ...batchUpdateData, id_coleccion: e.target.value })}
-                    className="select-field"
-                  >
-                    <option value="">Select a collection</option>
-                    {colecciones.map(c => (
-                      <option key={c.id_coleccion} value={c.id_coleccion}>
-                        {c.marca?.nombre} - {c.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">New Collection</label>
+
+                  {/* Group collections by brand, sorted alphabetically */}
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {marcas
+                      .sort((a, b) => a.nombre.localeCompare(b.nombre))
+                      .map(marca => {
+                        const brandCollections = colecciones
+                          .filter(c => c.id_marca === marca.id_marca)
+                          .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+                        if (brandCollections.length === 0) return null;
+
+                        return (
+                          <div key={marca.id_marca} className="space-y-1">
+                            <div className="px-3 py-1.5 bg-akahl-secondary/20 rounded text-xs font-semibold text-akahl-secondary/80 tracking-wide uppercase">
+                              {marca.nombre}
+                            </div>
+                            {brandCollections.map(coleccion => (
+                              <label key={coleccion.id_coleccion}
+                                     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer transition-all ${
+                                       batchUpdateData.id_coleccion === String(coleccion.id_coleccion)
+                                         ? 'bg-akahl-secondary/30 border border-akahl-secondary text-white'
+                                         : 'bg-akahl-primary/50 border border-transparent hover:border-akahl-secondary/30 text-neutral-300'
+                                     }`}>
+                                <input
+                                  type="radio"
+                                  name="batch-collection"
+                                  value={coleccion.id_coleccion}
+                                  checked={batchUpdateData.id_coleccion === String(coleccion.id_coleccion)}
+                                  onChange={(e) => setBatchUpdateData({ ...batchUpdateData, id_coleccion: e.target.value })}
+                                  className="w-4 h-4"
+                                />
+                                <span className="flex-1">{coleccion.nombre}</span>
+                                {coleccion.descuento_default && (
+                                  <span className="text-xs text-neutral-500">
+                                    {Math.round(coleccion.descuento_default * 100)}% OFF
+                                  </span>
+                                )}
+                              </label>
+                            ))}
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {/* Nothing selected message */}
+                  {!batchUpdateData.id_coleccion && (
+                    <p className="text-xs text-amber-400 mt-2">Select a collection above</p>
+                  )}
                 </div>
               )}
             </div>
 
             <div className="mt-6 flex gap-3">
-              <button onClick={handleBatchUpdate} className="btn-success border border-akahl-secondary/40 shadow-premium flex-1">
+              <button
+                onClick={handleBatchUpdate}
+                disabled={
+                  (batchActionModal === 'price' && !batchUpdateData.precio_por_yarda && !batchUpdateData.descuento) ||
+                  (batchActionModal === 'coleccion' && !batchUpdateData.id_coleccion)
+                }
+                className="btn-success border border-akahl-secondary/40 shadow-premium flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Apply Changes
               </button>
               <button
