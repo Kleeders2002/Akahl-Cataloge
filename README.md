@@ -48,7 +48,7 @@ npm run dev
 | Role | PIN | Permissions |
 |-----|-----|-------------|
 | Associate | 1234 | Quotations |
-| Administrator | 9999 | Quotations + Admin Panel |
+| Administrator | 0108 | Quotations + Admin Panel |
 
 ## Workflow
 

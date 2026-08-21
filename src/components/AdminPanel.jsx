@@ -49,10 +49,10 @@ const GARMENT_TYPES = [
 ];
 
 const TABS = [
-  { id: 'marcas', label: 'Marcas' },
-  { id: 'colecciones', label: 'Colecciones' },
-  { id: 'telas', label: 'Telas' },
-  { id: 'multiplicadores', label: 'Multiplicadores' },
+  { id: 'marcas', label: 'Brands' },
+  { id: 'colecciones', label: 'Collections' },
+  { id: 'telas', label: 'Fabrics' },
+  { id: 'multiplicadores', label: 'Multipliers' },
 ];
 
 // ============================================
@@ -187,7 +187,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error creating marca:', error);
-      alert(error.response?.data?.message || 'Error al crear la marca');
+      alert(error.response?.data?.message || 'Error creating brand');
     }
   };
 
@@ -203,17 +203,17 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error updating marca:', error);
-      alert(error.response?.data?.message || 'Error al actualizar la marca');
+      alert(error.response?.data?.message || 'Error updating brand');
     }
   };
 
   const handleDeleteMarca = async (marca) => {
     const coleccionesCount = marca._count?.colecciones || 0;
     if (coleccionesCount > 0) {
-      alert(`No se puede eliminar la marca "${marca.nombre}" porque tiene ${coleccionesCount} colección(es) asociada(s).\n\nElimina primero las colecciones.`);
+      alert(`Cannot delete brand "${marca.nombre}" because it has ${coleccionesCount} associated collection(s).\n\nDelete collections first.`);
       return;
     }
-    if (!confirm(`¿Eliminar la marca "${marca.nombre}"?`)) {
+    if (!confirm(`Delete brand "${marca.nombre}"?`)) {
       return;
     }
     try {
@@ -222,7 +222,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error deleting marca:', error);
-      alert(error.response?.data?.message || 'Error al eliminar la marca');
+      alert(error.response?.data?.message || 'Error deleting brand');
     }
   };
 
@@ -231,7 +231,7 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const handleCreateColeccion = async () => {
     if (!newColeccionData.id_marca || !newColeccionData.nombre.trim()) {
-      alert('Marca y nombre son obligatorios');
+      alert('Brand and name are required');
       return;
     }
     try {
@@ -246,13 +246,13 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error creating coleccion:', error);
-      alert(error.response?.data?.message || 'Error al crear la colección');
+      alert(error.response?.data?.message || 'Error creating collection');
     }
   };
 
   const handleUpdateColeccion = async () => {
     if (!editingColeccion?.nombre.trim()) {
-      alert('El nombre de la colección es obligatorio');
+      alert('Collection name is required');
       return;
     }
     try {
@@ -266,17 +266,17 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error updating coleccion:', error);
-      alert(error.response?.data?.message || 'Error al actualizar la colección');
+      alert(error.response?.data?.message || 'Error updating collection');
     }
   };
 
   const handleDeleteColeccion = async (coleccion) => {
     const telasCount = coleccion._count?.telas || 0;
     if (telasCount > 0) {
-      alert(`No se puede eliminar la colección "${coleccion.nombre}" porque tiene ${telasCount} tela(s) asociada(s).\n\nElimina o reasigna primero las telas.`);
+      alert(`Cannot delete collection "${coleccion.nombre}" because it has ${telasCount} associated fabric(s).\n\nDelete or reassign fabrics first.`);
       return;
     }
-    if (!confirm(`¿Eliminar la colección "${coleccion.nombre}"?`)) {
+    if (!confirm(`Delete collection "${coleccion.nombre}"?`)) {
       return;
     }
     try {
@@ -285,7 +285,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error deleting coleccion:', error);
-      alert(error.response?.data?.message || 'Error al eliminar la colección');
+      alert(error.response?.data?.message || 'Error deleting collection');
     }
   };
 
@@ -296,7 +296,7 @@ function AdminPanel({ onActivity }) {
     const code = batchInputValue.trim().toUpperCase();
     if (!code) return;
     if (batchCodes.includes(code)) {
-      alert('Este código ya está en la lista');
+      alert('This code is already in the list');
       return;
     }
     setBatchCodes([...batchCodes, code]);
@@ -309,11 +309,11 @@ function AdminPanel({ onActivity }) {
 
   const handleBatchCreate = async () => {
     if (batchCodes.length === 0) {
-      alert('Agrega al menos un código');
+      alert('Add at least one code');
       return;
     }
     if (!batchColeccion) {
-      alert('Selecciona una colección');
+      alert('Select a collection');
       return;
     }
 
@@ -337,7 +337,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error in batch create:', error);
-      alert(error.response?.data?.message || 'Error al crear telas');
+      alert(error.response?.data?.message || 'Error creating fabrics');
     } finally {
       setBatchProcessing(false);
     }
@@ -385,7 +385,7 @@ function AdminPanel({ onActivity }) {
     }
 
     if (Object.keys(updates).length === 0) {
-      alert('Especifica al menos un valor para actualizar');
+      alert('Specify at least one value to update');
       return;
     }
 
@@ -399,17 +399,17 @@ function AdminPanel({ onActivity }) {
       setBatchActionModal(null);
       setBatchUpdateData({ precio_por_yarda: '', descuento: '', id_coleccion: '' });
 
-      alert(`Actualizadas: ${result.updated} de ${result.total} telas`);
+      alert(`Updated: ${result.updated} of ${result.total} fabrics`);
       onActivity?.();
     } catch (error) {
       console.error('Error in batch update:', error);
-      alert(error.response?.data?.message || 'Error al actualizar telas');
+      alert(error.response?.data?.message || 'Error updating fabrics');
     }
   };
 
   const handleBatchDelete = async () => {
     if (selectedFabrics.length === 0) return;
-    if (!confirm(`¿Eliminar ${selectedFabrics.length} tela(s)? Esta acción no se puede deshacer.`)) {
+    if (!confirm(`Delete ${selectedFabrics.length} fabric(s)? This action cannot be undone.`)) {
       return;
     }
 
@@ -424,15 +424,15 @@ function AdminPanel({ onActivity }) {
       setSelectedFabrics([]);
 
       if (result.errors && result.errors.length > 0) {
-        alert(`Eliminadas: ${result.deleted} de ${result.total} telas\n\nErrores:\n${result.errors.map(e => `- ${e.message}`).join('\n')}`);
+        alert(`Deleted: ${result.deleted} of ${result.total} fabrics\n\nErrors:\n${result.errors.map(e => `- ${e.message}`).join('\n')}`);
       } else {
-        alert(`Eliminadas ${result.deleted} telas`);
+        alert(`Deleted ${result.deleted} fabrics`);
       }
 
       onActivity?.();
     } catch (error) {
       console.error('Error in batch delete:', error);
-      alert(error.response?.data?.message || 'Error al eliminar telas');
+      alert(error.response?.data?.message || 'Error deleting fabrics');
     }
   };
 
@@ -451,7 +451,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error saving fabric:', error);
-      alert('Error al guardar la tela');
+      alert('Error saving fabric');
     }
   };
 
@@ -463,12 +463,12 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error toggling availability:', error);
-      alert('Error al cambiar disponibilidad');
+      alert('Error changing availability');
     }
   };
 
   const handleDeleteFabric = async (fabricId) => {
-    if (!confirm('¿Eliminar esta tela? Esta acción no se puede deshacer.')) {
+    if (!confirm('Delete this fabric? This action cannot be undone.')) {
       return;
     }
     try {
@@ -477,13 +477,13 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error deleting fabric:', error);
-      alert('Error al eliminar la tela');
+      alert('Error deleting fabric');
     }
   };
 
   const handleCreateFabric = async () => {
     if (!newFabricData.codigo || !newFabricData.nombre) {
-      alert('Código y nombre son obligatorios');
+      alert('Code and name are required');
       return;
     }
     try {
@@ -513,7 +513,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error creating fabric:', error);
-      alert('Error al crear la tela');
+      alert('Error creating fabric');
     }
   };
 
@@ -537,7 +537,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error saving multipliers:', error);
-      alert('Error al guardar multiplicadores');
+      alert('Error saving multipliers');
     }
   };
 
@@ -603,7 +603,7 @@ function AdminPanel({ onActivity }) {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Marcas</h3>
+              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Brands</h3>
             </div>
             <button
               onClick={() => setCreatingMarca(true)}
@@ -612,7 +612,7 @@ function AdminPanel({ onActivity }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Agregar Marca
+              Add Brand
             </button>
           </div>
 
@@ -620,10 +620,10 @@ function AdminPanel({ onActivity }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-akahl-secondary/20">
-                  <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Nombre</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs"># Colecciones</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Fecha Creación</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Acciones</th>
+                  <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Name</th>
+                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs"># Collections</th>
+                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Created</th>
+                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -647,7 +647,7 @@ function AdminPanel({ onActivity }) {
                         <button
                           onClick={() => setEditingMarca(marca)}
                           className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                          title="Editar"
+                          title="Edit"
                         >
                           <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -656,7 +656,7 @@ function AdminPanel({ onActivity }) {
                         <button
                           onClick={() => handleDeleteMarca(marca)}
                           className="p-2 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
-                          title="Eliminar"
+                          title="Delete"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -672,7 +672,7 @@ function AdminPanel({ onActivity }) {
 
           {marcas.length === 0 && (
             <div className="text-center py-8 text-neutral-500">
-              No hay marcas registradas. Agrega la primera marca.
+              No brands registered. Add the first brand.
             </div>
           )}
         </div>
@@ -688,7 +688,7 @@ function AdminPanel({ onActivity }) {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Colecciones</h3>
+              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Collections</h3>
             </div>
             <button
               onClick={() => setCreatingColeccion(true)}
@@ -698,13 +698,13 @@ function AdminPanel({ onActivity }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Agregar Colección
+              Add Collection
             </button>
           </div>
 
           {marcas.length === 0 && (
             <div className="mb-5 p-4 bg-akahl-secondary/10 border border-akahl-secondary/30 rounded-xl text-center">
-              <p className="text-akahl-secondary/80">Primero debes crear al menos una marca en la sección de Marcas</p>
+              <p className="text-akahl-secondary/80">First create at least one brand in the Brands section</p>
             </div>
           )}
 
@@ -712,11 +712,11 @@ function AdminPanel({ onActivity }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-akahl-secondary/20">
-                  <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Nombre</th>
-                  <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Marca</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Descuento</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs"># Telas</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Acciones</th>
+                  <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Name</th>
+                  <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Brand</th>
+                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Discount</th>
+                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs"># Fabrics</th>
+                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -743,7 +743,7 @@ function AdminPanel({ onActivity }) {
                         <button
                           onClick={() => setEditingColeccion(coleccion)}
                           className="p-2 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                          title="Editar"
+                          title="Edit"
                         >
                           <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -752,7 +752,7 @@ function AdminPanel({ onActivity }) {
                         <button
                           onClick={() => handleDeleteColeccion(coleccion)}
                           className="p-2 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
-                          title="Eliminar"
+                          title="Delete"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -768,7 +768,7 @@ function AdminPanel({ onActivity }) {
 
           {colecciones.length === 0 && marcas.length > 0 && (
             <div className="text-center py-8 text-neutral-500">
-              No hay colecciones registradas. Agrega la primera colección.
+              No collections registered. Add the first collection.
             </div>
           )}
         </div>
@@ -784,7 +784,7 @@ function AdminPanel({ onActivity }) {
 
             <div className="flex items-center gap-3 mb-5">
               <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Ingreso Rápido de Telas</h3>
+              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Quick Fabric Entry</h3>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -805,14 +805,14 @@ function AdminPanel({ onActivity }) {
                           handleBatchAddCode();
                         }
                       }}
-                      placeholder="Escribe código y presiona Enter..."
+                      placeholder="Type code and press Enter..."
                       className="input-field flex-1 text-xl bg-akahl-primary/50 border-akahl-secondary/30"
                     />
                     <button
                       onClick={handleBatchAddCode}
                       className="btn-primary px-6"
                     >
-                      Agregar
+                      Add
                     </button>
                   </div>
                 </div>
@@ -822,13 +822,13 @@ function AdminPanel({ onActivity }) {
                   <div className="p-4 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/10">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-medium text-akahl-secondary">
-                        {batchCodes.length} código{batchCodes.length !== 1 ? 's' : ''} agregado{batchCodes.length !== 1 ? 's' : ''}
+                        {batchCodes.length} code{batchCodes.length !== 1 ? 's' : ''} added
                       </span>
                       <button
                         onClick={handleBatchClear}
                         className="text-xs text-red-400 hover:text-red-300 transition-colors"
                       >
-                        Limpiar todos
+                        Clear all
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -853,7 +853,7 @@ function AdminPanel({ onActivity }) {
                 {/* Campos adicionales */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Colección</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Collection</label>
                     <select
                       value={batchColeccion}
                       onChange={(e) => setBatchColeccion(e.target.value)}
@@ -867,7 +867,7 @@ function AdminPanel({ onActivity }) {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Precio por Yarda</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Price per Yard</label>
                     <input
                       type="number"
                       step="0.01"
@@ -878,7 +878,7 @@ function AdminPanel({ onActivity }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Descuento (%)</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Discount (%)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -895,7 +895,7 @@ function AdminPanel({ onActivity }) {
                       disabled={batchCodes.length === 0 || !batchColeccion || batchProcessing}
                       className="btn-success w-full py-3 border border-akahl-secondary/40 shadow-premium disabled:opacity-50"
                     >
-                      {batchProcessing ? 'Procesando...' : `Crear ${batchCodes.length} Tela${batchCodes.length !== 1 ? 's' : ''}`}
+                      {batchProcessing ? 'Processing...' : `Create ${batchCodes.length} Fabric${batchCodes.length !== 1 ? 's' : ''}`}
                     </button>
                   </div>
                 </div>
@@ -905,14 +905,14 @@ function AdminPanel({ onActivity }) {
               <div>
                 {batchResult ? (
                   <div className={`p-5 rounded-xl border ${batchResult.errors?.length > 0 ? 'bg-amber-950/30 border-amber-900/50' : 'bg-emerald-950/30 border-emerald-900/50'}`}>
-                    <h4 className="text-sm font-semibold mb-3 tracking-[0.1em] uppercase">Resultado</h4>
+                    <h4 className="text-sm font-semibold mb-3 tracking-[0.1em] uppercase">Result</h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-emerald-400">
-                        ✓ {batchResult.created} de {batchResult.total} telas creadas exitosamente
+                        ✓ {batchResult.created} of {batchResult.total} fabrics created successfully
                       </p>
                       {batchResult.errors?.length > 0 && (
                         <div className="mt-3">
-                          <p className="text-amber-400 mb-2">Errores:</p>
+                          <p className="text-amber-400 mb-2">Errors:</p>
                           {batchResult.errors.map((err, idx) => (
                             <p key={idx} className="text-neutral-400 text-xs">
                               • {err.codigo || err.id || 'N/A'}: {err.message}
@@ -925,7 +925,7 @@ function AdminPanel({ onActivity }) {
                       onClick={handleBatchClear}
                       className="mt-4 w-full btn-secondary py-2"
                     >
-                      Nueva Carga
+                      New Batch
                     </button>
                   </div>
                 ) : (
@@ -934,7 +934,7 @@ function AdminPanel({ onActivity }) {
                       <svg className="w-12 h-12 mx-auto mb-3 text-akahl-secondary/30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      <p>Agrega códigos para crear telas</p>
+                      <p>Add codes to create fabrics</p>
                     </div>
                   </div>
                 )}
@@ -951,7 +951,7 @@ function AdminPanel({ onActivity }) {
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Gestión de Telas</h3>
+                <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Fabric Management</h3>
               </div>
               <button
                 onClick={() => setCreatingFabric(true)}
@@ -960,7 +960,7 @@ function AdminPanel({ onActivity }) {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Nueva Tela
+                New Fabric
               </button>
             </div>
 
@@ -971,7 +971,7 @@ function AdminPanel({ onActivity }) {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Buscar telas..."
+                  placeholder="Search fabrics..."
                   className="input-field text-lg bg-akahl-primary/50 border-akahl-secondary/20"
                 />
               </div>
@@ -984,7 +984,7 @@ function AdminPanel({ onActivity }) {
                       : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
                   }`}
                 >
-                  Todas
+                  All
                 </button>
                 <button
                   onClick={() => setFilter('available')}
@@ -994,7 +994,7 @@ function AdminPanel({ onActivity }) {
                       : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
                   }`}
                 >
-                  En Stock
+                  In Stock
                 </button>
                 <button
                   onClick={() => setFilter('out_of_stock')}
@@ -1004,7 +1004,7 @@ function AdminPanel({ onActivity }) {
                       : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
                   }`}
                 >
-                  Agotadas
+                  Out of Stock
                 </button>
               </div>
             </div>
@@ -1013,26 +1013,26 @@ function AdminPanel({ onActivity }) {
             {selectedFabrics.length > 0 && (
               <div className="mb-4 p-4 bg-akahl-secondary/10 border border-akahl-secondary/30 rounded-xl flex items-center justify-between">
                 <span className="text-akahl-secondary font-medium">
-                  {selectedFabrics.length} seleccionada{selectedFabrics.length !== 1 ? 's' : ''}
+                  {selectedFabrics.length} selected
                 </span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setBatchActionModal('price')}
                     className="px-4 py-2 bg-akahl-primary/50 hover:bg-akahl-primary/70 text-neutral-300 font-medium rounded-lg transition-all border border-akahl-secondary/20"
                   >
-                    Actualizar Precios
+                    Update Prices
                   </button>
                   <button
                     onClick={() => setBatchActionModal('coleccion')}
                     className="px-4 py-2 bg-akahl-primary/50 hover:bg-akahl-primary/70 text-neutral-300 font-medium rounded-lg transition-all border border-akahl-secondary/20"
                   >
-                    Cambiar Colección
+                    Change Collection
                   </button>
                   <button
                     onClick={handleBatchDelete}
                     className="px-4 py-2 bg-red-950/40 hover:bg-red-950/60 text-red-400 font-medium rounded-lg transition-all border border-red-900/50"
                   >
-                    Eliminar
+                    Delete
                   </button>
                 </div>
               </div>
@@ -1051,13 +1051,13 @@ function AdminPanel({ onActivity }) {
                         className="w-4 h-4"
                       />
                     </th>
-                    <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Código</th>
-                    <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Marca</th>
-                    <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Colección</th>
-                    <th className="text-right py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Precio/Yarda</th>
-                    <th className="text-right py-3 px-3 font-semibold text-akahl-secondary tracking-[0.1em] uppercase text-xs">Precio Neto</th>
-                    <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Estado</th>
-                    <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Acciones</th>
+                    <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Code</th>
+                    <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Brand</th>
+                    <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Collection</th>
+                    <th className="text-right py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Price/Yard</th>
+                    <th className="text-right py-3 px-3 font-semibold text-akahl-secondary tracking-[0.1em] uppercase text-xs">Net Price</th>
+                    <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Status</th>
+                    <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1092,12 +1092,12 @@ function AdminPanel({ onActivity }) {
                           {fabric.availability === 'available' ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">
                               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
-                              Stock
+                              In Stock
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-950/50 text-red-400 border border-red-900/50">
                               <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
-                              Agotado
+                              Out of Stock
                             </span>
                           )}
                         </td>
@@ -1106,7 +1106,7 @@ function AdminPanel({ onActivity }) {
                             <button
                               onClick={() => setPriceModalFabric(fabric)}
                               className="p-1.5 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                              title="Ver precios"
+                              title="View prices"
                             >
                               <svg className="w-4 h-4 text-akahl-secondary" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -1115,7 +1115,7 @@ function AdminPanel({ onActivity }) {
                             <button
                               onClick={() => handleToggleAvailability(fabric)}
                               className="p-1.5 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                              title="Cambiar estado"
+                              title="Toggle status"
                             >
                               {fabric.availability === 'available' ? (
                                 <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
@@ -1130,7 +1130,7 @@ function AdminPanel({ onActivity }) {
                             <button
                               onClick={() => setEditingFabric(fabric)}
                               className="p-1.5 rounded-lg hover:bg-akahl-secondary/10 transition-all border border-transparent hover:border-akahl-secondary/30"
-                              title="Editar"
+                              title="Edit"
                             >
                               <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1139,7 +1139,7 @@ function AdminPanel({ onActivity }) {
                             <button
                               onClick={() => handleDeleteFabric(fabric.id)}
                               className="p-1.5 rounded-lg hover:bg-red-950/50 text-red-400 hover:text-red-300 transition-all border border-transparent hover:border-red-900/50"
-                              title="Eliminar"
+                              title="Delete"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1156,7 +1156,7 @@ function AdminPanel({ onActivity }) {
 
             {filteredFabrics.length === 0 && (
               <div className="text-center py-8 text-neutral-500">
-                No se encontraron telas con los filtros actuales.
+                No fabrics found with current filters.
               </div>
             )}
 
@@ -1170,13 +1170,13 @@ function AdminPanel({ onActivity }) {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                 <span className="text-neutral-400">
-                  <strong className="text-emerald-400">{fabrics.filter(f => f.availability === 'available').length}</strong> En Stock
+                  <strong className="text-emerald-400">{fabrics.filter(f => f.availability === 'available').length}</strong> In Stock
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-red-400 rounded-full"></div>
                 <span className="text-neutral-400">
-                  <strong className="text-red-400">{fabrics.filter(f => f.availability === 'out_of_stock').length}</strong> Agotadas
+                  <strong className="text-red-400">{fabrics.filter(f => f.availability === 'out_of_stock').length}</strong> Out of Stock
                 </span>
               </div>
             </div>
@@ -1194,7 +1194,7 @@ function AdminPanel({ onActivity }) {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Multiplicadores de Precio</h3>
+              <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Price Multipliers</h3>
             </div>
             {!editingPricing && (
               <button
@@ -1210,11 +1210,11 @@ function AdminPanel({ onActivity }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-akahl-secondary/20">
-                  <th className="text-left py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Prenda</th>
-                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Yardas Req.</th>
-                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Costo Manuf.</th>
-                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Costo Envío</th>
-                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Costo Forro</th>
+                  <th className="text-left py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Garment</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Yards Req.</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Mfg. Cost</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Ship. Cost</th>
+                  <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Lining Cost</th>
                   <th className="text-center py-3 px-3 font-medium text-akahl-secondary/60 tracking-[0.1em] uppercase text-xs">Markup</th>
                 </tr>
               </thead>
@@ -1323,7 +1323,7 @@ function AdminPanel({ onActivity }) {
           {editingPricing && (
             <div className="mt-5 flex gap-3">
               <button onClick={handleSaveMultipliers} className="btn-success border border-akahl-secondary/40 shadow-premium">
-                Guardar Cambios
+                Save Changes
               </button>
               <button
                 onClick={() => {
@@ -1332,7 +1332,7 @@ function AdminPanel({ onActivity }) {
                 }}
                 className="btn-secondary"
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           )}
@@ -1358,14 +1358,14 @@ function AdminPanel({ onActivity }) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Nueva Marca</h3>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">New Brand</h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nombre de la Marca *</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Brand Name *</label>
                 <input
                   type="text"
                   value={newMarcaName}
@@ -1379,13 +1379,13 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleCreateMarca} className="btn-success border border-akahl-secondary/40 shadow-premium flex-1">
-                Crear Marca
+                Create Brand
               </button>
               <button
                 onClick={() => { setCreatingMarca(false); setNewMarcaName(''); }}
                 className="btn-secondary"
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -1410,14 +1410,14 @@ function AdminPanel({ onActivity }) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Editar Marca</h3>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Edit Brand</h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nombre de la Marca</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Brand Name</label>
                 <input
                   type="text"
                   value={editingMarca.nombre}
@@ -1429,10 +1429,10 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleUpdateMarca} className="btn-success border border-akahl-secondary/40 shadow-premium flex-1">
-                Guardar Cambios
+                Save Changes
               </button>
               <button onClick={() => setEditingMarca(null)} className="btn-secondary">
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -1457,27 +1457,27 @@ function AdminPanel({ onActivity }) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Nueva Colección</h3>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">New Collection</h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Marca *</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Brand *</label>
                 <select
                   value={newColeccionData.id_marca}
                   onChange={(e) => setNewColeccionData({ ...newColeccionData, id_marca: e.target.value })}
                   className="select-field"
                 >
-                  <option value="">Selecciona una marca</option>
+                  <option value="">Select a brand</option>
                   {marcas.map(marca => (
                     <option key={marca.id_marca} value={marca.id_marca}>{marca.nombre}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nombre de la Colección *</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Collection Name *</label>
                 <input
                   type="text"
                   value={newColeccionData.nombre}
@@ -1487,7 +1487,7 @@ function AdminPanel({ onActivity }) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Descuento Default (0.35 = 35%)</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Default Discount (0.35 = 35%)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -1502,13 +1502,13 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleCreateColeccion} className="btn-success border border-akahl-secondary/40 shadow-premium flex-1">
-                Crear Colección
+                Create Collection
               </button>
               <button
                 onClick={() => { setCreatingColeccion(false); setNewColeccionData({ id_marca: '', nombre: '', descuento_default: 0.35 }); }}
                 className="btn-secondary"
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -1533,17 +1533,17 @@ function AdminPanel({ onActivity }) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Editar Colección</h3>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Edit Collection</h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
             </div>
 
             <div className="space-y-4">
               <div className="p-4 bg-akahl-primary/50 rounded-lg border border-akahl-secondary/10">
-                <p className="text-sm text-neutral-400">Marca: <span className="text-white">{editingColeccion.marca?.nombre || 'N/A'}</span></p>
+                <p className="text-sm text-neutral-400">Brand: <span className="text-white">{editingColeccion.marca?.nombre || 'N/A'}</span></p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nombre de la Colección</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Collection Name</label>
                 <input
                   type="text"
                   value={editingColeccion.nombre}
@@ -1552,7 +1552,7 @@ function AdminPanel({ onActivity }) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Descuento Default (0.35 = 35%)</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Default Discount (0.35 = 35%)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -1567,10 +1567,10 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleUpdateColeccion} className="btn-success border border-akahl-secondary/40 shadow-premium flex-1">
-                Guardar Cambios
+                Save Changes
               </button>
               <button onClick={() => setEditingColeccion(null)} className="btn-secondary">
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -1595,7 +1595,7 @@ function AdminPanel({ onActivity }) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Editar Tela</h3>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Edit Fabric</h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
             </div>
@@ -1608,7 +1608,7 @@ function AdminPanel({ onActivity }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">Precio por Yarda</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">Price per Yard</label>
                 <input
                   type="number"
                   step="0.01"
@@ -1619,7 +1619,7 @@ function AdminPanel({ onActivity }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">Disponibilidad</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">Availability</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setEditingFabric({ ...editingFabric, availability: 'available' })}
@@ -1657,10 +1657,10 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleSaveFabric} className="btn-success border border-akahl-secondary/40 shadow-premium">
-                Guardar Cambios
+                Save Changes
               </button>
               <button onClick={() => setEditingFabric(null)} className="btn-secondary">
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -1685,14 +1685,14 @@ function AdminPanel({ onActivity }) {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">Nueva Tela</h3>
+                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">New Fabric</h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Código *</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Code *</label>
                 <input
                   type="text"
                   value={newFabricData.codigo}
@@ -1703,7 +1703,7 @@ function AdminPanel({ onActivity }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nombre *</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Name *</label>
                 <input
                   type="text"
                   value={newFabricData.nombre}
@@ -1726,7 +1726,7 @@ function AdminPanel({ onActivity }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Precio por Yarda *</label>
+                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Price per Yard *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -1766,7 +1766,7 @@ function AdminPanel({ onActivity }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Composición</label>
+                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Composition</label>
                   <input
                     type="text"
                     value={newFabricData.composicion}
@@ -1776,7 +1776,7 @@ function AdminPanel({ onActivity }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Peso</label>
+                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Weight</label>
                   <input
                     type="text"
                     value={newFabricData.peso}
@@ -1790,7 +1790,7 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleCreateFabric} className="btn-success border border-akahl-secondary/40 shadow-premium">
-                Crear Tela
+                Create Fabric
               </button>
               <button
                 onClick={() => {
@@ -1808,7 +1808,7 @@ function AdminPanel({ onActivity }) {
                 }}
                 className="btn-secondary"
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>
@@ -1834,12 +1834,12 @@ function AdminPanel({ onActivity }) {
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
                 <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">
-                  {batchActionModal === 'price' ? 'Actualizar Precios' : 'Cambiar Colección'}
+                  {batchActionModal === 'price' ? 'Update Prices' : 'Change Collection'}
                 </h3>
               </div>
               <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
               <p className="text-sm text-neutral-400 mt-2">
-                {selectedFabrics.length} tela{selectedFabrics.length !== 1 ? 's' : ''} seleccionada{selectedFabrics.length !== 1 ? 's' : ''}
+                {selectedFabrics.length} fabric{selectedFabrics.length !== 1 ? 's' : ''} selected
               </p>
             </div>
 
@@ -1847,18 +1847,18 @@ function AdminPanel({ onActivity }) {
               {batchActionModal === 'price' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nuevo Precio por Yarda</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">New Price per Yard</label>
                     <input
                       type="number"
                       step="0.01"
                       value={batchUpdateData.precio_por_yarda}
                       onChange={(e) => setBatchUpdateData({ ...batchUpdateData, precio_por_yarda: e.target.value })}
-                      placeholder="Dejar vacío para no cambiar"
+                      placeholder="Leave empty to keep current"
                       className="input-field"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nuevo Descuento (0.35 = 35%)</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">New Discount (0.35 = 35%)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -1866,7 +1866,7 @@ function AdminPanel({ onActivity }) {
                       min="0"
                       value={batchUpdateData.descuento}
                       onChange={(e) => setBatchUpdateData({ ...batchUpdateData, descuento: e.target.value })}
-                      placeholder="Dejar vacío para no cambiar"
+                      placeholder="Leave empty to keep current"
                       className="input-field"
                     />
                   </div>
@@ -1875,13 +1875,13 @@ function AdminPanel({ onActivity }) {
 
               {batchActionModal === 'coleccion' && (
                 <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Nueva Colección</label>
+                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">New Collection</label>
                   <select
                     value={batchUpdateData.id_coleccion}
                     onChange={(e) => setBatchUpdateData({ ...batchUpdateData, id_coleccion: e.target.value })}
                     className="select-field"
                   >
-                    <option value="">Selecciona una colección</option>
+                    <option value="">Select a collection</option>
                     {colecciones.map(c => (
                       <option key={c.id_coleccion} value={c.id_coleccion}>
                         {c.marca?.nombre} - {c.nombre}
@@ -1894,13 +1894,13 @@ function AdminPanel({ onActivity }) {
 
             <div className="mt-6 flex gap-3">
               <button onClick={handleBatchUpdate} className="btn-success border border-akahl-secondary/40 shadow-premium flex-1">
-                Aplicar Cambios
+                Apply Changes
               </button>
               <button
                 onClick={() => { setBatchActionModal(null); setBatchUpdateData({ precio_por_yarda: '', descuento: '', id_coleccion: '' }); }}
                 className="btn-secondary"
               >
-                Cancelar
+                Cancel
               </button>
             </div>
           </div>

@@ -20,7 +20,7 @@ export const PINS_CONFIG = {
     permissions: ['quotations'],
     description: 'Acceso a cotizaciones únicamente'
   },
-  '9999': {
+  '0108': {
     role: 'ADMIN',
     name: 'Administrador',
     permissions: ['quotations', 'admin'],
