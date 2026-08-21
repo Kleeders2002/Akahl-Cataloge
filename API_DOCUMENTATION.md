@@ -976,3 +976,8 @@ interface Multiplicador {
 4. **Eliminación en cascada:** Marca → Colección → Tela
 5. **Multiplicadores GET:** No incluye `codigo`, `createdAt`, `updatedAt`
 6. **Multiplicadores POST:** Solo actualiza campos enviados
+
+---
+
+**Versión:** 1.0 - Actualizado a agosto 2026
+**Base Path:** `/api/catalogo`

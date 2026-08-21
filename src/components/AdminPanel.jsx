@@ -333,6 +333,13 @@ function AdminPanel({ onActivity }) {
       return;
     }
 
+    // Verificar si hay token de autenticación
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('⚠️ No authentication token detected.\n\nYou need to log out and log in again to create fabrics.\n\nThe backend is currently unavailable or your session has expired.');
+      return;
+    }
+
     setBatchProcessing(true);
     try {
       const result = await createFabricsBatch(
@@ -353,7 +360,8 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error in batch create:', error);
-      alert(error.response?.data?.message || 'Error creating fabrics');
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Error creating fabrics';
+      alert(`❌ ${errorMsg}\n\nIf the issue persists, try logging out and back in.`);
     } finally {
       setBatchProcessing(false);
     }
