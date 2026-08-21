@@ -205,7 +205,7 @@ function AdminPanel({ onActivity }) {
     }
     try {
       const updated = await updateMarca(editingMarca.id_marca, editingMarca.nombre.trim());
-      setMarcas(marcas.map(m => m.id_marca === updated.id_marca ? updated : editingMarca));
+      setMarcas(marcas.map(m => m.id_marca === updated.id_marca ? updated : m));
       setEditingMarca(null);
       onActivity?.();
     } catch (error) {
@@ -268,7 +268,7 @@ function AdminPanel({ onActivity }) {
         editingColeccion.nombre.trim(),
         parseFloat(editingColeccion.descuento_default)
       );
-      setColecciones(colecciones.map(c => c.id_coleccion === updated.id_coleccion ? updated : editingColeccion));
+      setColecciones(colecciones.map(c => c.id_coleccion === updated.id_coleccion ? updated : c));
       setEditingColeccion(null);
       onActivity?.();
     } catch (error) {
@@ -333,13 +333,6 @@ function AdminPanel({ onActivity }) {
       return;
     }
 
-    // Verificar si hay token de autenticación
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('⚠️ No authentication token detected.\n\nYou need to log out and log in again to create fabrics.\n\nThe backend is currently unavailable or your session has expired.');
-      return;
-    }
-
     setBatchProcessing(true);
     try {
       const result = await createFabricsBatch(
@@ -360,8 +353,7 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error in batch create:', error);
-      const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Error creating fabrics';
-      alert(`❌ ${errorMsg}\n\nIf the issue persists, try logging out and back in.`);
+      alert(error.response?.data?.message || 'Error creating fabrics');
     } finally {
       setBatchProcessing(false);
     }
