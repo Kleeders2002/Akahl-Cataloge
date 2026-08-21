@@ -810,7 +810,7 @@ function AdminPanel({ onActivity }) {
                   <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">
                     Códigos (presiona Enter para agregar)
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <input
                       type="text"
                       value={batchInputValue}
@@ -822,11 +822,11 @@ function AdminPanel({ onActivity }) {
                         }
                       }}
                       placeholder="Type code and press Enter..."
-                      className="input-field flex-1 text-xl bg-akahl-primary/50 border-akahl-secondary/30"
+                      className="input-field flex-1 text-2xl bg-akahl-primary/80 border-akahl-secondary/40 py-4 px-5 shadow-premium placeholder:text-akahl-secondary/20"
                     />
                     <button
                       onClick={handleBatchAddCode}
-                      className="btn-primary px-6"
+                      className="btn-primary px-8 py-4 text-lg font-semibold shadow-premium hover:shadow-premium-lg border-2 border-akahl-secondary/50"
                     >
                       Add
                     </button>
@@ -956,44 +956,33 @@ function AdminPanel({ onActivity }) {
                 </div>
               </div>
 
-              {/* Resultado */}
-              <div>
-                {batchResult ? (
-                  <div className={`p-5 rounded-xl border ${batchResult.errors?.length > 0 ? 'bg-amber-950/30 border-amber-900/50' : 'bg-emerald-950/30 border-emerald-900/50'}`}>
-                    <h4 className="text-sm font-semibold mb-3 tracking-[0.1em] uppercase">Result</h4>
-                    <div className="space-y-2 text-sm">
-                      <p className="text-emerald-400">
-                        ✓ {batchResult.created} of {batchResult.total} fabrics created successfully
-                      </p>
-                      {batchResult.errors?.length > 0 && (
-                        <div className="mt-3">
-                          <p className="text-amber-400 mb-2">Errors:</p>
-                          {batchResult.errors.map((err, idx) => (
-                            <p key={idx} className="text-neutral-400 text-xs">
-                              • {err.codigo || err.id || 'N/A'}: {err.message}
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={handleBatchClear}
-                      className="mt-4 w-full btn-secondary py-2"
-                    >
-                      New Batch
-                    </button>
+              {/* Resultado - Solo mostrar cuando hay resultado */}
+              {batchResult && (
+                <div className={`p-5 rounded-xl border ${batchResult.errors?.length > 0 ? 'bg-amber-950/30 border-amber-900/50' : 'bg-emerald-950/30 border-emerald-900/50'} animate-fadeIn`}>
+                  <h4 className="text-sm font-semibold mb-3 tracking-[0.1em] uppercase">Result</h4>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-emerald-400">
+                      ✓ {batchResult.created} of {batchResult.total} fabrics created successfully
+                    </p>
+                    {batchResult.errors?.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-amber-400 mb-2">Errors:</p>
+                        {batchResult.errors.map((err, idx) => (
+                          <p key={idx} className="text-neutral-400 text-xs">
+                            • {err.codigo || err.id || 'N/A'}: {err.message}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="h-full flex items-center justify-center p-8 border-2 border-dashed border-akahl-secondary/20 rounded-xl">
-                    <div className="text-center text-neutral-500">
-                      <svg className="w-12 h-12 mx-auto mb-3 text-akahl-secondary/30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      <p>Add codes to create fabrics</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                  <button
+                    onClick={handleBatchClear}
+                    className="mt-4 w-full btn-secondary py-2"
+                  >
+                    New Batch
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
