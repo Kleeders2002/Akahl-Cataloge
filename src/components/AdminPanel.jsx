@@ -106,6 +106,7 @@ function AdminPanel({ onActivity }) {
   // Telas - Batch
   const [batchCodes, setBatchCodes] = useState([]);
   const [batchInputValue, setBatchInputValue] = useState('');
+  const [batchMarca, setBatchMarca] = useState(''); // Brand seleccionado para batch
   const [batchColeccion, setBatchColeccion] = useState('');
   const [batchPrecio, setBatchPrecio] = useState(0);
   const [batchDescuento, setBatchDescuento] = useState(0.35);
@@ -156,9 +157,15 @@ function AdminPanel({ onActivity }) {
       // Inicializar tempMultipliers con los tipos completos para edición
       setTempMultipliers(JSON.parse(JSON.stringify(pricingData?.tipos || [])));
 
-      // Set default colección para batch
-      if (coleccionesData?.length > 0) {
-        setBatchColeccion(coleccionesData[0].id_coleccion);
+      // Set default brand y colección para batch
+      if (marcasData?.length > 0) {
+        const firstBrand = marcasData[0];
+        setBatchMarca(firstBrand.id_marca);
+        // Buscar la primera colección de este brand
+        const firstBrandCollection = coleccionesData?.find(c => c.id_marca === firstBrand.id_marca);
+        if (firstBrandCollection) {
+          setBatchColeccion(firstBrandCollection.id_coleccion);
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -305,6 +312,15 @@ function AdminPanel({ onActivity }) {
 
   const handleBatchRemoveCode = (code) => {
     setBatchCodes(batchCodes.filter(c => c !== code));
+  };
+
+  const handleBatchBrandChange = (newBrandId) => {
+    setBatchMarca(newBrandId);
+    // Actualizar a la primera colección del nuevo brand
+    const firstCollectionOfBrand = colecciones.find(c => c.id_marca === parseInt(newBrandId));
+    if (firstCollectionOfBrand) {
+      setBatchColeccion(firstCollectionOfBrand.id_coleccion);
+    }
   };
 
   const handleBatchCreate = async () => {
@@ -819,28 +835,29 @@ function AdminPanel({ onActivity }) {
 
                 {/* Tags de códigos */}
                 {batchCodes.length > 0 && (
-                  <div className="p-4 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/10">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-akahl-secondary">
+                  <div className="p-5 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/20">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-base font-semibold text-akahl-secondary tracking-wide">
                         {batchCodes.length} code{batchCodes.length !== 1 ? 's' : ''} added
                       </span>
                       <button
                         onClick={handleBatchClear}
-                        className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                        className="text-sm text-red-400 hover:text-red-300 transition-colors font-medium"
                       >
                         Clear all
                       </button>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-3">
                       {batchCodes.map((code, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-akahl-secondary/20 border border-akahl-secondary/30 rounded-lg text-sm text-akahl-secondary"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-akahl-secondary/30 border border-akahl-secondary/50 rounded-lg text-base font-semibold text-akahl-secondary shadow-gold-glow animate-fadeIn"
+                          style={{ animationDelay: `${idx * 30}ms` }}
                         >
                           {code}
                           <button
                             onClick={() => handleBatchRemoveCode(code)}
-                            className="ml-1 text-akahl-secondary/60 hover:text-akahl-secondary transition-colors"
+                            className="ml-1 w-5 h-5 flex items-center justify-center rounded-full bg-akahl-secondary/20 text-akahl-secondary hover:bg-akahl-secondary/40 transition-all font-bold"
                           >
                             ×
                           </button>
@@ -852,22 +869,55 @@ function AdminPanel({ onActivity }) {
 
                 {/* Campos adicionales */}
                 <div className="grid grid-cols-2 gap-4">
+                  {/* Brand Selector */}
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Collection</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Brand *</label>
+                    <select
+                      value={batchMarca}
+                      onChange={(e) => handleBatchBrandChange(e.target.value)}
+                      className="select-field"
+                      disabled={marcas.length === 0}
+                    >
+                      {marcas.map(marca => (
+                        <option key={marca.id_marca} value={marca.id_marca}>
+                          {marca.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    {marcas.length === 0 && (
+                      <p className="text-xs text-amber-400 mt-1">Create a brand first</p>
+                    )}
+                  </div>
+
+                  {/* Collection Selector (filtrado por brand) */}
+                  <div>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Collection *</label>
                     <select
                       value={batchColeccion}
                       onChange={(e) => setBatchColeccion(e.target.value)}
                       className="select-field"
+                      disabled={!batchMarca || colecciones.filter(c => c.id_marca === parseInt(batchMarca)).length === 0}
                     >
-                      {colecciones.map(c => (
-                        <option key={c.id_coleccion} value={c.id_coleccion}>
-                          {c.marca?.nombre} - {c.nombre}
-                        </option>
-                      ))}
+                      {batchMarca ? (
+                        colecciones
+                          .filter(c => c.id_marca === parseInt(batchMarca))
+                          .map(c => (
+                            <option key={c.id_coleccion} value={c.id_coleccion}>
+                              {c.nombre}
+                            </option>
+                          ))
+                      ) : (
+                        <option value="">Select brand first</option>
+                      )}
                     </select>
+                    {batchMarca && colecciones.filter(c => c.id_marca === parseInt(batchMarca)).length === 0 && (
+                      <p className="text-xs text-amber-400 mt-1">No collections for this brand</p>
+                    )}
                   </div>
+
+                  {/* Price per Yard */}
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Price per Yard</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Price per Yard *</label>
                     <input
                       type="number"
                       step="0.01"
@@ -877,19 +927,24 @@ function AdminPanel({ onActivity }) {
                       className="input-field"
                     />
                   </div>
+
+                  {/* Discount */}
                   <div>
                     <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Discount (%)</label>
                     <input
                       type="number"
                       step="0.01"
                       max="1"
+                      min="0"
                       value={batchDescuento}
                       onChange={(e) => setBatchDescuento(e.target.value)}
                       placeholder="0.35"
                       className="input-field"
                     />
                   </div>
-                  <div className="flex items-end">
+
+                  {/* Create Button */}
+                  <div className="flex items-end col-span-2">
                     <button
                       onClick={handleBatchCreate}
                       disabled={batchCodes.length === 0 || !batchColeccion || batchProcessing}
