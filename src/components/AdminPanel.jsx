@@ -15,7 +15,6 @@ import {
   getPricingConfig,
   updatePricingMultipliers,
   getFabricByCode,
-  createFabric,
   deleteFabric,
   getAllMarcas,
   createMarca,
@@ -91,17 +90,6 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const [fabrics, setFabrics] = useState([]);
   const [editingFabric, setEditingFabric] = useState(null);
-  const [creatingFabric, setCreatingFabric] = useState(false);
-  const [newFabricData, setNewFabricData] = useState({
-    codigo: '',
-    nombre: '',
-    color: '',
-    precio_por_yarda: 0,
-    disponibilidad: 'disponible',
-    id_coleccion: 1,
-    composicion: '',
-    peso: ''
-  });
 
   // Telas - Batch
   const [batchCodes, setBatchCodes] = useState([]);
@@ -494,42 +482,6 @@ function AdminPanel({ onActivity }) {
     } catch (error) {
       console.error('Error deleting fabric:', error);
       alert('Error deleting fabric');
-    }
-  };
-
-  const handleCreateFabric = async () => {
-    if (!newFabricData.codigo || !newFabricData.nombre) {
-      alert('Code and name are required');
-      return;
-    }
-    try {
-      const created = await createFabric({
-        codigo: newFabricData.codigo,
-        name: newFabricData.nombre,
-        color: newFabricData.color || newFabricData.nombre,
-        basePricePerMeter: parseFloat(newFabricData.precio_por_yarda),
-        availability: newFabricData.disponibilidad === 'disponible' ? 'available' : 'out_of_stock',
-        id_coleccion: parseInt(newFabricData.id_coleccion),
-        composition: newFabricData.composicion,
-        weight: newFabricData.peso
-      });
-
-      setFabrics([...fabrics, created]);
-      setCreatingFabric(false);
-      setNewFabricData({
-        codigo: '',
-        nombre: '',
-        color: '',
-        precio_por_yarda: 0,
-        disponibilidad: 'disponible',
-        id_coleccion: batchColeccion || 1,
-        composicion: '',
-        peso: ''
-      });
-      onActivity?.();
-    } catch (error) {
-      console.error('Error creating fabric:', error);
-      alert('Error creating fabric');
     }
   };
 
@@ -999,15 +951,6 @@ function AdminPanel({ onActivity }) {
                 <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
                 <h3 className="text-lg font-display font-semibold text-white tracking-[0.15em] uppercase">Fabric Management</h3>
               </div>
-              <button
-                onClick={() => setCreatingFabric(true)}
-                className="px-4 py-2 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 text-akahl-secondary font-medium rounded-lg transition-all active:scale-95 border border-akahl-secondary/30 flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                New Fabric
-              </button>
             </div>
 
             {/* Filtros */}
@@ -1706,154 +1649,6 @@ function AdminPanel({ onActivity }) {
                 Save Changes
               </button>
               <button onClick={() => setEditingFabric(null)} className="btn-secondary">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================
-          MODAL: CREAR TELA INDIVIDUAL
-          ============================================ */}
-      {creatingFabric && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => { setCreatingFabric(false); }}
-              className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-1 h-6 bg-akahl-secondary rounded-full"></div>
-                <h3 className="text-xl font-display font-semibold text-white tracking-[0.15em] uppercase">New Fabric</h3>
-              </div>
-              <div className="h-px bg-gradient-to-r from-akahl-secondary to-transparent mt-3"></div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Code *</label>
-                <input
-                  type="text"
-                  value={newFabricData.codigo}
-                  onChange={(e) => setNewFabricData({ ...newFabricData, codigo: e.target.value.toUpperCase() })}
-                  placeholder="e.g., TL-402"
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Name *</label>
-                <input
-                  type="text"
-                  value={newFabricData.nombre}
-                  onChange={(e) => setNewFabricData({ ...newFabricData, nombre: e.target.value })}
-                  placeholder="e.g., Italian Linen Navy Blue"
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Color</label>
-                <input
-                  type="text"
-                  value={newFabricData.color}
-                  onChange={(e) => setNewFabricData({ ...newFabricData, color: e.target.value })}
-                  placeholder="e.g., Navy Blue"
-                  className="input-field"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Price per Yard *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={newFabricData.precio_por_yarda}
-                    onChange={(e) => setNewFabricData({ ...newFabricData, precio_por_yarda: parseFloat(e.target.value) || 0 })}
-                    placeholder="0.00"
-                    className="input-field"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Colección</label>
-                  <select
-                    value={newFabricData.id_coleccion}
-                    onChange={(e) => setNewFabricData({ ...newFabricData, id_coleccion: parseInt(e.target.value) })}
-                    className="select-field"
-                  >
-                    {colecciones.map(c => (
-                      <option key={c.id_coleccion} value={c.id_coleccion}>
-                        {c.marca?.nombre} - {c.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Disponibilidad</label>
-                <select
-                  value={newFabricData.disponibilidad}
-                  onChange={(e) => setNewFabricData({ ...newFabricData, disponibilidad: e.target.value })}
-                  className="select-field"
-                >
-                  <option value="disponible">En Stock</option>
-                  <option value="agotado">Agotado</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Composition</label>
-                  <input
-                    type="text"
-                    value={newFabricData.composicion}
-                    onChange={(e) => setNewFabricData({ ...newFabricData, composicion: e.target.value })}
-                    placeholder="e.g., 100% Linen"
-                    className="input-field text-lg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Weight</label>
-                  <input
-                    type="text"
-                    value={newFabricData.peso}
-                    onChange={(e) => setNewFabricData({ ...newFabricData, peso: e.target.value })}
-                    placeholder="e.g., 280g"
-                    className="input-field text-lg"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex gap-3">
-              <button onClick={handleCreateFabric} className="btn-success border border-akahl-secondary/40 shadow-premium">
-                Create Fabric
-              </button>
-              <button
-                onClick={() => {
-                  setCreatingFabric(false);
-                  setNewFabricData({
-                    codigo: '',
-                    nombre: '',
-                    color: '',
-                    precio_por_yarda: 0,
-                    disponibilidad: 'disponible',
-                    id_coleccion: batchColeccion || 1,
-                    composicion: '',
-                    peso: ''
-                  });
-                }}
-                className="btn-secondary"
-              >
                 Cancel
               </button>
             </div>
