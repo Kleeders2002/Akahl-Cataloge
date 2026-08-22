@@ -5,10 +5,9 @@
  * Se debe colocar en el nivel superior de la aplicación
  */
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Toast from './Toast';
-
-let toastListeners = [];
+import { toastListeners } from '../utils/toastManager';
 
 function ToastContainer() {
   const [toasts, setToasts] = useState([]);
@@ -16,7 +15,6 @@ function ToastContainer() {
   useEffect(() => {
     const listener = (newToast) => {
       setToasts(prev => {
-        // Evitar duplicados por id
         if (prev.some(t => t.id === newToast.id)) return prev;
         return [...prev, newToast];
       });
@@ -25,6 +23,7 @@ function ToastContainer() {
     toastListeners.push(listener);
 
     return () => {
+      // eslint-disable-next-line no-param-reassign
       toastListeners = toastListeners.filter(l => l !== listener);
     };
   }, []);
