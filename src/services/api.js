@@ -790,14 +790,24 @@ export const createFabricsBatch = async (id_coleccion, codigos, precio_por_yarda
  * @param {number} precio_por_yarda - Nuevo precio por yarda (opcional)
  * @param {number} descuento - Nuevo descuento (opcional)
  * @param {number} id_coleccion - Nueva colección (opcional)
+ * @param {boolean} disponibilidad - Nueva disponibilidad (opcional)
  * @returns {Promise<Object>} Resultado con telas actualizadas
  * ENDPOINT: PUT /api/catalogo/fabrics/batch
  */
-export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, id_coleccion) => {
+export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, id_coleccion, disponibilidad) => {
   const body = { ids };
-  if (precio_por_yarda !== undefined) body.precio_por_yarda = precio_por_yarda;
-  if (descuento !== undefined) body.descuento = descuento;
-  if (id_coleccion !== undefined) body.id_coleccion = id_coleccion;
+  if (precio_por_yarda !== undefined && precio_por_yarda !== null && precio_por_yarda !== '') {
+    body.precio_por_yarda = precio_por_yarda;
+  }
+  if (descuento !== undefined && descuento !== null && descuento !== '') {
+    body.descuento = descuento;
+  }
+  if (id_coleccion !== undefined && id_coleccion !== null && id_coleccion !== '') {
+    body.id_coleccion = id_coleccion;
+  }
+  if (disponibilidad !== undefined) {
+    body.disponibilidad = disponibilidad;
+  }
 
   const response = await api.put('/catalogo/fabrics/batch', body);
   return response.data;

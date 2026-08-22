@@ -384,25 +384,49 @@ function AdminPanel({ onActivity }) {
     if (selectedFabrics.length === 0) return;
 
     const ids = selectedFabrics.map(f => f.id);
-    const updates = {};
 
-    if (batchActionModal === 'price' && batchUpdateData.precio_por_yarda) {
-      updates.precio_por_yarda = parseFloat(batchUpdateData.precio_por_yarda);
+    // Preparar parámetros para updateFabricsBatch
+    let precio_por_yarda = undefined;
+    let descuento = undefined;
+    let id_coleccion = undefined;
+
+    if (batchActionModal === 'price') {
+      if (batchUpdateData.precio_por_yarda && batchUpdateData.precio_por_yarda !== '') {
+        const price = parseFloat(batchUpdateData.precio_por_yarda);
+        if (isNaN(price) || price < 0) {
+          alert('Price must be a valid number greater than or equal to 0');
+          return;
+        }
+        precio_por_yarda = price;
+      }
+
+      if (batchUpdateData.descuento !== '' && batchUpdateData.descuento !== undefined) {
+        const discount = parseFloat(batchUpdateData.descuento);
+        if (isNaN(discount) || discount < 0 || discount > 1) {
+          alert('Discount must be between 0 and 1 (0% to 100%)');
+          return;
+        }
+        descuento = discount;
+      }
+
+      if (!precio_por_yarda && descuento === undefined) {
+        alert('Specify at least price or discount to update');
+        return;
+      }
     }
-    if (batchActionModal === 'price' && batchUpdateData.descuento !== '') {
-      updates.descuento = parseFloat(batchUpdateData.descuento);
-    }
+
     if (batchActionModal === 'coleccion' && batchUpdateData.id_coleccion) {
-      updates.id_coleccion = parseInt(batchUpdateData.id_coleccion);
-    }
-
-    if (Object.keys(updates).length === 0) {
-      alert('Specify at least one value to update');
-      return;
+      id_coleccion = parseInt(batchUpdateData.id_coleccion);
+      if (!id_coleccion) {
+        alert('Select a collection');
+        return;
+      }
     }
 
     try {
-      const result = await updateFabricsBatch(ids, updates.precio_por_yarda, updates.descuento, updates.id_coleccion);
+      console.log('Sending batch update:', { ids, precio_por_yarda, descuento, id_coleccion });
+      const result = await updateFabricsBatch(ids, precio_por_yarda, descuento, id_coleccion);
+      console.log('Batch update result:', result);
 
       // Recargar telas
       const updatedFabrics = await getAllFabrics();
@@ -415,7 +439,9 @@ function AdminPanel({ onActivity }) {
       onActivity?.();
     } catch (error) {
       console.error('Error in batch update:', error);
-      alert(error.response?.data?.message || 'Error updating fabrics');
+      console.error('Error response:', error.response?.data);
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Error updating fabrics';
+      alert(`Error: ${errorMsg}\n\nCheck console for details.`);
     }
   };
 
@@ -1775,17 +1801,24 @@ function AdminPanel({ onActivity }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">New Discount (0.35 = 35%)</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">New Discount (0-1, where 0.35 = 35%)</label>
                     <input
                       type="number"
                       step="0.01"
                       max="1"
                       min="0"
                       value={batchUpdateData.descuento}
-                      onChange={(e) => setBatchUpdateData({ ...batchUpdateData, descuento: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Permitir vacío o valores entre 0 y 1
+                        if (value === '' || (parseFloat(value) >= 0 && parseFloat(value) <= 1)) {
+                          setBatchUpdateData({ ...batchUpdateData, descuento: value });
+                        }
+                      }}
                       placeholder="Leave empty to keep current"
                       className="input-field"
                     />
+                    <p className="text-xs text-neutral-500 mt-1">Enter 0 for 0%, 0.35 for 35%, 1 for 100%</p>
                   </div>
                 </>
               )}
