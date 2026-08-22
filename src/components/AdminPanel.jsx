@@ -468,20 +468,66 @@ function AdminPanel({ onActivity }) {
     console.log('IDs types:', ids.map(id => typeof id));
 
     try {
-      const result = await deleteFabricsBatch(ids);
+      // TRY 1: Usar endpoint batch
+      try {
+        const result = await deleteFabricsBatch(ids);
+        console.log('✅ Batch delete successful:', result);
 
-      // Recargar telas
-      const updatedFabrics = await getAllFabrics();
-      setFabrics(updatedFabrics);
-      setSelectedFabrics([]);
+        // Recargar telas
+        const updatedFabrics = await getAllFabrics();
+        setFabrics(updatedFabrics);
+        setSelectedFabrics([]);
 
-      if (result.errors && result.errors.length > 0) {
-        alert(`Deleted: ${result.deleted} of ${result.total} fabrics\n\nErrors:\n${result.errors.map(e => `- ${e.message}`).join('\n')}`);
-      } else {
-        alert(`Deleted ${result.deleted} fabrics`);
+        if (result.errors && result.errors.length > 0) {
+          alert(`Deleted: ${result.deleted} of ${result.total} fabrics\n\nErrors:\n${result.errors.map(e => `- ${e.message}`).join('\n')}`);
+        } else {
+          alert(`Deleted ${result.deleted} fabrics`);
+        }
+
+        onActivity?.();
+        return;
+      } catch (batchError) {
+        console.error('❌ Batch delete failed (500), trying individual deletes:', batchError);
+        console.error('Batch error response:', batchError.response?.data);
+
+        // TRY 2: Fallback a eliminación individual si batch falla con 500
+        if (batchError.response?.status === 500) {
+          console.log('🔄 Fallback: Deleting fabrics one by one...');
+          let deletedCount = 0;
+          const errors = [];
+
+          for (const fabric of selectedFabrics) {
+            try {
+              await deleteFabric(fabric.id);
+              deletedCount++;
+              console.log(`✅ Deleted fabric ${fabric.id} (${fabric.codigo})`);
+            } catch (individualError) {
+              console.error(`❌ Failed to delete fabric ${fabric.id}:`, individualError.response?.data || individualError.message);
+              errors.push({
+                id: fabric.id,
+                codigo: fabric.codigo,
+                message: individualError.response?.data?.message || individualError.message
+              });
+            }
+          }
+
+          // Recargar telas
+          const updatedFabrics = await getAllFabrics();
+          setFabrics(updatedFabrics);
+          setSelectedFabrics([]);
+
+          if (errors.length > 0) {
+            alert(`Deleted: ${deletedCount} of ${selectedFabrics.length} fabrics\n\nErrors:\n${errors.map(e => `- ${e.codigo}: ${e.message}`).join('\n')}`);
+          } else {
+            alert(`Deleted ${deletedCount} fabrics`);
+          }
+
+          onActivity?.();
+        } else {
+          // Si no es 500, propagar el error original
+          throw batchError;
+        }
       }
-
-      onActivity?.();
     } catch (error) {
       console.error('Error in batch delete:', error);
       alert(error.response?.data?.message || 'Error deleting fabrics');
@@ -1175,17 +1221,18 @@ function AdminPanel({ onActivity }) {
                           )}
                         </td>
                         <td className="py-3 px-3 text-center">
-                          {fabric.availability === 'available' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">
-                              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
-                              In Stock
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-950/50 text-red-400 border border-red-900/50">
-                              <span className="w-1.5 h-1.5 bg-red-400 rounded-full"></span>
-                              Out of Stock
-                            </span>
-                          )}
+                          <button
+                            onClick={() => handleToggleAvailability(fabric)}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer hover:scale-105 hover:shadow-lg ${
+                              fabric.availability === 'available'
+                                ? 'bg-emerald-950/50 text-emerald-400 border-emerald-900/50 hover:bg-emerald-950/70 hover:border-emerald-400/50'
+                                : 'bg-red-950/50 text-red-400 border-red-900/50 hover:bg-red-950/70 hover:border-red-400/50'
+                            }`}
+                            title="Click to toggle availability"
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${fabric.availability === 'available' ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
+                            {fabric.availability === 'available' ? 'In Stock' : 'Out of Stock'}
+                          </button>
                         </td>
                         <td className="py-3 px-3">
                           <div className="flex items-center justify-center gap-1">
@@ -1898,7 +1945,7 @@ function AdminPanel({ onActivity }) {
               <button
                 onClick={handleBatchUpdate}
                 disabled={
-                  (batchActionModal === 'price' && !batchUpdateData.precio_por_yarda && !batchUpdateData.descuento) ||
+                  (batchActionModal === 'price' && (!batchUpdateData.precio_por_yarda || !batchUpdateData.descuento)) ||
                   (batchActionModal === 'coleccion' && !batchUpdateData.id_coleccion)
                 }
                 className="btn-success border border-akahl-secondary/40 shadow-premium flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
