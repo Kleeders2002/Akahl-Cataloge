@@ -331,13 +331,13 @@ export const updateFabric = async (id, data) => {
  * Cambiar disponibilidad de tela (ADMIN only)
  * @param {number} id - ID de la tela
  * @param {string} availability - 'available' | 'out_of_stock'
- * ENDPOINT: PATCH /api/catalogo/fabrics/:id/availability
+ * ENDPOINT: PUT /api/catalogo/fabrics/:id
  */
 export const toggleFabricAvailability = async (id, availability) => {
   // 'available' = true (in stock), 'out_of_stock' = false
   const disponibilidad = availability === 'available';
 
-  const response = await api.patch(`/catalogo/fabrics/${id}/availability`, {
+  const response = await api.put(`/catalogo/fabrics/${id}`, {
     disponibilidad
   });
   return transformFabricFromBackend(response.data.data || response.data);
