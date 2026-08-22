@@ -445,9 +445,18 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const handleSaveFabric = async () => {
     if (!editingFabric) return;
+
+    // Validar descuento entre 0 y 1
+    const discount = parseFloat(editingFabric.descuento);
+    if (isNaN(discount) || discount < 0 || discount > 1) {
+      alert('Discount must be between 0 and 1 (0% to 100%)');
+      return;
+    }
+
     try {
       const updated = await updateFabric(editingFabric.id, {
         basePricePerMeter: parseFloat(editingFabric.basePricePerMeter),
+        descuento: discount,
         availability: editingFabric.availability,
       });
       setFabrics(fabrics.map(f => f.id === updated.id ? updated : f));
@@ -1590,23 +1599,55 @@ function AdminPanel({ onActivity }) {
             </div>
 
             <div className="space-y-5">
-              <div className="p-4 bg-akahl-primary/50 rounded-lg border border-akahl-secondary/10">
-                <p className="text-sm font-medium text-akahl-secondary">
-                  {editingFabric.codigo} — {editingFabric.name}
+              {/* MARCA, COLECCIÓN, CÓDIGO - No editable */}
+              <div className="p-4 bg-akahl-secondary/10 rounded-lg border border-akahl-secondary/20">
+                <p className="text-xs text-akahl-secondary/60 uppercase tracking-wider mb-1">Fabric Identifier</p>
+                <p className="text-base font-semibold text-white">
+                  {editingFabric.marca || editingFabric.supplier}, {editingFabric.coleccion}, {editingFabric.codigo}
                 </p>
               </div>
 
+              {/* PRECIO POR YARDA */}
               <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">Price per Yard</label>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">
+                  Price per Yard *
+                </label>
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   value={editingFabric.basePricePerMeter}
                   onChange={(e) => setEditingFabric({ ...editingFabric, basePricePerMeter: parseFloat(e.target.value) || 0 })}
                   className="input-field text-xl"
                 />
               </div>
 
+              {/* DESCUENTO (0-1) */}
+              <div>
+                <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">
+                  Discount (0 = 0%, 0.35 = 35%, 1 = 100%)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="1"
+                  value={editingFabric.descuento || 0}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    // Validar que esté entre 0 y 1
+                    if (!isNaN(value) && value >= 0 && value <= 1) {
+                      setEditingFabric({ ...editingFabric, descuento: value });
+                    }
+                  }}
+                  className="input-field text-xl"
+                />
+                <p className="text-xs text-neutral-500 mt-2">
+                  Current: {((editingFabric.descuento || 0) * 100).toFixed(0)}% OFF
+                </p>
+              </div>
+
+              {/* AVAILABILITY */}
               <div>
                 <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">Availability</label>
                 <div className="grid grid-cols-2 gap-3">
@@ -1622,7 +1663,7 @@ function AdminPanel({ onActivity }) {
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <span className="font-medium">En Stock</span>
+                      <span className="font-medium">In Stock</span>
                     </div>
                   </button>
                   <button
@@ -1637,11 +1678,23 @@ function AdminPanel({ onActivity }) {
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                       </svg>
-                      <span className="font-medium">Agotado</span>
+                      <span className="font-medium">Out of Stock</span>
                     </div>
                   </button>
                 </div>
               </div>
+
+              {/* PREVIEW PRECIO NETO */}
+              {(editingFabric.basePricePerMeter > 0 || editingFabric.descuento > 0) && (
+                <div className="p-4 bg-emerald-950/30 rounded-lg border border-emerald-900/50">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-neutral-400">Net Price (after discount):</span>
+                    <span className="text-lg font-bold text-emerald-400">
+                      ${(editingFabric.basePricePerMeter * (1 - (editingFabric.descuento || 0))).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex gap-3">

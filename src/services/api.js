@@ -230,6 +230,7 @@ const transformFabricToBackend = (fabric) => {
     color: fabric.name || fabric.color,
     nombre: fabric.nombre || fabric.name,
     precio_por_yarda: fabric.basePricePerMeter || fabric.price,
+    descuento: fabric.descuento || 0,
     disponibilidad: availabilityMap[fabric.availability] || 'disponible',
     id_coleccion: fabric.id_coleccion,
     composicion: fabric.composition,
