@@ -217,12 +217,14 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                     if (!details) return null;
                     // Restar 700 solo cuando es No Bespoke (Industrial)
                     const adjustedPrice = selectedManufacturing === 'industrial' ? details.finalPrice - 700 : details.finalPrice;
+                    // Elaboration Price = Precio final dividido por el multiplier
+                    const elaborationPrice = adjustedPrice / details.multiplier;
 
                     return (
                       <tr key={garment.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
                         <td className="py-4 px-4 font-medium text-white text-base">{garment.name}</td>
                         <td className="py-4 px-4 text-right text-neutral-300">
-                          ${details.laborCost.toFixed(2)}
+                          ${elaborationPrice.toFixed(2)}
                         </td>
                         <td className="py-4 px-4 text-right font-bold text-akahl-secondary text-lg">
                           ${adjustedPrice.toFixed(2)}
