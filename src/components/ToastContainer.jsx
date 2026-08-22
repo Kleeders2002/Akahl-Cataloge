@@ -20,11 +20,15 @@ function ToastContainer() {
       });
     };
 
+    // Agregar listener al array global
     toastListeners.push(listener);
 
+    // Cleanup: remover listener del array global
     return () => {
-      // eslint-disable-next-line no-param-reassign
-      toastListeners = toastListeners.filter(l => l !== listener);
+      const index = toastListeners.indexOf(listener);
+      if (index > -1) {
+        toastListeners.splice(index, 1);
+      }
     };
   }, []);
 
