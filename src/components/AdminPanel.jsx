@@ -386,11 +386,15 @@ function AdminPanel({ onActivity }) {
     const ids = selectedFabrics.map(f => f.id);
 
     // Preparar parámetros para updateFabricsBatch
-    let precio_por_yarda = undefined;
-    let descuento = undefined;
-    let disponibilidad = undefined;
+    // El backend REQUIERE que siempre se envíen todos los campos (precio_por_yarda, descuento, disponibilidad)
+    // Obtener valores actuales de las telas para los campos que no se van a modificar
+    const firstFabric = selectedFabrics[0];
+    let precio_por_yarda = firstFabric.basePricePerMeter || firstFabric.precio_por_yarda || 0;
+    let descuento = undefined; // Se modificará si el usuario ingresó un valor
+    let disponibilidad = firstFabric.availability === 'available'; // Convertir 'available' a true
 
     if (batchActionModal === 'price') {
+      // Si el usuario ingresó un nuevo precio, usarlo
       if (batchUpdateData.precio_por_yarda && batchUpdateData.precio_por_yarda !== '') {
         const price = parseFloat(batchUpdateData.precio_por_yarda);
         if (isNaN(price) || price < 0) {
@@ -400,6 +404,7 @@ function AdminPanel({ onActivity }) {
         precio_por_yarda = price;
       }
 
+      // Si el usuario ingresó un nuevo descuento, usarlo
       if (batchUpdateData.descuento !== '' && batchUpdateData.descuento !== undefined) {
         const discount = parseFloat(batchUpdateData.descuento);
         if (isNaN(discount) || discount < 0 || discount > 1) {
@@ -407,9 +412,13 @@ function AdminPanel({ onActivity }) {
           return;
         }
         descuento = discount;
+      } else {
+        // Si no se ingresó descuento, usar el descuento actual de la primera tela
+        descuento = firstFabric.descuento || 0;
       }
 
-      if (!precio_por_yarda && descuento === undefined) {
+      // Si no se ingresó ni precio ni descuento, alertar
+      if (!batchUpdateData.precio_por_yarda && batchUpdateData.descuento === '') {
         alert('Specify at least price or discount to update');
         return;
       }
