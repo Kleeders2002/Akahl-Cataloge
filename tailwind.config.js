@@ -88,6 +88,10 @@ export default {
           '0%': { opacity: '0', transform: 'scale(0.9) translateY(10px)' },
           '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
         },
+        progress: {
+          '0%': { width: '100%' },
+          '100%': { width: '0%' },
+        },
       },
       backgroundImage: {
         'premium-gradient': 'linear-gradient(135deg, #223c33 0%, #1a2f28 50%, #0a0a0a 100%)',

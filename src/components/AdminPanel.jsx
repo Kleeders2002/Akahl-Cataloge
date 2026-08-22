@@ -30,6 +30,7 @@ import {
   deleteFabricsBatch
 } from '../services/api';
 import AdminPriceModal from './AdminPriceModal';
+import { toast } from '../hooks/useToast';
 
 // ============================================
 // CONSTANTES - TIPOS
@@ -172,7 +173,7 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const handleCreateMarca = async () => {
     if (!newMarcaName.trim()) {
-      alert('El nombre de la marca es obligatorio');
+      toast.warning('Brand name is required');
       return;
     }
     try {
@@ -181,15 +182,16 @@ function AdminPanel({ onActivity }) {
       setNewMarcaName('');
       setCreatingMarca(false);
       onActivity?.();
+      toast.success(`Brand "${newMarcaName.trim()}" created successfully`);
     } catch (error) {
       console.error('Error creating marca:', error);
-      alert(error.response?.data?.message || 'Error creating brand');
+      toast.error(error.response?.data?.message || 'Error creating brand');
     }
   };
 
   const handleUpdateMarca = async () => {
     if (!editingMarca?.nombre.trim()) {
-      alert('El nombre de la marca es obligatorio');
+      toast.warning('Brand name is required');
       return;
     }
     try {
@@ -197,16 +199,17 @@ function AdminPanel({ onActivity }) {
       setMarcas(marcas.map(m => m.id_marca === updated.id_marca ? updated : m));
       setEditingMarca(null);
       onActivity?.();
+      toast.success(`Brand "${updated.nombre}" updated successfully`);
     } catch (error) {
       console.error('Error updating marca:', error);
-      alert(error.response?.data?.message || 'Error updating brand');
+      toast.error(error.response?.data?.message || 'Error updating brand');
     }
   };
 
   const handleDeleteMarca = async (marca) => {
     const coleccionesCount = marca._count?.colecciones || 0;
     if (coleccionesCount > 0) {
-      alert(`Cannot delete brand "${marca.nombre}" because it has ${coleccionesCount} associated collection(s).\n\nDelete collections first.`);
+      toast.error(`Cannot delete brand "${marca.nombre}" - it has ${coleccionesCount} associated collection(s). Delete collections first.`);
       return;
     }
     if (!confirm(`Delete brand "${marca.nombre}"?`)) {
@@ -216,9 +219,10 @@ function AdminPanel({ onActivity }) {
       await deleteMarca(marca.id_marca);
       setMarcas(marcas.filter(m => m.id_marca !== marca.id_marca));
       onActivity?.();
+      toast.success(`Brand "${marca.nombre}" deleted successfully`);
     } catch (error) {
       console.error('Error deleting marca:', error);
-      alert(error.response?.data?.message || 'Error deleting brand');
+      toast.error(error.response?.data?.message || 'Error deleting brand');
     }
   };
 
@@ -227,7 +231,7 @@ function AdminPanel({ onActivity }) {
   // ============================================
   const handleCreateColeccion = async () => {
     if (!newColeccionData.id_marca || !newColeccionData.nombre.trim()) {
-      alert('Brand and name are required');
+      toast.warning('Brand and name are required');
       return;
     }
     try {
@@ -239,15 +243,16 @@ function AdminPanel({ onActivity }) {
       setNewColeccionData({ id_marca: '', nombre: '' });
       setCreatingColeccion(false);
       onActivity?.();
+      toast.success(`Collection "${newColeccionData.nombre.trim()}" created successfully`);
     } catch (error) {
       console.error('Error creating coleccion:', error);
-      alert(error.response?.data?.message || 'Error creating collection');
+      toast.error(error.response?.data?.message || 'Error creating collection');
     }
   };
 
   const handleUpdateColeccion = async () => {
     if (!editingColeccion?.nombre.trim()) {
-      alert('Collection name is required');
+      toast.warning('Collection name is required');
       return;
     }
     try {
@@ -258,16 +263,17 @@ function AdminPanel({ onActivity }) {
       setColecciones(colecciones.map(c => c.id_coleccion === updated.id_coleccion ? updated : c));
       setEditingColeccion(null);
       onActivity?.();
+      toast.success(`Collection "${updated.nombre}" updated successfully`);
     } catch (error) {
       console.error('Error updating coleccion:', error);
-      alert(error.response?.data?.message || 'Error updating collection');
+      toast.error(error.response?.data?.message || 'Error updating collection');
     }
   };
 
   const handleDeleteColeccion = async (coleccion) => {
     const telasCount = coleccion._count?.telas || 0;
     if (telasCount > 0) {
-      alert(`Cannot delete collection "${coleccion.nombre}" because it has ${telasCount} associated fabric(s).\n\nDelete or reassign fabrics first.`);
+      toast.error(`Cannot delete collection "${coleccion.nombre}" - it has ${telasCount} associated fabric(s). Delete or reassign fabrics first.`);
       return;
     }
     if (!confirm(`Delete collection "${coleccion.nombre}"?`)) {
@@ -277,9 +283,10 @@ function AdminPanel({ onActivity }) {
       await deleteColeccion(coleccion.id_coleccion);
       setColecciones(colecciones.filter(c => c.id_coleccion !== coleccion.id_coleccion));
       onActivity?.();
+      toast.success(`Collection "${coleccion.nombre}" deleted successfully`);
     } catch (error) {
       console.error('Error deleting coleccion:', error);
-      alert(error.response?.data?.message || 'Error deleting collection');
+      toast.error(error.response?.data?.message || 'Error deleting collection');
     }
   };
 
@@ -290,7 +297,7 @@ function AdminPanel({ onActivity }) {
     const code = batchInputValue.trim().toUpperCase();
     if (!code) return;
     if (batchCodes.includes(code)) {
-      alert('This code is already in the list');
+      toast.warning('This code is already in the list');
       return;
     }
     setBatchCodes([...batchCodes, code]);
@@ -312,19 +319,19 @@ function AdminPanel({ onActivity }) {
 
   const handleBatchCreate = async () => {
     if (batchCodes.length === 0) {
-      alert('Add at least one code');
+      toast.warning('Add at least one code');
       return;
     }
     if (!batchColeccion) {
-      alert('Select a collection');
+      toast.warning('Select a collection');
       return;
     }
     if (isNaN(batchPrecio) || batchPrecio < 0) {
-      alert('Price must be a valid number');
+      toast.warning('Price must be a valid number');
       return;
     }
     if (isNaN(batchDescuento) || batchDescuento < 0 || batchDescuento > 1) {
-      alert('Discount must be between 0 and 1 (0% to 100%)');
+      toast.warning('Discount must be between 0 and 1 (0% to 100%)');
       return;
     }
 
@@ -344,12 +351,20 @@ function AdminPanel({ onActivity }) {
         // Recargar telas
         const updatedFabrics = await getAllFabrics();
         setFabrics(updatedFabrics);
+
+        if (result.errors?.length > 0) {
+          toast.warning(`Created ${result.created} of ${result.total} fabrics. Some codes already exist.`);
+        } else {
+          toast.success(`Created ${result.created} fabric(s) successfully`);
+        }
+      } else if (result.errors?.length > 0) {
+        toast.error('No fabrics created. All codes already exist.');
       }
 
       onActivity?.();
     } catch (error) {
       console.error('Error in batch create:', error);
-      alert(error.response?.data?.message || 'Error creating fabrics');
+      toast.error(error.response?.data?.message || 'Error creating fabrics');
     } finally {
       setBatchProcessing(false);
     }
@@ -386,47 +401,40 @@ function AdminPanel({ onActivity }) {
     const ids = selectedFabrics.map(f => f.id);
 
     // Preparar parámetros para updateFabricsBatch
-    // El backend REQUIERE que siempre se envíen todos los campos (precio_por_yarda, descuento, disponibilidad)
-    // Obtener valores actuales de las telas para los campos que no se van a modificar
     const firstFabric = selectedFabrics[0];
     let precio_por_yarda = firstFabric.basePricePerMeter || firstFabric.precio_por_yarda || 0;
-    let descuento = undefined; // Se modificará si el usuario ingresó un valor
-    let disponibilidad = firstFabric.availability === 'available'; // Convertir 'available' a true
+    let descuento = undefined;
+    let disponibilidad = firstFabric.availability === 'available';
 
     if (batchActionModal === 'price') {
-      // Si el usuario ingresó un nuevo precio, usarlo
       if (batchUpdateData.precio_por_yarda && batchUpdateData.precio_por_yarda !== '') {
         const price = parseFloat(batchUpdateData.precio_por_yarda);
         if (isNaN(price) || price < 0) {
-          alert('Price must be a valid number greater than or equal to 0');
+          toast.warning('Price must be a valid number greater than or equal to 0');
           return;
         }
         precio_por_yarda = price;
       }
 
-      // Si el usuario ingresó un nuevo descuento, usarlo
       if (batchUpdateData.descuento !== '' && batchUpdateData.descuento !== undefined) {
         const discount = parseFloat(batchUpdateData.descuento);
         if (isNaN(discount) || discount < 0 || discount > 1) {
-          alert('Discount must be between 0 and 1 (0% to 100%)');
+          toast.warning('Discount must be between 0 and 1 (0% to 100%)');
           return;
         }
         descuento = discount;
       } else {
-        // Si no se ingresó descuento, usar el descuento actual de la primera tela
         descuento = firstFabric.descuento || 0;
       }
 
-      // Si no se ingresó ni precio ni descuento, alertar
       if (!batchUpdateData.precio_por_yarda && batchUpdateData.descuento === '') {
-        alert('Specify at least price or discount to update');
+        toast.warning('Specify at least price or discount to update');
         return;
       }
     }
 
-    // Change Collection no está soportado por el backend
     if (batchActionModal === 'coleccion') {
-      alert('⚠️ The backend does not support changing fabric collection.\n\nPlease delete and recreate the fabric with the correct collection.');
+      toast.error('The backend does not support changing fabric collection. Please delete and recreate the fabric with the correct collection.');
       return;
     }
 
@@ -436,20 +444,18 @@ function AdminPanel({ onActivity }) {
 
       console.log('🟢 Batch update result:', result);
 
-      // Recargar telas
       const updatedFabrics = await getAllFabrics();
       setFabrics(updatedFabrics);
       setSelectedFabrics([]);
       setBatchActionModal(null);
       setBatchUpdateData({ precio_por_yarda: '', descuento: '', id_coleccion: '' });
 
-      alert(`✅ Updated: ${result.updated} of ${result.total} fabrics`);
+      toast.success(`Updated ${result.updated} of ${result.total} fabrics`);
       onActivity?.();
     } catch (error) {
       console.error('❌ Error in batch update:', error);
-      console.error('Error response:', error.response?.data);
       const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Error updating fabrics';
-      alert(`❌ Error: ${errorMsg}\n\nCheck console for details.`);
+      toast.error(`Error: ${errorMsg}`);
     }
   };
 
@@ -461,38 +467,25 @@ function AdminPanel({ onActivity }) {
 
     const ids = selectedFabrics.map(f => f.id);
 
-    // Debug: Ver qué IDs se están enviando
-    console.log('🔴 Attempting to delete fabrics:');
-    console.log('Selected fabrics:', selectedFabrics);
-    console.log('IDs to delete:', ids);
-    console.log('IDs types:', ids.map(id => typeof id));
-
     try {
-      // TRY 1: Usar endpoint batch
       try {
         const result = await deleteFabricsBatch(ids);
         console.log('✅ Batch delete successful:', result);
 
-        // Recargar telas
         const updatedFabrics = await getAllFabrics();
         setFabrics(updatedFabrics);
         setSelectedFabrics([]);
 
         if (result.errors && result.errors.length > 0) {
-          alert(`Deleted: ${result.deleted} of ${result.total} fabrics\n\nErrors:\n${result.errors.map(e => `- ${e.message}`).join('\n')}`);
+          toast.warning(`Deleted ${result.deleted} of ${result.total} fabrics. Some could not be deleted.`);
         } else {
-          alert(`Deleted ${result.deleted} fabrics`);
+          toast.success(`Deleted ${result.deleted} fabrics successfully`);
         }
 
         onActivity?.();
         return;
       } catch (batchError) {
-        console.error('❌ Batch delete failed (500), trying individual deletes:', batchError);
-        console.error('Batch error response:', batchError.response?.data);
-
-        // TRY 2: Fallback a eliminación individual si batch falla con 500
         if (batchError.response?.status === 500) {
-          console.log('🔄 Fallback: Deleting fabrics one by one...');
           let deletedCount = 0;
           const errors = [];
 
@@ -500,9 +493,7 @@ function AdminPanel({ onActivity }) {
             try {
               await deleteFabric(fabric.id);
               deletedCount++;
-              console.log(`✅ Deleted fabric ${fabric.id} (${fabric.codigo})`);
             } catch (individualError) {
-              console.error(`❌ Failed to delete fabric ${fabric.id}:`, individualError.response?.data || individualError.message);
               errors.push({
                 id: fabric.id,
                 codigo: fabric.codigo,
@@ -511,26 +502,24 @@ function AdminPanel({ onActivity }) {
             }
           }
 
-          // Recargar telas
           const updatedFabrics = await getAllFabrics();
           setFabrics(updatedFabrics);
           setSelectedFabrics([]);
 
           if (errors.length > 0) {
-            alert(`Deleted: ${deletedCount} of ${selectedFabrics.length} fabrics\n\nErrors:\n${errors.map(e => `- ${e.codigo}: ${e.message}`).join('\n')}`);
+            toast.warning(`Deleted ${deletedCount} of ${selectedFabrics.length} fabrics. Some could not be deleted.`);
           } else {
-            alert(`Deleted ${deletedCount} fabrics`);
+            toast.success(`Deleted ${deletedCount} fabrics successfully`);
           }
 
           onActivity?.();
         } else {
-          // Si no es 500, propagar el error original
           throw batchError;
         }
       }
     } catch (error) {
       console.error('Error in batch delete:', error);
-      alert(error.response?.data?.message || 'Error deleting fabrics');
+      toast.error(error.response?.data?.message || 'Error deleting fabrics');
     }
   };
 
@@ -540,10 +529,9 @@ function AdminPanel({ onActivity }) {
   const handleSaveFabric = async () => {
     if (!editingFabric) return;
 
-    // Validar descuento entre 0 y 1
     const discount = parseFloat(editingFabric.descuento);
     if (isNaN(discount) || discount < 0 || discount > 1) {
-      alert('Discount must be between 0 and 1 (0% to 100%)');
+      toast.warning('Discount must be between 0 and 1 (0% to 100%)');
       return;
     }
 
@@ -556,9 +544,10 @@ function AdminPanel({ onActivity }) {
       setFabrics(fabrics.map(f => f.id === updated.id ? updated : f));
       setEditingFabric(null);
       onActivity?.();
+      toast.success(`Fabric "${updated.codigo}" updated successfully`);
     } catch (error) {
       console.error('Error saving fabric:', error);
-      alert('Error saving fabric');
+      toast.error('Error saving fabric');
     }
   };
 
@@ -568,9 +557,11 @@ function AdminPanel({ onActivity }) {
       const updated = await toggleFabricAvailability(fabric.id, newAvailability);
       setFabrics(fabrics.map(f => f.id === updated.id ? updated : f));
       onActivity?.();
+      const status = newAvailability === 'available' ? 'In Stock' : 'Out of Stock';
+      toast.success(`Fabric "${fabric.codigo}" is now ${status}`);
     } catch (error) {
       console.error('Error toggling availability:', error);
-      alert('Error changing availability');
+      toast.error('Error changing availability');
     }
   };
 
@@ -579,12 +570,14 @@ function AdminPanel({ onActivity }) {
       return;
     }
     try {
+      const fabric = fabrics.find(f => f.id === fabricId);
       await deleteFabric(fabricId);
       setFabrics(fabrics.filter(f => f.id !== fabricId));
       onActivity?.();
+      toast.success(`Fabric "${fabric?.codigo}" deleted successfully`);
     } catch (error) {
       console.error('Error deleting fabric:', error);
-      alert('Error deleting fabric');
+      toast.error('Error deleting fabric');
     }
   };
 
@@ -606,9 +599,10 @@ function AdminPanel({ onActivity }) {
       setPricing({ ...pricing, tipos: tempMultipliers });
       setEditingPricing(false);
       onActivity?.();
+      toast.success('Price multipliers updated successfully');
     } catch (error) {
       console.error('Error saving multipliers:', error);
-      alert('Error saving multipliers');
+      toast.error('Error saving multipliers');
     }
   };
 
