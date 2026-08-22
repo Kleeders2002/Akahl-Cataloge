@@ -796,6 +796,8 @@ export const createFabricsBatch = async (id_coleccion, codigos, precio_por_yarda
  */
 export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, id_coleccion, disponibilidad) => {
   const body = { ids };
+
+  // Solo agregar campos que tienen valores válidos
   if (precio_por_yarda !== undefined && precio_por_yarda !== null && precio_por_yarda !== '') {
     body.precio_por_yarda = precio_por_yarda;
   }
@@ -809,7 +811,10 @@ export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, id_co
     body.disponibilidad = disponibilidad;
   }
 
+  console.log('🔵 Sending to PUT /fabrics/batch:', body);
+
   const response = await api.put('/catalogo/fabrics/batch', body);
+  console.log('🟢 Response from PUT /fabrics/batch:', response.data);
   return response.data;
 };
 
