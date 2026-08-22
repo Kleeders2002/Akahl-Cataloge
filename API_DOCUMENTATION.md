@@ -454,7 +454,8 @@ POST /api/catalogo/fabrics
   "id_coleccion": 1,
   "codigo": "1420001",
   "precio_por_yarda": 150,
-  "descuento": 0.35
+  "descuento": 0.35,
+  "disponibilidad": true
 }
 ```
 
@@ -474,7 +475,8 @@ POST /api/catalogo/fabrics/batch
   "id_coleccion": 1,
   "codigos": ["1425000", "1425001", "1425002", "1425003", "1425004"],
   "precio_por_yarda": 150,
-  "descuento": 0.35
+  "descuento": 0.35,
+  "disponibilidad": true
 }
 ```
 
@@ -527,7 +529,8 @@ PUT /api/catalogo/fabrics/batch
 {
   "ids": [152, 153, 154],
   "precio_por_yarda": 160,
-  "descuento": 0.30
+  "descuento": 0.30,
+  "disponibilidad": false
 }
 ```
 
@@ -920,6 +923,7 @@ interface Tela {
   precio_por_yarda: number;
   descuento: number;
   precio_neto: number;
+  disponibilidad: boolean;
   createdAt: string;
   updatedAt: string;
   coleccion?: {
@@ -970,5 +974,5 @@ interface Multiplicador {
 
 ---
 
-**Versión:** 1.1 - Actualizado a agosto 2026 (eliminado `descuento_default` de Coleccion)
+**Versión:** 1.2 - Actualizado a agosto 2026 (agregado `disponibilidad` a Tela)
 **Base Path:** `/api/catalogo`

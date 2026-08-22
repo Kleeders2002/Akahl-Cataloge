@@ -163,12 +163,21 @@ export const resetPinsAPI = () => resetPinsToDefaults();
  * @returns {Object} Tela en formato frontend
  */
 const transformFabricFromBackend = (fabric) => {
-  const availabilityMap = {
-    'disponible': 'available',
-    'agotado': 'out_of_stock',
-    'por_pedido': 'available',
-    'descontinuado': 'out_of_stock'
-  };
+  // Manejar disponibilidad (boolean o string para backward compatibility)
+  let availability = 'available';
+  if (typeof fabric.disponibilidad === 'boolean') {
+    availability = fabric.disponibilidad ? 'available' : 'out_of_stock';
+  } else if (fabric.disponibilidad) {
+    const availabilityMap = {
+      'disponible': 'available',
+      'agotado': 'out_of_stock',
+      'por_pedido': 'available',
+      'descontinuado': 'out_of_stock',
+      'true': 'available',
+      'false': 'out_of_stock'
+    };
+    availability = availabilityMap[fabric.disponibilidad] || 'available';
+  }
 
   // Extraer marca de la estructura anidada
   const marca = fabric.coleccion?.marca?.nombre ||
@@ -200,7 +209,7 @@ const transformFabricFromBackend = (fabric) => {
     precio_neto: precioNeto,
     precio_por_yarda: precioPorYarda,
     descuento: descuento,
-    availability: availabilityMap[fabric.disponibilidad] || 'available',
+    availability: availability,
     marca: marca,
     supplier: marca, // Para compatibilidad con código existente
     coleccion: coleccion,
@@ -220,10 +229,8 @@ const transformFabricFromBackend = (fabric) => {
  * @returns {Object} Tela en formato backend
  */
 const transformFabricToBackend = (fabric) => {
-  const availabilityMap = {
-    'available': 'disponible',
-    'out_of_stock': 'agotado'
-  };
+  // availability 'available' = true (in stock), 'out_of_stock' = false
+  const disponibilidad = fabric.availability === 'available';
 
   return {
     codigo: fabric.codigo,
@@ -231,7 +238,7 @@ const transformFabricToBackend = (fabric) => {
     nombre: fabric.nombre || fabric.name,
     precio_por_yarda: fabric.basePricePerMeter || fabric.price,
     descuento: fabric.descuento || 0,
-    disponibilidad: availabilityMap[fabric.availability] || 'disponible',
+    disponibilidad,
     id_coleccion: fabric.id_coleccion,
     composicion: fabric.composition,
     peso: fabric.weight,
@@ -327,13 +334,11 @@ export const updateFabric = async (id, data) => {
  * ENDPOINT: PATCH /api/catalogo/fabrics/:id/availability
  */
 export const toggleFabricAvailability = async (id, availability) => {
-  const availabilityMap = {
-    'available': 'disponible',
-    'out_of_stock': 'agotado'
-  };
+  // 'available' = true (in stock), 'out_of_stock' = false
+  const disponibilidad = availability === 'available';
 
   const response = await api.patch(`/catalogo/fabrics/${id}/availability`, {
-    disponibilidad: availabilityMap[availability] || availability
+    disponibilidad
   });
   return transformFabricFromBackend(response.data.data || response.data);
 };
@@ -764,15 +769,17 @@ export const deleteColeccion = async (id) => {
  * @param {Array<string>} codigos - Array de códigos de tela
  * @param {number} precio_por_yarda - Precio por yarda
  * @param {number} descuento - Descuento (0.35 = 35%)
+ * @param {boolean} disponibilidad - Disponibilidad (true = in stock, false = out of stock)
  * @returns {Promise<Object>} Resultado con telas creadas y errores
  * ENDPOINT: POST /api/catalogo/fabrics/batch
  */
-export const createFabricsBatch = async (id_coleccion, codigos, precio_por_yarda, descuento) => {
+export const createFabricsBatch = async (id_coleccion, codigos, precio_por_yarda, descuento, disponibilidad = true) => {
   const response = await api.post('/catalogo/fabrics/batch', {
     id_coleccion,
     codigos,
     precio_por_yarda,
-    descuento
+    descuento,
+    disponibilidad
   });
   return response.data;
 };

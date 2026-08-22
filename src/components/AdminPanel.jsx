@@ -97,7 +97,8 @@ function AdminPanel({ onActivity }) {
   const [batchMarca, setBatchMarca] = useState(''); // Brand seleccionado para batch
   const [batchColeccion, setBatchColeccion] = useState('');
   const [batchPrecio, setBatchPrecio] = useState(0);
-  const [batchDescuento, setBatchDescuento] = useState(0.35);
+  const [batchDescuento, setBatchDescuento] = useState(0);
+  const [batchAvailability, setBatchAvailability] = useState(true);
   const [batchResult, setBatchResult] = useState(null);
   const [batchProcessing, setBatchProcessing] = useState(false);
 
@@ -318,6 +319,14 @@ function AdminPanel({ onActivity }) {
       alert('Select a collection');
       return;
     }
+    if (isNaN(batchPrecio) || batchPrecio < 0) {
+      alert('Price must be a valid number');
+      return;
+    }
+    if (isNaN(batchDescuento) || batchDescuento < 0 || batchDescuento > 1) {
+      alert('Discount must be between 0 and 1 (0% to 100%)');
+      return;
+    }
 
     setBatchProcessing(true);
     try {
@@ -325,7 +334,8 @@ function AdminPanel({ onActivity }) {
         parseInt(batchColeccion),
         batchCodes,
         parseFloat(batchPrecio),
-        parseFloat(batchDescuento)
+        parseFloat(batchDescuento),
+        batchAvailability
       );
 
       setBatchResult(result);
@@ -883,17 +893,62 @@ function AdminPanel({ onActivity }) {
 
                   {/* Discount */}
                   <div>
-                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Discount (%)</label>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Discount (0-1)</label>
                     <input
                       type="number"
                       step="0.01"
                       max="1"
                       min="0"
                       value={batchDescuento}
-                      onChange={(e) => setBatchDescuento(e.target.value)}
-                      placeholder="0.35"
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value) && value >= 0 && value <= 1) {
+                          setBatchDescuento(value);
+                        }
+                      }}
+                      placeholder="0.00"
                       className="input-field"
                     />
+                    <p className="text-xs text-neutral-500 mt-1">Enter 0 for 0%, 0.35 for 35%, 1 for 100%</p>
+                  </div>
+
+                  {/* Availability */}
+                  <div>
+                    <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Availability</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setBatchAvailability(true)}
+                        className={`p-3 rounded-lg border transition-all ${
+                          batchAvailability
+                            ? 'border-emerald-500 bg-emerald-950/30 text-emerald-400'
+                            : 'border-akahl-secondary/20 bg-akahl-primary/50 text-neutral-400 hover:border-emerald-900/30'
+                        }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="font-medium text-sm">In Stock</span>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBatchAvailability(false)}
+                        className={`p-3 rounded-lg border transition-all ${
+                          !batchAvailability
+                            ? 'border-red-500 bg-red-950/30 text-red-400'
+                            : 'border-akahl-secondary/20 bg-akahl-primary/50 text-neutral-400 hover:border-red-900/30'
+                        }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                          <span className="font-medium text-sm">Out of Stock</span>
+                        </div>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Create Button */}
