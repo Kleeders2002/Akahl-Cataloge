@@ -207,11 +207,8 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                 <thead>
                   <tr className="border-b border-akahl-secondary/20 bg-akahl-secondary/5">
                     <th className="text-left py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Garment</th>
-                    <th className="text-center py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Meters</th>
-                    <th className="text-center py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Multiplier</th>
-                    <th className="text-right py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Fabric Cost</th>
-                    <th className="text-right py-3 px-4 font-semibold text-white tracking-[0.1em] uppercase text-xs">Labor Cost</th>
-                    <th className="text-right py-3 px-4 font-semibold text-akahl-secondary tracking-[0.1em] uppercase text-xs">Final Price</th>
+                    <th className="text-right py-3 px-4 font-semibold text-neutral-400 tracking-[0.1em] uppercase text-xs">Elaboration Price</th>
+                    <th className="text-right py-3 px-4 font-semibold text-akahl-secondary tracking-[0.1em] uppercase text-xs">Multiplied Price</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -223,16 +220,11 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
 
                     return (
                       <tr key={garment.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
-                        <td className="py-3 px-4 font-medium text-white">{garment.name}</td>
-                        <td className="py-3 px-4 text-center text-neutral-400">{details.meters}m</td>
-                        <td className="py-3 px-4 text-center text-neutral-400">{details.multiplier}x</td>
-                        <td className="py-3 px-4 text-right text-neutral-300">
-                          ${details.fabricCost.toFixed(2)}
-                        </td>
-                        <td className="py-3 px-4 text-right text-neutral-300">
+                        <td className="py-4 px-4 font-medium text-white text-base">{garment.name}</td>
+                        <td className="py-4 px-4 text-right text-neutral-300">
                           ${details.laborCost.toFixed(2)}
                         </td>
-                        <td className="py-3 px-4 text-right font-bold text-akahl-secondary text-base">
+                        <td className="py-4 px-4 text-right font-bold text-akahl-secondary text-lg">
                           ${adjustedPrice.toFixed(2)}
                         </td>
                       </tr>
