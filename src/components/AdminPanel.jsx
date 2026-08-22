@@ -461,6 +461,12 @@ function AdminPanel({ onActivity }) {
 
     const ids = selectedFabrics.map(f => f.id);
 
+    // Debug: Ver qué IDs se están enviando
+    console.log('🔴 Attempting to delete fabrics:');
+    console.log('Selected fabrics:', selectedFabrics);
+    console.log('IDs to delete:', ids);
+    console.log('IDs types:', ids.map(id => typeof id));
+
     try {
       const result = await deleteFabricsBatch(ids);
 

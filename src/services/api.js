@@ -821,7 +821,9 @@ export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, dispo
  * ENDPOINT: DELETE /api/catalogo/fabrics/batch
  */
 export const deleteFabricsBatch = async (ids) => {
+  console.log('🔴 DELETE /fabrics/batch - Sending:', { ids });
   const response = await api.delete('/catalogo/fabrics/batch', { data: { ids } });
+  console.log('🟢 DELETE response:', response.data);
   return response.data;
 };
 
