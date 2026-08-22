@@ -851,7 +851,7 @@ function AdminPanel({ onActivity }) {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-akahl-secondary/80 mb-3 tracking-[0.1em] uppercase">
-                    Códigos (presiona Enter para agregar)
+                    Codes (press Enter to add)
                   </label>
                   <div className="flex gap-3">
                     <input
@@ -864,7 +864,7 @@ function AdminPanel({ onActivity }) {
                           handleBatchAddCode();
                         }
                       }}
-                      placeholder="Escribe el código aquí..."
+                      placeholder="Write the code here..."
                       className="flex-1 text-3xl font-bold text-white bg-akahl-primary border-2 border-akahl-secondary/50 rounded-xl py-5 px-6 shadow-premium placeholder:text-white/30 focus:border-akahl-secondary focus:outline-none focus:ring-2 focus:ring-akahl-secondary/30"
                     />
                     <button
