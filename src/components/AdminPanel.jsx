@@ -12,6 +12,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   getAllFabrics,
   updateFabric,
+  toggleFabricAvailability,
   getPricingConfig,
   updatePricingMultipliers,
   getFabricByCode,
@@ -471,7 +472,7 @@ function AdminPanel({ onActivity }) {
   const handleToggleAvailability = async (fabric) => {
     const newAvailability = fabric.availability === 'available' ? 'out_of_stock' : 'available';
     try {
-      const updated = await updateFabric(fabric.id, { availability: newAvailability });
+      const updated = await toggleFabricAvailability(fabric.id, newAvailability);
       setFabrics(fabrics.map(f => f.id === updated.id ? updated : f));
       onActivity?.();
     } catch (error) {
