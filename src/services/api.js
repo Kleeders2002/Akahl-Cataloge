@@ -719,14 +719,12 @@ export const getAllColecciones = async () => {
  * Crear nueva colección
  * @param {number} id_marca - ID de la marca
  * @param {string} nombre - Nombre de la colección
- * @param {number} descuento_default - Descuento default (0.35 = 35%)
  * @returns {Promise<Object>} Colección creada
  * ENDPOINT: POST /api/catalogo/colecciones/marcas/:marcaId/colecciones
  */
-export const createColeccion = async (id_marca, nombre, descuento_default) => {
+export const createColeccion = async (id_marca, nombre) => {
   const response = await api.post(`/catalogo/colecciones/marcas/${id_marca}/colecciones`, {
-    nombre,
-    descuento_default
+    nombre
   });
   return response.data.data || response.data;
 };
@@ -735,14 +733,12 @@ export const createColeccion = async (id_marca, nombre, descuento_default) => {
  * Actualizar colección
  * @param {number} id - ID de la colección
  * @param {string} nombre - Nuevo nombre
- * @param {number} descuento_default - Nuevo descuento default
  * @returns {Promise<Object>} Colección actualizada
  * ENDPOINT: PUT /api/catalogo/colecciones/:id
  */
-export const updateColeccion = async (id, nombre, descuento_default) => {
+export const updateColeccion = async (id, nombre) => {
   const response = await api.put(`/catalogo/colecciones/${id}`, {
-    nombre,
-    descuento_default
+    nombre
   });
   return response.data.data || response.data;
 };

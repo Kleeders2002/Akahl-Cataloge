@@ -78,7 +78,6 @@ GET /api/catalogo/marcas/:id
       {
         "id_coleccion": 1,
         "nombre": "SUPERNOVA",
-        "descuento_default": 0.35,
         "_count": {
           "telas": 15
         }
@@ -215,7 +214,6 @@ GET /api/catalogo/colecciones
       "id_coleccion": 1,
       "id_marca": 1,
       "nombre": "SUPERNOVA",
-      "descuento_default": 0.35,
       "createdAt": "2025-01-15T10:00:00.000Z",
       "updatedAt": "2025-01-15T10:00:00.000Z",
       "marca": {
@@ -252,7 +250,6 @@ GET /api/catalogo/colecciones/marcas/:marcaId/colecciones
     {
       "id_coleccion": 1,
       "nombre": "SUPERNOVA",
-      "descuento_default": 0.35,
       "_count": {
         "telas": 15
       }
@@ -260,7 +257,6 @@ GET /api/catalogo/colecciones/marcas/:marcaId/colecciones
     {
       "id_coleccion": 2,
       "nombre": "DRAGONFLY",
-      "descuento_default": 0.30,
       "_count": {
         "telas": 12
       }
@@ -289,7 +285,6 @@ GET /api/catalogo/colecciones/:id
     "id_coleccion": 1,
     "id_marca": 1,
     "nombre": "SUPERNOVA",
-    "descuento_default": 0.35,
     "marca": {
       "id_marca": 1,
       "nombre": "Holland & Sherry"
@@ -320,8 +315,7 @@ POST /api/catalogo/colecciones/marcas/:marcaId/colecciones
 **Body:**
 ```json
 {
-  "nombre": "NEW COLLECTION",
-  "descuento_default": 0.35
+  "nombre": "NEW COLLECTION"
 }
 ```
 
@@ -333,7 +327,6 @@ POST /api/catalogo/colecciones/marcas/:marcaId/colecciones
     "id_coleccion": 9,
     "id_marca": 1,
     "nombre": "NEW COLLECTION",
-    "descuento_default": 0.35,
     "createdAt": "2025-08-10T16:00:00.000Z",
     "updatedAt": "2025-08-10T16:00:00.000Z",
     "marca": {
@@ -357,8 +350,7 @@ PUT /api/catalogo/colecciones/:id
 **Body:**
 ```json
 {
-  "nombre": "NEW COLLECTION 2025",
-  "descuento_default": 0.40
+  "nombre": "NEW COLLECTION 2025"
 }
 ```
 
@@ -910,7 +902,6 @@ interface Coleccion {
   id_coleccion: number;
   id_marca: number;
   nombre: string;
-  descuento_default: number;
   createdAt: string;
   updatedAt: string;
   marca?: Marca;
@@ -979,5 +970,5 @@ interface Multiplicador {
 
 ---
 
-**Versión:** 1.0 - Actualizado a agosto 2026
+**Versión:** 1.1 - Actualizado a agosto 2026 (eliminado `descuento_default` de Coleccion)
 **Base Path:** `/api/catalogo`

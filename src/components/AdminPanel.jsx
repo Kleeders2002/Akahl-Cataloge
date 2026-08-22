@@ -82,8 +82,7 @@ function AdminPanel({ onActivity }) {
   const [creatingColeccion, setCreatingColeccion] = useState(false);
   const [newColeccionData, setNewColeccionData] = useState({
     id_marca: '',
-    nombre: '',
-    descuento_default: 0.35
+    nombre: ''
   });
 
   // ============================================
@@ -233,11 +232,10 @@ function AdminPanel({ onActivity }) {
     try {
       const created = await createColeccion(
         parseInt(newColeccionData.id_marca),
-        newColeccionData.nombre.trim(),
-        parseFloat(newColeccionData.descuento_default)
+        newColeccionData.nombre.trim()
       );
       setColecciones([...colecciones, created]);
-      setNewColeccionData({ id_marca: '', nombre: '', descuento_default: 0.35 });
+      setNewColeccionData({ id_marca: '', nombre: '' });
       setCreatingColeccion(false);
       onActivity?.();
     } catch (error) {
@@ -254,8 +252,7 @@ function AdminPanel({ onActivity }) {
     try {
       const updated = await updateColeccion(
         editingColeccion.id_coleccion,
-        editingColeccion.nombre.trim(),
-        parseFloat(editingColeccion.descuento_default)
+        editingColeccion.nombre.trim()
       );
       setColecciones(colecciones.map(c => c.id_coleccion === updated.id_coleccion ? updated : c));
       setEditingColeccion(null);
@@ -692,7 +689,6 @@ function AdminPanel({ onActivity }) {
                 <tr className="border-b border-akahl-secondary/20">
                   <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Name</th>
                   <th className="text-left py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Brand</th>
-                  <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Discount</th>
                   <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs"># Fabrics</th>
                   <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
                 </tr>
@@ -702,11 +698,6 @@ function AdminPanel({ onActivity }) {
                   <tr key={coleccion.id_coleccion} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
                     <td className="py-3 px-3 font-medium text-white">{coleccion.nombre}</td>
                     <td className="py-3 px-3 text-neutral-400">{coleccion.marca?.nombre || 'N/A'}</td>
-                    <td className="py-3 px-3 text-center">
-                      <span className="text-akahl-secondary font-medium">
-                        {((coleccion.descuento_default || 0) * 100).toFixed(0)}%
-                      </span>
-                    </td>
                     <td className="py-3 px-3 text-center">
                       <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
                         coleccion._count?.telas > 0
@@ -1445,7 +1436,7 @@ function AdminPanel({ onActivity }) {
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div className="card-premium max-w-md w-full shadow-2xl relative">
             <button
-              onClick={() => { setCreatingColeccion(false); setNewColeccionData({ id_marca: '', nombre: '', descuento_default: 0.35 }); }}
+              onClick={() => { setCreatingColeccion(false); setNewColeccionData({ id_marca: '', nombre: '' }); }}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -1485,18 +1476,6 @@ function AdminPanel({ onActivity }) {
                   className="input-field"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Default Discount (0.35 = 35%)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  max="1"
-                  min="0"
-                  value={newColeccionData.descuento_default}
-                  onChange={(e) => setNewColeccionData({ ...newColeccionData, descuento_default: parseFloat(e.target.value) || 0 })}
-                  className="input-field"
-                />
-              </div>
             </div>
 
             <div className="mt-6 flex gap-3">
@@ -1504,7 +1483,7 @@ function AdminPanel({ onActivity }) {
                 Create Collection
               </button>
               <button
-                onClick={() => { setCreatingColeccion(false); setNewColeccionData({ id_marca: '', nombre: '', descuento_default: 0.35 }); }}
+                onClick={() => { setCreatingColeccion(false); setNewColeccionData({ id_marca: '', nombre: '' }); }}
                 className="btn-secondary"
               >
                 Cancel
@@ -1547,18 +1526,6 @@ function AdminPanel({ onActivity }) {
                   type="text"
                   value={editingColeccion.nombre}
                   onChange={(e) => setEditingColeccion({ ...editingColeccion, nombre: e.target.value })}
-                  className="input-field"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-akahl-secondary/80 mb-2 tracking-[0.1em] uppercase">Default Discount (0.35 = 35%)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  max="1"
-                  min="0"
-                  value={editingColeccion.descuento_default || 0}
-                  onChange={(e) => setEditingColeccion({ ...editingColeccion, descuento_default: parseFloat(e.target.value) || 0 })}
                   className="input-field"
                 />
               </div>
