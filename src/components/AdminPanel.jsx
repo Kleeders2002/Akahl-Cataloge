@@ -388,7 +388,7 @@ function AdminPanel({ onActivity }) {
     // Preparar parámetros para updateFabricsBatch
     let precio_por_yarda = undefined;
     let descuento = undefined;
-    let id_coleccion = undefined;
+    let disponibilidad = undefined;
 
     if (batchActionModal === 'price') {
       if (batchUpdateData.precio_por_yarda && batchUpdateData.precio_por_yarda !== '') {
@@ -415,18 +415,17 @@ function AdminPanel({ onActivity }) {
       }
     }
 
-    if (batchActionModal === 'coleccion' && batchUpdateData.id_coleccion) {
-      id_coleccion = parseInt(batchUpdateData.id_coleccion);
-      if (!id_coleccion) {
-        alert('Select a collection');
-        return;
-      }
+    // Change Collection no está soportado por el backend
+    if (batchActionModal === 'coleccion') {
+      alert('⚠️ The backend does not support changing fabric collection.\n\nPlease delete and recreate the fabric with the correct collection.');
+      return;
     }
 
     try {
-      console.log('Sending batch update:', { ids, precio_por_yarda, descuento, id_coleccion });
-      const result = await updateFabricsBatch(ids, precio_por_yarda, descuento, id_coleccion);
-      console.log('Batch update result:', result);
+      console.log('🔵 Sending batch update:', { ids, precio_por_yarda, descuento, disponibilidad });
+      const result = await updateFabricsBatch(ids, precio_por_yarda, descuento, disponibilidad);
+
+      console.log('🟢 Batch update result:', result);
 
       // Recargar telas
       const updatedFabrics = await getAllFabrics();
@@ -435,13 +434,13 @@ function AdminPanel({ onActivity }) {
       setBatchActionModal(null);
       setBatchUpdateData({ precio_por_yarda: '', descuento: '', id_coleccion: '' });
 
-      alert(`Updated: ${result.updated} of ${result.total} fabrics`);
+      alert(`✅ Updated: ${result.updated} of ${result.total} fabrics`);
       onActivity?.();
     } catch (error) {
-      console.error('Error in batch update:', error);
+      console.error('❌ Error in batch update:', error);
       console.error('Error response:', error.response?.data);
       const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Error updating fabrics';
-      alert(`Error: ${errorMsg}\n\nCheck console for details.`);
+      alert(`❌ Error: ${errorMsg}\n\nCheck console for details.`);
     }
   };
 
@@ -1093,12 +1092,13 @@ function AdminPanel({ onActivity }) {
                   >
                     Update Prices
                   </button>
-                  <button
+                  {/* Change Collection no soportado por el backend */}
+                  {/* <button
                     onClick={() => setBatchActionModal('coleccion')}
                     className="px-4 py-2 bg-akahl-primary/50 hover:bg-akahl-primary/70 text-neutral-300 font-medium rounded-lg transition-all border border-akahl-secondary/20"
                   >
                     Change Collection
-                  </button>
+                  </button> */}
                   <button
                     onClick={handleBatchDelete}
                     className="px-4 py-2 bg-red-950/40 hover:bg-red-950/60 text-red-400 font-medium rounded-lg transition-all border border-red-900/50"
