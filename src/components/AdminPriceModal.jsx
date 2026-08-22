@@ -215,10 +215,10 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                   {GARMENT_TYPES.map((garment) => {
                     const details = priceDetails[garment.id];
                     if (!details) return null;
-                    // Restar 700 solo cuando es No Bespoke (Industrial)
+                    // Elaboration Price = Precio final dividido por el multiplier (el mismo para ambos)
+                    const elaborationPrice = details.finalPrice / details.multiplier;
+                    // Restar 700 solo al Multiplied Price cuando es No Bespoke (Industrial)
                     const adjustedPrice = selectedManufacturing === 'industrial' ? details.finalPrice - 700 : details.finalPrice;
-                    // Elaboration Price = Precio final dividido por el multiplier
-                    const elaborationPrice = adjustedPrice / details.multiplier;
 
                     return (
                       <tr key={garment.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
