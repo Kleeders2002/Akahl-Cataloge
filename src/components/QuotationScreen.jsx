@@ -102,7 +102,8 @@ function QuotationScreen({ onActivity }) {
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
 
   // Paginación
-  const [displayedCount, setDisplayedCount] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Tela seleccionada para cotización
   const [selectedFabric, setSelectedFabric] = useState(null);
@@ -197,8 +198,10 @@ function QuotationScreen({ onActivity }) {
   }, [allFabrics, searchTerm, selectedBrand, selectedCollection, selectedPriceRange, availabilityFilter]);
 
   // Telas a mostrar (con paginación)
-  const displayedFabrics = filteredFabrics.slice(0, displayedCount);
-  const hasMore = filteredFabrics.length > displayedCount;
+  const totalPages = Math.ceil(filteredFabrics.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const displayedFabrics = filteredFabrics.slice(startIndex, endIndex);
 
   // ============================================
   // SELECCIÓN DE TELA PARA COTIZACIÓN
@@ -254,6 +257,11 @@ function QuotationScreen({ onActivity }) {
       recalculate();
     }
   }, [manufacturingType, garmentType, selectedFabric]);
+
+  // Resetear página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedBrand, selectedCollection, selectedPriceRange, availabilityFilter]);
 
   // ============================================
   // LIMPIEZA
@@ -511,25 +519,44 @@ function QuotationScreen({ onActivity }) {
               </table>
             </div>
 
-            {/* Botón "Cargar más" */}
-            {hasMore && (
-              <div className="text-center py-4">
-                <button
-                  onClick={() => {
-                    setDisplayedCount(prev => prev + 10);
-                    onActivity?.();
-                  }}
-                  className="px-8 py-3 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 text-akahl-secondary font-medium rounded-lg transition-all border border-akahl-secondary/30"
-                >
-                  Load More ({filteredFabrics.length - displayedCount} remaining)
-                </button>
-              </div>
-            )}
+            {/* Controles de Paginación */}
+            {filteredFabrics.length > 0 && (
+              <div className="flex items-center justify-between py-4 px-2 border-t border-akahl-secondary/10">
+                <div className="text-sm text-neutral-400">
+                  Page <span className="text-akahl-secondary font-semibold">{currentPage}</span> of {totalPages}
+                  <span className="mx-2">•</span>
+                  {filteredFabrics.length} fabrics
+                </div>
 
-            {/* Indicador de fin de lista */}
-            {!hasMore && displayedFabrics.length > 0 && (
-              <div className="text-center text-neutral-500 text-sm py-4 border-t border-akahl-secondary/10">
-                Showing all {filteredFabrics.length} fabrics
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setCurrentPage(prev => Math.max(1, prev - 1));
+                      onActivity?.();
+                    }}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 bg-akahl-primary/50 hover:bg-akahl-primary/70 text-white font-medium rounded-lg transition-all border border-akahl-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-akahl-primary/50 flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                      onActivity?.();
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 bg-akahl-secondary hover:bg-akahl-secondary/80 text-akahl-primary font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-akahl-secondary flex items-center gap-2"
+                  >
+                    Next
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
           </div>

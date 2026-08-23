@@ -105,6 +105,10 @@ function AdminPanel({ onActivity }) {
 
   // Telas - Selección múltiple
   const [selectedFabrics, setSelectedFabrics] = useState([]);
+
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
   const [batchActionModal, setBatchActionModal] = useState(null); // 'price' | 'coleccion' | null
   const [batchUpdateData, setBatchUpdateData] = useState({
     precio_por_yarda: '',
@@ -589,6 +593,17 @@ function AdminPanel({ onActivity }) {
       (fabric.marca || fabric.supplier).toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Paginación de telas
+  const totalPages = Math.ceil(filteredFabrics.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const displayedFabrics = filteredFabrics.slice(startIndex, endIndex);
+
+  // Resetear página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchTerm]);
 
   // ============================================
   // HANDLERS - MULTIPLICADORES
@@ -1172,7 +1187,7 @@ function AdminPanel({ onActivity }) {
                     <th className="py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs w-12">
                       <input
                         type="checkbox"
-                        checked={selectedFabrics.length === filteredFabrics.length && filteredFabrics.length > 0}
+                        checked={currentPage === 1 && selectedFabrics.length === filteredFabrics.length && filteredFabrics.length > 0}
                         onChange={(e) => handleSelectAllFabrics(e.target.checked)}
                         className="w-4 h-4"
                       />
@@ -1187,7 +1202,7 @@ function AdminPanel({ onActivity }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredFabrics.map((fabric) => {
+                  {displayedFabrics.map((fabric) => {
                     const precioNeto = fabric.precio_neto ||
                       (fabric.descuento ? fabric.basePricePerMeter * (1 - fabric.descuento) : fabric.basePricePerMeter);
                     return (
@@ -1281,10 +1296,51 @@ function AdminPanel({ onActivity }) {
               </table>
             </div>
 
-            {filteredFabrics.length === 0 && (
+            {filteredFabrics.length === 0 ? (
               <div className="text-center py-8 text-neutral-500">
                 No fabrics found with current filters.
               </div>
+            ) : (
+              <>
+                {/* Controles de Paginación */}
+                <div className="flex items-center justify-between py-4 px-2 border-t border-akahl-secondary/10">
+                  <div className="text-sm text-neutral-400">
+                    Page <span className="text-akahl-secondary font-semibold">{currentPage}</span> of {totalPages}
+                    <span className="mx-2">•</span>
+                    {filteredFabrics.length} fabrics
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setCurrentPage(prev => Math.max(1, prev - 1));
+                        onActivity?.();
+                      }}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 bg-akahl-primary/50 hover:bg-akahl-primary/70 text-white font-medium rounded-lg transition-all border border-akahl-secondary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-akahl-primary/50 flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                      Previous
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                        onActivity?.();
+                      }}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 bg-akahl-secondary hover:bg-akahl-secondary/80 text-akahl-primary font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-akahl-secondary flex items-center gap-2"
+                    >
+                      Next
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="mt-5 pt-5 border-t border-akahl-secondary/20 flex flex-wrap gap-6 text-sm">
