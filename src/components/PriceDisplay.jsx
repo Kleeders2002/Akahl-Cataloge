@@ -7,6 +7,9 @@
 
 import { useState } from 'react';
 
+// Formateo defensivo: evita el crash si el backend omite algún campo del desglose
+const fmt = (value) => (typeof value === 'number' && !isNaN(value) ? value.toFixed(2) : '—');
+
 function PriceDisplay({ price, desglose, fabric, garmentType, manufacturingType, onNewQuotation }) {
   const [showDesglose, setShowDesglose] = useState(false);
 
@@ -74,33 +77,44 @@ function PriceDisplay({ price, desglose, fabric, garmentType, manufacturingType,
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Base fabric price (meter)</span>
-                <span className="font-medium text-white">${fabric.basePricePerMeter.toFixed(2)}</span>
+                <span className="text-neutral-400">Base fabric price (yard)</span>
+                <span className="font-medium text-white">${fmt(fabric.basePricePerMeter)}</span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Meters required</span>
-                <span className="font-medium text-white badge-green">{desglose.meters} m</span>
+                <span className="text-neutral-400">Yards required</span>
+                <span className="font-medium text-white badge-green">
+                  {desglose.meters != null ? `${desglose.meters} yd` : '—'}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="text-neutral-400">Total fabric cost</span>
-                <span className="font-medium text-akahl-secondary">${desglose.fabricCost.toFixed(2)}</span>
+                <span className="font-medium text-akahl-secondary">${fmt(desglose.fabricCost)}</span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Labor multiplier</span>
-                <span className="font-medium text-white badge-gold">{desglose.multiplier}x</span>
+                <span className="text-neutral-400">Fixed costs (mfg. + shipping + lining)</span>
+                <span className="font-medium text-akahl-secondary">${fmt(desglose.fixedCosts)}</span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Labor cost</span>
-                <span className="font-medium text-akahl-secondary">${desglose.laborCost.toFixed(2)}</span>
+                <span className="text-neutral-400">Markup</span>
+                <span className="font-medium text-white badge-gold">
+                  {desglose.markup != null ? `${desglose.markup}x` : '—'}
+                </span>
               </div>
+
+              {manufacturingType === 'No Bespoke' && (
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400">No Bespoke adjustment</span>
+                  <span className="font-medium text-red-400">-$700.00</span>
+                </div>
+              )}
 
               <div className="border-t border-akahl-secondary/20 my-3 pt-3 flex justify-between text-base">
                 <span className="font-semibold text-white tracking-wide">Total</span>
-                <span className="font-bold text-gradient-gold text-lg">${adjustedPrice.toFixed(2)}</span>
+                <span className="font-bold text-gradient-gold text-lg">${fmt(adjustedPrice)}</span>
               </div>
             </div>
           </div>
