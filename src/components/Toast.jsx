@@ -77,7 +77,7 @@ function Toast({ toast, onClose }) {
   }, [toast, onClose]);
 
   return (
-    <div className="animate-slide-up">
+    <div className="toast-in">
       <div className={`${config.bgColor} ${config.borderColor} ${config.textColor} border rounded-xl shadow-premium p-4 flex items-start gap-4 min-w-[320px] max-w-md`}>
         {/* Icon */}
         <div className={`${config.iconColor} flex-shrink-0 mt-0.5`}>

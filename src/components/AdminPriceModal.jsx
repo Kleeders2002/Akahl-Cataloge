@@ -95,8 +95,8 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
       : fabric.basePricePerMeter);
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-      <div className="card-premium max-w-4xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+      <div className="card-premium max-w-4xl w-full shadow-2xl relative modal-panel max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-akahl-primary/95 backdrop-blur-sm z-10 border-b border-akahl-secondary/20">
           <div className="flex items-center justify-between p-5">
@@ -211,7 +211,7 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                     <th className="text-right py-3 px-4 font-semibold text-akahl-secondary tracking-[0.1em] uppercase text-xs">Multiplied Price</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="stagger-soft">
                   {GARMENT_TYPES.map((garment) => {
                     const details = priceDetails[garment.id];
                     if (!details) return null;
@@ -221,7 +221,7 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                     const adjustedPrice = applyManufacturingAdjustment(details.finalPrice, selectedManufacturing);
 
                     return (
-                      <tr key={garment.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
+                      <tr key={garment.id} className="row-lux border-b border-akahl-secondary/10">
                         <td className="py-4 px-4 font-medium text-white text-base">{garment.name}</td>
                         <td className="py-4 px-4 text-right text-neutral-300">
                           ${elaborationPrice.toFixed(2)}

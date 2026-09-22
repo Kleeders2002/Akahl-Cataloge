@@ -644,7 +644,7 @@ function AdminPanel({ onActivity }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-3 rounded-xl font-medium transition-all duration-300 ${
                   isActive
-                    ? 'bg-akahl-secondary text-akahl-primary shadow-premium scale-105'
+                    ? 'bg-akahl-secondary text-akahl-primary shadow-gold-glow scale-105'
                     : 'bg-akahl-primary/50 text-neutral-400 hover:bg-akahl-primary/70 border border-akahl-secondary/20'
                 }`}
               >
@@ -691,7 +691,7 @@ function AdminPanel({ onActivity }) {
               </thead>
               <tbody>
                 {marcas.map(marca => (
-                  <tr key={marca.id_marca} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
+                  <tr key={marca.id_marca} className="row-lux border-b border-akahl-secondary/10">
                     <td className="py-3 px-3 font-medium text-white">{marca.nombre}</td>
                     <td className="py-3 px-3 text-center">
                       <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
@@ -783,7 +783,7 @@ function AdminPanel({ onActivity }) {
               </thead>
               <tbody>
                 {colecciones.map(coleccion => (
-                  <tr key={coleccion.id_coleccion} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
+                  <tr key={coleccion.id_coleccion} className="row-lux border-b border-akahl-secondary/10">
                     <td className="py-3 px-3 font-medium text-white">{coleccion.nombre}</td>
                     <td className="py-3 px-3 text-neutral-400">{coleccion.marca?.nombre || 'N/A'}</td>
                     <td className="py-3 px-3 text-center">
@@ -1187,12 +1187,12 @@ function AdminPanel({ onActivity }) {
                     <th className="text-center py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="stagger-soft">
                   {displayedFabrics.map((fabric) => {
                     const precioNeto = fabric.precio_neto ||
                       (fabric.descuento ? fabric.basePricePerMeter * (1 - fabric.descuento) : fabric.basePricePerMeter);
                     return (
-                      <tr key={fabric.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
+                      <tr key={fabric.id} className="row-lux border-b border-akahl-secondary/10">
                         <td className="py-3 px-3">
                           <input
                             type="checkbox"
@@ -1513,8 +1513,8 @@ function AdminPanel({ onActivity }) {
           MODAL: CREAR MARCA
           ============================================ */}
       {creatingMarca && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+          <div className="card-premium max-w-md w-full shadow-2xl relative modal-panel">
             <button
               onClick={() => { setCreatingMarca(false); setNewMarcaName(''); }}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
@@ -1565,8 +1565,8 @@ function AdminPanel({ onActivity }) {
           MODAL: EDITAR MARCA
           ============================================ */}
       {editingMarca && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+          <div className="card-premium max-w-md w-full shadow-2xl relative modal-panel">
             <button
               onClick={() => setEditingMarca(null)}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
@@ -1612,8 +1612,8 @@ function AdminPanel({ onActivity }) {
           MODAL: CREAR COLECCIÓN
           ============================================ */}
       {creatingColeccion && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+          <div className="card-premium max-w-md w-full shadow-2xl relative modal-panel">
             <button
               onClick={() => { setCreatingColeccion(false); setNewColeccionData({ id_marca: '', nombre: '' }); }}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
@@ -1676,8 +1676,8 @@ function AdminPanel({ onActivity }) {
           MODAL: EDITAR COLECCIÓN
           ============================================ */}
       {editingColeccion && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+          <div className="card-premium max-w-md w-full shadow-2xl relative modal-panel">
             <button
               onClick={() => setEditingColeccion(null)}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
@@ -1726,8 +1726,8 @@ function AdminPanel({ onActivity }) {
           MODAL: EDITAR TELA
           ============================================ */}
       {editingFabric && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+          <div className="card-premium max-w-md w-full shadow-2xl relative modal-panel">
             <button
               onClick={() => setEditingFabric(null)}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"
@@ -1860,8 +1860,8 @@ function AdminPanel({ onActivity }) {
           MODAL: ACCIONES BATCH
           ============================================ */}
       {batchActionModal && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="card-premium max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+          <div className="card-premium max-w-md w-full shadow-2xl relative modal-panel">
             <button
               onClick={() => { setBatchActionModal(null); setBatchUpdateData({ precio_por_yarda: '', descuento: '', id_coleccion: '' }); }}
               className="absolute top-4 right-4 p-2 rounded-lg hover:bg-akahl-secondary/10 transition-colors text-neutral-400 hover:text-white"

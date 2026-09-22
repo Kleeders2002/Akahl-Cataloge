@@ -21,7 +21,7 @@ function Header({
   return (
     <header className="bg-gradient-to-b from-akahl-primary/95 to-akahl-primary/90 backdrop-blur-xl border-b border-akahl-secondary/30 sticky top-0 z-40 shadow-premium">
       {/* Premium gold line accent */}
-      <div className="h-px bg-gradient-to-r from-transparent via-akahl-secondary/60 to-transparent"></div>
+      <div className="h-px line-flow opacity-70"></div>
 
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between py-4">
@@ -72,7 +72,7 @@ function Header({
             <img
               src="/logo-akahl.png"
               alt="AKAHL Logo"
-              className="h-12 md:h-14 w-auto object-contain drop-shadow-premium"
+              className="h-12 md:h-14 w-auto object-contain drop-shadow-premium logo-glow"
             />
           </div>
 

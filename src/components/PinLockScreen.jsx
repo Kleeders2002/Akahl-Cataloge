@@ -133,10 +133,13 @@ function PinLockScreen({ onSuccess }) {
           <img
             src="/logo-akahl.png"
             alt="AKAHL Cataloge"
-            className="w-64 sm:w-72 mx-auto mb-4 select-none pointer-events-none"
+            className="w-64 sm:w-72 mx-auto mb-4 select-none pointer-events-none logo-glow"
           />
 
-          <p className="text-akahl-secondary/60 text-sm tracking-[0.25em] uppercase font-light">
+          <p
+            className="text-akahl-secondary/60 text-sm tracking-[0.25em] uppercase font-light animate-fadeIn"
+            style={{ animationDelay: '0.35s' }}
+          >
             Internal Quotation System
           </p>
         </div>
@@ -150,7 +153,7 @@ function PinLockScreen({ onSuccess }) {
             </p>
             <div
               className={`flex justify-center gap-5 transition-all duration-300 ${
-                error ? 'animate-pulse' : ''
+                error ? 'pin-shake' : ''
               }`}
             >
               {[...Array(PIN_LENGTH)].map((_, i) => {
@@ -171,7 +174,7 @@ function PinLockScreen({ onSuccess }) {
                         isError
                           ? 'bg-red-500 scale-125 shadow-red-500/50'
                           : isFilled
-                          ? 'bg-akahl-secondary scale-100 shadow-gold-glow'
+                          ? 'bg-akahl-secondary scale-100 shadow-gold-glow dot-pop'
                           : 'bg-neutral-700/50 scale-100 border border-akahl-secondary/20'
                       }`}
                     />
@@ -185,7 +188,7 @@ function PinLockScreen({ onSuccess }) {
               </p>
             )}
             {verifying && (
-              <p className="text-center text-akahl-secondary/60 mt-5 font-medium text-sm tracking-wide">
+              <p className="text-center text-akahl-secondary/60 mt-5 font-medium text-sm tracking-wide animate-pulse">
                 Verifying...
               </p>
             )}
@@ -199,7 +202,7 @@ function PinLockScreen({ onSuccess }) {
                 key={num}
                 onClick={() => handleDigit(String(num))}
                 disabled={verifying}
-                className={`numpad-btn ${verifying ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`numpad-btn animate-fadeIn ${verifying ? 'opacity-50 cursor-not-allowed' : ''}`}
                 style={{animationDelay: `${index * 50}ms`}}
               >
                 {num}

@@ -39,8 +39,8 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-      <div className="card-premium max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 modal-backdrop">
+      <div className="card-premium max-w-2xl w-full shadow-2xl relative modal-panel max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-akahl-primary/95 backdrop-blur-sm z-10 border-b border-akahl-secondary/20">
           <div className="flex items-center justify-between p-5">
@@ -101,7 +101,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 stagger-soft">
               {GARMENT_TYPES.map((garment) => {
                 const price = prices[garment.id];
                 const hasPrice = typeof price === 'number';
@@ -115,7 +115,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
                     key={garment.id}
                     onClick={() => handleGarmentSelect(garment)}
                     disabled={!hasPrice}
-                    className="p-5 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/20 hover:border-akahl-secondary/50 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-left group"
+                    className="p-5 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/20 hover:border-akahl-secondary/50 hover:shadow-gold-glow transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-left group"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <img
@@ -129,7 +129,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
                     </div>
                     <h4 className="font-semibold text-white mb-2">{garment.name}</h4>
                     {hasPrice ? (
-                      <p className="text-2xl font-display font-bold text-akahl-secondary">
+                      <p className="text-2xl font-display font-bold text-shine">
                         ${adjustedPrice.toFixed(2)}
                       </p>
                     ) : (
@@ -142,7 +142,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
           )}
 
           {/* Fabric Info Footer */}
-          <div className="mt-6 p-4 bg-akahl-secondary/5 rounded-xl border border-akahl-secondary/10">
+          <div className="mt-6 p-4 bg-akahl-secondary/5 rounded-xl border border-akahl-secondary/10 animate-fadeIn">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-akahl-secondary/60 uppercase tracking-wider text-xs mb-1">Brand</p>

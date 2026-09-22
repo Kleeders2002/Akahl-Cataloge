@@ -169,15 +169,24 @@ function App() {
       {/* Toast Container */}
       <ToastContainer />
 
-      {/* Ambient glow effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-akahl-secondary/5 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-akahl-primary/40 rounded-full blur-3xl animate-float" style={{animationDelay: '-3s'}}></div>
+      {/* Ambiente aurora — orbes dorados y esmeralda a la deriva */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="orb orb-gold" style={{ top: '-12%', left: '12%', width: '34rem', height: '34rem' }}></div>
+        <div className="orb orb-green" style={{ bottom: '-18%', right: '8%', width: '40rem', height: '40rem', animationDelay: '-10s' }}></div>
+        <div className="orb orb-gold" style={{ top: '38%', left: '-14%', width: '26rem', height: '26rem', opacity: 0.55, animationDelay: '-18s' }}></div>
+        <div className="orb orb-green" style={{ top: '-20%', right: '30%', width: '24rem', height: '24rem', opacity: 0.5, animationDelay: '-5s' }}></div>
+        {/* Viñeta cinematográfica */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse at center, transparent 52%, rgba(4, 8, 6, 0.6) 100%)' }}
+        ></div>
       </div>
 
       {/* Vista de Login (PIN Lock) */}
       {currentView === APP_VIEWS.LOGIN && (
-        <PinLockScreen onSuccess={handleLoginSuccess} />
+        <div className="view-enter">
+          <PinLockScreen onSuccess={handleLoginSuccess} />
+        </div>
       )}
 
       {/* Vistas principales */}
@@ -193,7 +202,7 @@ function App() {
             onBackToQuotation={handleBackToQuotation}
           />
 
-          <main className="pb-8 px-4 pt-4 max-w-4xl mx-auto">
+          <main key={currentView} className="view-enter pb-8 px-4 pt-4 max-w-4xl mx-auto">
             {currentView === APP_VIEWS.QUOTATION && (
               <QuotationScreen onActivity={registerActivity} />
             )}
