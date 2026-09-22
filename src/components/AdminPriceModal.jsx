@@ -42,19 +42,28 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
   const [selectedManufacturing, setSelectedManufacturing] = useState('bespoke');
   const [priceDetails, setPriceDetails] = useState({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  // Calcular precios y desglose usando el nuevo endpoint
+  // Calcular precios y desglose usando el endpoint calculate-all.
+  // El tipo de manufactura NO participa en el cálculo del backend (se aplica
+  // solo al renderizar), por eso NO va en las dependencias: antes cada toggle
+  // re-lanzaba la petición y, si esa petición fallaba o llegaba tarde,
+  // el fallback local mostraba precios con una fórmula distinta a la del backend.
   useEffect(() => {
+    let cancelled = false;
+
     const loadPrices = async () => {
       setLoading(true);
+      setLoadError(null);
       try {
         const result = await calculateAllPrices({
           fabricCode: fabric.codigo,
         });
+        if (cancelled) return;
 
         // Transformar los datos al formato esperado por el componente
         const details = {};
-        const basePrice = fabric.precio_neto || fabric.basePricePerMeter;
 
         GARMENT_TYPES.forEach((garment) => {
           const finalPrice = result.prices[garment.id];
@@ -65,42 +74,32 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
             laborCost: (finalPrice || 0) - (breakdown?.fabricCost || 0),
             finalPrice: finalPrice || 0,
             meters: breakdown?.meters || garment.meters,
-            multiplier: breakdown?.markup || MULTIPLIERS[selectedManufacturing][garment.id],
+            // El markup lo define el backend; fallback estable (no depende del toggle)
+            multiplier: breakdown?.markup || MULTIPLIERS.bespoke[garment.id],
           };
         });
 
         setPriceDetails(details);
       } catch (error) {
+        if (cancelled) return;
         console.error('Error loading prices:', error);
-        // Fallback al cálculo local si falla el endpoint
-        const details = {};
-        const basePrice = fabric.precio_neto || fabric.basePricePerMeter;
-
-        GARMENT_TYPES.forEach((garment) => {
-          const meters = garment.meters;
-          const multiplier = MULTIPLIERS[selectedManufacturing][garment.id];
-
-          const fabricCost = basePrice * meters;
-          const laborCost = basePrice * multiplier;
-          const finalPrice = fabricCost + laborCost;
-
-          details[garment.id] = {
-            fabricCost: Math.round(fabricCost * 100) / 100,
-            laborCost: Math.round(laborCost * 100) / 100,
-            finalPrice: Math.round(finalPrice * 100) / 100,
-            meters,
-            multiplier,
-          };
-        });
-
-        setPriceDetails(details);
+        // Mostrar error en lugar de un cálculo local silencioso:
+        // la fórmula local no coincide con la del backend y mostraba
+        // precios incorrectos sin que el usuario lo notara.
+        setLoadError('Prices could not be calculated. Check the connection and try again.');
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadPrices();
-  }, [fabric.codigo, selectedManufacturing]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fabric.codigo, reloadKey]);
 
   const precioNeto = fabric.precio_neto ||
     (fabric.descuento
@@ -201,6 +200,19 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                 <p className="text-akahl-secondary/60 tracking-[0.2em] uppercase text-sm">Calculating...</p>
               </div>
             </div>
+          ) : loadError ? (
+            <div className="text-center py-12">
+              <p className="text-red-400 font-medium mb-4">{loadError}</p>
+              <button
+                onClick={() => {
+                  setReloadKey(k => k + 1);
+                  onActivity?.();
+                }}
+                className="px-6 py-2 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 text-akahl-secondary font-medium rounded-lg transition-all border border-akahl-secondary/30"
+              >
+                Retry
+              </button>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -238,7 +250,7 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
           )}
 
           {/* Summary Footer */}
-          {!loading && (
+          {!loading && !loadError && (
             <div className="mt-6 p-4 bg-akahl-secondary/5 rounded-xl border border-akahl-secondary/10">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
