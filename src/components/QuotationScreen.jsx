@@ -93,6 +93,8 @@ function QuotationScreen({ onActivity }) {
   // Estado de carga de telas
   const [allFabrics, setAllFabrics] = useState([]);
   const [loadingFabrics, setLoadingFabrics] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Búsqueda y filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -119,33 +121,35 @@ function QuotationScreen({ onActivity }) {
   // ============================================
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadFabrics = async () => {
       setLoadingFabrics(true);
+      setLoadError(null);
       try {
-        console.log('🔍 Cargando telas desde el endpoint...');
         const fabrics = await getAllFabrics();
-        console.log('✅ Telas cargadas:', fabrics.length, 'telas');
-
-        // LOG: Ver la estructura de los datos
-        if (fabrics.length > 0) {
-          console.log('📋 Estructura de la primera tela:', fabrics[0]);
-          console.log('💰 basePricePerMeter:', fabrics[0].basePricePerMeter, 'Tipo:', typeof fabrics[0].basePricePerMeter);
-        }
-
+        if (cancelled) return;
         setAllFabrics(fabrics);
       } catch (error) {
-        console.error('❌ Error loading fabrics:', error);
-        console.error('Error details:', error.message, error.response?.data);
-
-        // No cargar datos mock - dejar el array vacío para mostrar error
+        if (cancelled) return;
+        console.error('Error loading fabrics:', error);
+        // Mostrar error con reintento en vez de un "No fabrics found"
+        // confuso (ej. servidor Render dormido o sin conexión)
         setAllFabrics([]);
+        setLoadError('The server could not be reached. It may be waking up — try again in a few seconds.');
       } finally {
-        setLoadingFabrics(false);
+        if (!cancelled) {
+          setLoadingFabrics(false);
+        }
       }
     };
 
     loadFabrics();
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   // ============================================
   // FILTROS Y BÚSQUEDA
@@ -435,6 +439,27 @@ function QuotationScreen({ onActivity }) {
               </div>
               <p className="text-akahl-secondary/60 tracking-[0.2em] uppercase text-sm">Loading fabrics...</p>
             </div>
+          </div>
+        </div>
+      ) : loadError ? (
+        <div className="card-premium">
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 bg-akahl-primary/50 rounded-xl flex items-center justify-center border border-red-900/50">
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-red-400 text-lg">Could not load fabrics</p>
+            <p className="text-neutral-400 text-sm mt-2">{loadError}</p>
+            <button
+              onClick={() => {
+                setReloadKey(k => k + 1);
+                onActivity?.();
+              }}
+              className="mt-4 px-6 py-2 bg-akahl-secondary/10 hover:bg-akahl-secondary/20 text-akahl-secondary font-medium rounded-lg transition-all border border-akahl-secondary/30"
+            >
+              Retry
+            </button>
           </div>
         </div>
       ) : filteredFabrics.length === 0 ? (
