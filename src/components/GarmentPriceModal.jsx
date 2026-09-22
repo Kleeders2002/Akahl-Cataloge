@@ -7,19 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { calculateAllPrices } from '../services/api';
-
-const MANUFACTURING_TYPES = [
-  { id: 'bespoke', name: 'Bespoke', label: 'Bespoke' },
-  { id: 'industrial', name: 'No Bespoke', label: 'No Bespoke' },
-];
-
-const GARMENT_TYPES = [
-  { id: 'jacket', name: 'Jacket', image: '/jacket.png' },
-  { id: 'trousers', name: 'Trousers', image: '/trousers.png' },
-  { id: 'vest', name: 'Vest', image: '/vest.png' },
-  { id: '2-piece', name: '2-Piece Suit', image: '/2-piece.png' },
-  { id: '3-piece', name: '3-Piece Suit', image: '/3-piece.png' },
-];
+import { MANUFACTURING_TYPES, GARMENT_TYPES, applyManufacturingAdjustment } from '../constants';
 
 function GarmentPriceModal({ fabric, onClose, onActivity }) {
   const [selectedManufacturing, setSelectedManufacturing] = useState('bespoke');
@@ -46,7 +34,7 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
   }, [fabric.codigo]);
 
   const handleGarmentSelect = (garment) => {
-    // Aquí podrías expandir para mostrar más detalles o seleccionar la prenda
+    // La app es de consulta de precios: las prendas del modal no navegan a cotización
     onActivity?.();
   };
 
@@ -116,15 +104,17 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {GARMENT_TYPES.map((garment) => {
                 const price = prices[garment.id];
-                const isCalculating = price === null;
+                const hasPrice = typeof price === 'number';
                 // Restar 700 solo cuando es No Bespoke (Industrial)
-                const adjustedPrice = price ? (selectedManufacturing === 'industrial' ? price - 700 : price) : 0;
+                const adjustedPrice = hasPrice
+                  ? applyManufacturingAdjustment(price, selectedManufacturing)
+                  : null;
 
                 return (
                   <button
                     key={garment.id}
                     onClick={() => handleGarmentSelect(garment)}
-                    disabled={isCalculating}
+                    disabled={!hasPrice}
                     className="p-5 bg-akahl-primary/50 rounded-xl border border-akahl-secondary/20 hover:border-akahl-secondary/50 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-left group"
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -138,12 +128,12 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
                       </svg>
                     </div>
                     <h4 className="font-semibold text-white mb-2">{garment.name}</h4>
-                    {isCalculating ? (
-                      <div className="h-6 bg-akahl-secondary/10 rounded animate-pulse"></div>
-                    ) : (
+                    {hasPrice ? (
                       <p className="text-2xl font-display font-bold text-akahl-secondary">
                         ${adjustedPrice.toFixed(2)}
                       </p>
+                    ) : (
+                      <p className="text-2xl font-display font-bold text-neutral-600">—</p>
                     )}
                   </button>
                 );

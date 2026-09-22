@@ -1,69 +1,17 @@
 /**
  * Componente: QuotationScreen
  *
- * Pantalla principal de cotización - Estilo AKAHL Premium.
+ * Pantalla principal de consulta de telas y precios - Estilo AKAHL Premium.
  * - Buscador visible con filtros avanzados
  * - Lista de todas las telas con paginación
  * - Búsqueda en tiempo real
  * - Filtros por marca, precio y nombre
+ * - Modal con precios por tipo de prenda (consulta, no cotización)
  */
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { getAllFabrics, getFabricByCode, calculatePrice } from '../services/api';
-import FabricCard from './FabricCard';
-import PriceDisplay from './PriceDisplay';
-import ManufacturingSelector from './ManufacturingSelector';
-import GarmentSelector from './GarmentSelector';
+import { getAllFabrics } from '../services/api';
 import GarmentPriceModal from './GarmentPriceModal';
-
-// ============================================
-// TIPOS DE MANUFACTURA
-// ============================================
-
-const MANUFACTURING_TYPES = [
-  {
-    id: 'bespoke',
-    name: 'Bespoke',
-    description: 'Handcrafted',
-  },
-  {
-    id: 'industrial',
-    name: 'No Bespoke',
-    description: 'Machine made',
-  },
-];
-
-// ============================================
-// TIPOS DE PRENDA
-// ============================================
-
-const GARMENT_TYPES = [
-  {
-    id: 'jacket',
-    name: 'Jacket',
-    image: '/jacket.png',
-  },
-  {
-    id: 'trousers',
-    name: 'Trousers',
-    image: '/trousers.png',
-  },
-  {
-    id: 'vest',
-    name: 'Vest',
-    image: '/vest.png',
-  },
-  {
-    id: '2-piece',
-    name: '2-Piece Suit',
-    image: '/2-piece.png',
-  },
-  {
-    id: '3-piece',
-    name: '3-Piece Suit',
-    image: '/3-piece.png',
-  },
-];
 
 // Rangos de precio
 const PRICE_RANGES = [
@@ -78,11 +26,6 @@ const PRICE_RANGES = [
 const safePrice = (price, fallback = 0) => {
   const num = parseFloat(price);
   return isNaN(num) ? fallback : num;
-};
-
-// Helper para formatear precio
-const formatPrice = (price, decimals = 2) => {
-  return safePrice(price, 0).toFixed(decimals);
 };
 
 // ============================================
@@ -106,12 +49,6 @@ function QuotationScreen({ onActivity }) {
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
-
-  // Tela seleccionada para cotización
-  const [selectedFabric, setSelectedFabric] = useState(null);
-  const [manufacturingType, setManufacturingType] = useState('bespoke');
-  const [garmentType, setGarmentType] = useState('2-piece');
-  const [priceResult, setPriceResult] = useState(null);
 
   // Modal de precios de prendas
   const [modalFabric, setModalFabric] = useState(null);
@@ -216,68 +153,10 @@ function QuotationScreen({ onActivity }) {
     onActivity?.();
   }, [onActivity]);
 
-  const handleSelectForQuotation = useCallback((fabric) => {
-    setSelectedFabric(fabric);
-    setManufacturingType('bespoke');
-    setGarmentType('2-piece');
-
-    // Calcular precio automáticamente
-    const calculate = async () => {
-      try {
-        const price = await calculatePrice({
-          garmentType: '2-piece',
-          fabricCode: fabric.codigo,
-        });
-        setPriceResult(price);
-      } catch (error) {
-        console.error('Error calculating price:', error);
-      }
-    };
-
-    calculate();
-    onActivity?.();
-
-    // Scroll suave hacia la parte de cotización
-    setTimeout(() => {
-      document.getElementById('quotation-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }, [onActivity]);
-
-  // Recalcular precio cuando cambian selecciones
-  useEffect(() => {
-    if (selectedFabric && manufacturingType && garmentType) {
-      const recalculate = async () => {
-        try {
-          const price = await calculatePrice({
-            garmentType: garmentType,
-            fabricCode: selectedFabric.codigo,
-          });
-          setPriceResult(price);
-        } catch (error) {
-          console.error('Error recalculating price:', error);
-        }
-      };
-
-      recalculate();
-    }
-  }, [manufacturingType, garmentType, selectedFabric]);
-
   // Resetear página cuando cambian los filtros
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, selectedBrand, selectedCollection, selectedPriceRange, availabilityFilter]);
-
-  // ============================================
-  // LIMPIEZA
-  // ============================================
-
-  const handleClearSelection = useCallback(() => {
-    setSelectedFabric(null);
-    setPriceResult(null);
-    setManufacturingType('bespoke');
-    setGarmentType('2-piece');
-    onActivity?.();
-  }, [onActivity]);
 
   // ============================================
   // RENDERIZADO
@@ -586,53 +465,6 @@ function QuotationScreen({ onActivity }) {
             )}
           </div>
         </>
-      )}
-
-      {/* ============================================
-          SECCIÓN DE COTIZACIÓN (cuando hay tela seleccionada)
-          ============================================ */}
-      {selectedFabric && (
-        <div id="quotation-section" className="space-y-6 animate-slide-up">
-          {/* Tela seleccionada */}
-          <div>
-            <FabricCard fabric={selectedFabric} />
-          </div>
-
-          {/* Selectores */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <ManufacturingSelector
-              types={MANUFACTURING_TYPES}
-              selected={manufacturingType}
-              onSelect={(type) => {
-                setManufacturingType(type);
-                onActivity?.();
-              }}
-            />
-
-            <GarmentSelector
-              types={GARMENT_TYPES}
-              selected={garmentType}
-              onSelect={(type) => {
-                setGarmentType(type);
-                onActivity?.();
-              }}
-            />
-          </div>
-
-          {/* Precio calculado */}
-          {priceResult && (
-            <div className="animate-scale-in">
-              <PriceDisplay
-                price={priceResult.finalPrice}
-                desglose={priceResult.desglose}
-                fabric={selectedFabric}
-                garmentType={GARMENT_TYPES.find(g => g.id === garmentType)?.name}
-                manufacturingType={MANUFACTURING_TYPES.find(m => m.id === manufacturingType)?.name}
-                onNewQuotation={handleClearSelection}
-              />
-            </div>
-          )}
-        </div>
       )}
 
       {/* ============================================

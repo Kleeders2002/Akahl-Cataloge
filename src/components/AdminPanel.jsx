@@ -15,7 +15,6 @@ import {
   toggleFabricAvailability,
   getPricingConfig,
   updatePricingMultipliers,
-  getFabricByCode,
   deleteFabric,
   getAllMarcas,
   createMarca,
@@ -35,19 +34,6 @@ import { toast } from '../hooks/useToast';
 // ============================================
 // CONSTANTES - TIPOS
 // ============================================
-
-const MANUFACTURING_TYPES = [
-  { id: 'bespoke', name: 'Bespoke', description: 'Handcrafted' },
-  { id: 'industrial', name: 'No Bespoke', description: 'Machine made' },
-];
-
-const GARMENT_TYPES = [
-  { id: 'jacket', name: 'Jacket', image: '/jacket.png' },
-  { id: 'trousers', name: 'Trousers', image: '/trousers.png' },
-  { id: 'vest', name: 'Vest', image: '/vest.png' },
-  { id: '2-piece', name: '2-Piece Suit', image: '/2-piece.png' },
-  { id: '3-piece', name: '3-Piece Suit', image: '/3-piece.png' },
-];
 
 const TABS = [
   { id: 'marcas', label: 'Brands' },
@@ -163,6 +149,7 @@ function AdminPanel({ onActivity }) {
       }
     } catch (error) {
       console.error('Error loading data:', error);
+      toast.error('Could not load admin data. Check the connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -443,10 +430,7 @@ function AdminPanel({ onActivity }) {
     }
 
     try {
-      console.log('🔵 Sending batch update:', { ids, precio_por_yarda, descuento, disponibilidad });
       const result = await updateFabricsBatch(ids, precio_por_yarda, descuento, disponibilidad);
-
-      console.log('🟢 Batch update result:', result);
 
       const updatedFabrics = await getAllFabrics();
       setFabrics(updatedFabrics);
@@ -474,7 +458,6 @@ function AdminPanel({ onActivity }) {
     try {
       try {
         const result = await deleteFabricsBatch(ids);
-        console.log('✅ Batch delete successful:', result);
 
         const updatedFabrics = await getAllFabrics();
         setFabrics(updatedFabrics);
@@ -1187,7 +1170,10 @@ function AdminPanel({ onActivity }) {
                     <th className="py-3 px-3 font-semibold text-white tracking-[0.1em] uppercase text-xs w-12">
                       <input
                         type="checkbox"
-                        checked={currentPage === 1 && selectedFabrics.length === filteredFabrics.length && filteredFabrics.length > 0}
+                        checked={
+                          filteredFabrics.length > 0 &&
+                          filteredFabrics.every(f => selectedFabrics.some(s => s.id === f.id))
+                        }
                         onChange={(e) => handleSelectAllFabrics(e.target.checked)}
                         className="w-4 h-4"
                       />

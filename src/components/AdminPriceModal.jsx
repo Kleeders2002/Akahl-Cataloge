@@ -7,19 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { calculateAllPrices } from '../services/api';
-
-const MANUFACTURING_TYPES = [
-  { id: 'bespoke', name: 'Bespoke', label: 'Bespoke' },
-  { id: 'industrial', name: 'No Bespoke', label: 'No Bespoke' },
-];
-
-const GARMENT_TYPES = [
-  { id: 'jacket', name: 'Jacket', meters: 2.5 },
-  { id: 'trousers', name: 'Trousers', meters: 1.8 },
-  { id: 'vest', name: 'Vest', meters: 1.2 },
-  { id: '2-piece', name: '2-Piece Suit', meters: 4.3 },
-  { id: '3-piece', name: '3-Piece Suit', meters: 5.5 },
-];
+import { MANUFACTURING_TYPES, GARMENT_TYPES, applyManufacturingAdjustment } from '../constants';
 
 const MULTIPLIERS = {
   bespoke: {
@@ -229,8 +217,8 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                     if (!details) return null;
                     // Elaboration Price = Precio final dividido por el multiplier (el mismo para ambos)
                     const elaborationPrice = details.finalPrice / details.multiplier;
-                    // Restar 700 solo al Multiplied Price cuando es No Bespoke (Industrial)
-                    const adjustedPrice = selectedManufacturing === 'industrial' ? details.finalPrice - 700 : details.finalPrice;
+                    // Restar el ajuste solo al Multiplied Price cuando es No Bespoke (Industrial)
+                    const adjustedPrice = applyManufacturingAdjustment(details.finalPrice, selectedManufacturing);
 
                     return (
                       <tr key={garment.id} className="border-b border-akahl-secondary/10 hover:bg-akahl-secondary/5 transition-colors">
@@ -269,7 +257,7 @@ function AdminPriceModal({ fabric, pricing, onClose, onActivity }) {
                   <p className="text-xs text-akahl-secondary/60 uppercase tracking-wider mb-1">Avg. Final Price</p>
                   <p className="text-lg font-semibold text-akahl-secondary">
                     ${(Object.values(priceDetails).reduce((sum, d) => {
-                      const priceToShow = selectedManufacturing === 'industrial' ? d.finalPrice - 700 : d.finalPrice;
+                      const priceToShow = applyManufacturingAdjustment(d.finalPrice, selectedManufacturing);
                       return sum + priceToShow;
                     }, 0) / GARMENT_TYPES.length).toFixed(2)}
                   </p>

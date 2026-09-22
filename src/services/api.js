@@ -359,60 +359,6 @@ export const deleteFabric = async (id) => {
 // ============================================
 
 /**
- * Transforma configuración de precios del backend al formato frontend
- * @param {Object} config - Config del backend
- * @returns {Object} Config en formato frontend
- */
-const transformPricingFromBackend = (config) => {
-  const garmentCodeMap = {
-    'chaqueta': 'jacket',
-    'pantalon': 'trousers',
-    'chaleco': 'vest',
-    'traje_2_piezas': '2-piece',
-    'traje_3_piezas': '3-piece',
-  };
-
-  const multipliers = {
-    bespoke: {},
-    industrial: {}
-  };
-
-  if (config.multiplicadores) {
-    for (const [key, value] of Object.entries(config.multiplicadores)) {
-      const [tipo_manufactura, tipo_prenda_codigo] = key.split('_');
-      const frontendGarment = garmentCodeMap[tipo_prenda_codigo] || tipo_prenda_codigo;
-
-      if (multipliers[tipo_manufactura] !== undefined) {
-        multipliers[tipo_manufactura][frontendGarment] = value.valor;
-      }
-    }
-  }
-
-  // Defaults si no hay datos
-  if (Object.keys(multipliers.bespoke).length === 0) {
-    multipliers.bespoke = {
-      jacket: 8.5,
-      trousers: 4.5,
-      vest: 3.5,
-      '2-piece': 12.0,
-      '3-piece': 15.0,
-    };
-  }
-
-  if (Object.keys(multipliers.industrial).length === 0) {
-    multipliers.industrial = {
-      jacket: 5.5,
-      trousers: 3.0,
-      vest: 2.5,
-      '2-piece': 7.5,
-      '3-piece': 9.5,
-    };
-  }
-
-  return { multipliers };
-};
-
-/**
  * Obtener configuración de precios (multiplicadores)
  * @returns {Promise<Object>} Multiplicadores y configuración
  * ENDPOINT: GET /api/catalogo/multiplicadores
@@ -456,25 +402,16 @@ export const getPricingConfig = async () => {
  * ENDPOINT: POST /api/catalogo/pricing/calculate
  */
 export const calculatePrice = async ({ garmentType, fabricCode }) => {
-  console.log('🧮 calculatePrice called with:', { garmentType, fabricCode });
-
   try {
     const response = await api.post('/catalogo/pricing/calculate', {
       tipo_prenda_codigo: garmentType,
       codigo_tela: fabricCode
     });
 
-    console.log('✅ Backend response:', response.data);
-
     // Transformar respuesta del backend al formato del frontend
     const data = response.data.data || response.data;
 
-    console.log('📋 Transformed data:', {
-      precio_final: data.precio_final,
-      desglose: data.desglose
-    });
-
-    const result = {
+    return {
       finalPrice: data.precio_final,
       desglose: {
         fabricCost: data.desglose?.costo_tela,
@@ -485,13 +422,9 @@ export const calculatePrice = async ({ garmentType, fabricCode }) => {
       },
       tela: data.tela
     };
-
-    console.log('📤 Returning:', result);
-    return result;
   } catch (error) {
     // Si falla el backend, no hacer fallback - propagar el error
-    console.error('❌ Backend calculate failed:', error);
-    console.error('Error response:', error.response?.data);
+    console.error('Backend calculate failed:', error);
     throw error;
   }
 };
@@ -503,14 +436,10 @@ export const calculatePrice = async ({ garmentType, fabricCode }) => {
  * ENDPOINT: POST /api/catalogo/pricing/calculate-all
  */
 export const calculateAllPrices = async ({ fabricCode }) => {
-  console.log('🧮 calculateAllPrices called with:', { fabricCode });
-
   try {
     const response = await api.post('/catalogo/pricing/calculate-all', {
       codigo_tela: fabricCode
     });
-
-    console.log('✅ Backend response:', response.data);
 
     // Transformar respuesta del backend al formato del frontend
     const data = response.data.data || response.data;
@@ -533,67 +462,16 @@ export const calculateAllPrices = async ({ fabricCode }) => {
       });
     }
 
-    const result = {
+    return {
       tela: data.tela,
       prices: pricesByGarment,
       breakdown: breakdownByGarment,
       rawPrices: data.precios
     };
-
-    console.log('📤 Returning:', result);
-    return result;
   } catch (error) {
-    console.error('❌ Backend calculate-all failed:', error);
-    console.error('Error response:', error.response?.data);
+    console.error('Backend calculate-all failed:', error);
     throw error;
   }
-};
-
-/**
- * Calcular precio en frontend (fallback)
- */
-const calculatePriceFrontend = ({ manufacturingType, garmentType, basePrice }) => {
-  const MULTIPLIERS = {
-    bespoke: {
-      jacket: 8.5,
-      trousers: 4.5,
-      vest: 3.5,
-      '2-piece': 12.0,
-      '3-piece': 15.0,
-    },
-    industrial: {
-      jacket: 5.5,
-      trousers: 3.0,
-      vest: 2.5,
-      '2-piece': 7.5,
-      '3-piece': 9.5,
-    },
-  };
-
-  const FABRIC_METERS = {
-    jacket: 2.5,
-    trousers: 1.8,
-    vest: 1.2,
-    '2-piece': 4.3,
-    '3-piece': 5.5,
-  };
-
-  const multiplier = MULTIPLIERS[manufacturingType]?.[garmentType] || 1;
-  const meters = FABRIC_METERS[garmentType] || 1;
-
-  const fabricCost = basePrice * meters;
-  const laborCost = basePrice * multiplier;
-  const finalPrice = Math.round((fabricCost + laborCost) * 100) / 100;
-
-  return {
-    finalPrice,
-    desglose: {
-      fabricCost: Math.round(fabricCost * 100) / 100,
-      laborCost: Math.round(laborCost * 100) / 100,
-      multiplier,
-      meters,
-    }
-  };
 };
 
 /**
@@ -807,10 +685,7 @@ export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, dispo
     body.disponibilidad = disponibilidad;
   }
 
-  console.log('🔵 Sending to PUT /fabrics/batch:', body);
-
   const response = await api.put('/catalogo/fabrics/batch', body);
-  console.log('🟢 Response from PUT /fabrics/batch:', response.data);
   return response.data;
 };
 
@@ -821,9 +696,7 @@ export const updateFabricsBatch = async (ids, precio_por_yarda, descuento, dispo
  * ENDPOINT: DELETE /api/catalogo/fabrics/batch
  */
 export const deleteFabricsBatch = async (ids) => {
-  console.log('🔴 DELETE /fabrics/batch - Sending:', { ids });
   const response = await api.delete('/catalogo/fabrics/batch', { data: { ids } });
-  console.log('🟢 DELETE response:', response.data);
   return response.data;
 };
 
