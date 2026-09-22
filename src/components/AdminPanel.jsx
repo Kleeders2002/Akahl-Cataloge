@@ -404,11 +404,13 @@ function AdminPanel({ onActivity }) {
 
     const ids = selectedFabrics.map(f => f.id);
 
-    // Preparar parámetros para updateFabricsBatch
-    const firstFabric = selectedFabrics[0];
-    let precio_por_yarda = firstFabric.basePricePerMeter || firstFabric.precio_por_yarda || 0;
+    // Solo enviar los campos que el usuario especificó. Los campos no
+    // enviados se omiten en el PUT batch y cada tela conserva su valor
+    // actual (antes se enviaba precio/descuento/disponibilidad de la
+    // primera tela seleccionada y sobrescribía a todas las demás).
+    let precio_por_yarda = undefined;
     let descuento = undefined;
-    let disponibilidad = firstFabric.availability === 'available';
+    let disponibilidad = undefined;
 
     if (batchActionModal === 'price') {
       if (batchUpdateData.precio_por_yarda && batchUpdateData.precio_por_yarda !== '') {
@@ -420,18 +422,16 @@ function AdminPanel({ onActivity }) {
         precio_por_yarda = price;
       }
 
-      if (batchUpdateData.descuento !== '' && batchUpdateData.descuento !== undefined) {
+      if (batchUpdateData.descuento !== '' && batchUpdateData.descuento !== undefined && batchUpdateData.descuento !== null) {
         const discount = parseFloat(batchUpdateData.descuento);
         if (isNaN(discount) || discount < 0 || discount > 1) {
           toast.warning('Discount must be between 0 and 1 (0% to 100%)');
           return;
         }
         descuento = discount;
-      } else {
-        descuento = firstFabric.descuento || 0;
       }
 
-      if (!batchUpdateData.precio_por_yarda && batchUpdateData.descuento === '') {
+      if (precio_por_yarda === undefined && descuento === undefined) {
         toast.warning('Specify at least price or discount to update');
         return;
       }
@@ -1995,7 +1995,7 @@ function AdminPanel({ onActivity }) {
               <button
                 onClick={handleBatchUpdate}
                 disabled={
-                  (batchActionModal === 'price' && (!batchUpdateData.precio_por_yarda || !batchUpdateData.descuento)) ||
+                  (batchActionModal === 'price' && !batchUpdateData.precio_por_yarda && batchUpdateData.descuento === '') ||
                   (batchActionModal === 'coleccion' && !batchUpdateData.id_coleccion)
                 }
                 className="btn-success border border-akahl-secondary/40 shadow-premium flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
