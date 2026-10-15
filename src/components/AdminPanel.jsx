@@ -8,7 +8,7 @@
  * - Gestión de multiplicadores de precio
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   getAllFabrics,
   updateFabric,
@@ -105,6 +105,8 @@ function AdminPanel({ onActivity }) {
   // Filtros de telas
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [collectionFilter, setCollectionFilter] = useState('all');
 
   // ============================================
   // ESTADOS - MULTIPLICADORES
@@ -570,11 +572,13 @@ function AdminPanel({ onActivity }) {
 
   const filteredFabrics = fabrics.filter((fabric) => {
     const matchesFilter = filter === 'all' || fabric.availability === filter;
+    const matchesBrand = brandFilter === 'all' || (fabric.marca || fabric.supplier) === brandFilter;
+    const matchesCollection = collectionFilter === 'all' || fabric.coleccion === collectionFilter;
     const matchesSearch = !searchTerm ||
       fabric.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       fabric.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (fabric.marca || fabric.supplier).toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesBrand && matchesCollection && matchesSearch;
   });
 
   // Paginación de telas
@@ -586,7 +590,32 @@ function AdminPanel({ onActivity }) {
   // Resetear página cuando cambian los filtros
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchTerm]);
+  }, [filter, searchTerm, brandFilter, collectionFilter]);
+
+  // ============================================
+  // FILTROS - MARCA Y COLECCIÓN (en cascada)
+  // ============================================
+
+  // Colecciones disponibles según la marca filtrada
+  const filterCollectionOptions = useMemo(() => {
+    if (brandFilter === 'all') return colecciones;
+    return colecciones.filter(c =>
+      marcas.find(m => m.id_marca === c.id_marca)?.nombre === brandFilter
+    );
+  }, [colecciones, marcas, brandFilter]);
+
+  const handleBrandFilterChange = (brandName) => {
+    setBrandFilter(brandName);
+    // Si la colección seleccionada no pertenece a la nueva marca, resetear
+    if (collectionFilter !== 'all') {
+      const current = colecciones.find(c => c.nombre === collectionFilter);
+      const belongs = brandName === 'all' ||
+        marcas.find(m => m.id_marca === current?.id_marca)?.nombre === brandName;
+      if (!belongs) {
+        setCollectionFilter('all');
+      }
+    }
+  };
 
   // ============================================
   // HANDLERS - MULTIPLICADORES
@@ -1129,6 +1158,47 @@ function AdminPanel({ onActivity }) {
                 >
                   Out of Stock
                 </button>
+              </div>
+            </div>
+
+            {/* Filtros por marca y colección */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              {/* Filtro por Marca */}
+              <div>
+                <label className="block text-xs text-akahl-secondary/60 uppercase tracking-wider mb-2">
+                  Brand
+                </label>
+                <select
+                  value={brandFilter}
+                  onChange={(e) => handleBrandFilterChange(e.target.value)}
+                  className="select-field"
+                >
+                  <option value="all">All Brands</option>
+                  {marcas.map(marca => (
+                    <option key={marca.id_marca} value={marca.nombre}>
+                      {marca.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filtro por Colección (cascada según marca) */}
+              <div>
+                <label className="block text-xs text-akahl-secondary/60 uppercase tracking-wider mb-2">
+                  Collection
+                </label>
+                <select
+                  value={collectionFilter}
+                  onChange={(e) => setCollectionFilter(e.target.value)}
+                  className="select-field"
+                >
+                  <option value="all">All Collections</option>
+                  {filterCollectionOptions.map(coleccion => (
+                    <option key={coleccion.id_coleccion} value={coleccion.nombre}>
+                      {coleccion.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

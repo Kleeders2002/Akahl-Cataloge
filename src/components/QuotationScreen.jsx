@@ -99,10 +99,30 @@ function QuotationScreen({ onActivity }) {
   }, [allFabrics]);
 
   // Obtener colecciones únicas de las lista de telas
+  // En cascada: si hay una marca seleccionada, solo sus colecciones
   const collections = useMemo(() => {
-    const collectionSet = new Set(allFabrics.map(f => f.coleccion).filter(Boolean));
+    const source = selectedBrand === 'all'
+      ? allFabrics
+      : allFabrics.filter(f => f.supplier === selectedBrand);
+    const collectionSet = new Set(source.map(f => f.coleccion).filter(Boolean));
     return ['all', ...Array.from(collectionSet).sort()];
-  }, [allFabrics]);
+  }, [allFabrics, selectedBrand]);
+
+  /**
+   * Cambia la marca filtrada; si la colección seleccionada ya no
+   * pertenece a la nueva marca, se resetea a 'all'
+   */
+  const handleBrandChange = useCallback((brand) => {
+    setSelectedBrand(brand);
+    if (brand !== 'all' && selectedCollection !== 'all') {
+      const belongs = allFabrics.some(f =>
+        f.supplier === brand && f.coleccion === selectedCollection
+      );
+      if (!belongs) {
+        setSelectedCollection('all');
+      }
+    }
+  }, [allFabrics, selectedCollection]);
 
   // Filtrar telas según todos los criterios
   const filteredFabrics = useMemo(() => {
@@ -227,7 +247,7 @@ function QuotationScreen({ onActivity }) {
             <select
               value={selectedBrand}
               onChange={(e) => {
-                setSelectedBrand(e.target.value);
+                handleBrandChange(e.target.value);
                 onActivity?.();
               }}
               className="select-field"
