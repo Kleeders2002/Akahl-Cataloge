@@ -141,9 +141,9 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
             </div>
           )}
 
-          {/* Fabric Info Footer */}
+          {/* Fabric Info Footer — sin precio por yarda (dato interno, solo visible en el modal admin) */}
           <div className="mt-6 p-4 bg-akahl-secondary/5 rounded-xl border border-akahl-secondary/10 animate-fadeIn">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <p className="text-akahl-secondary/60 uppercase tracking-wider text-xs mb-1">Brand</p>
                 <p className="text-white font-medium">{fabric.marca}</p>
@@ -155,10 +155,6 @@ function GarmentPriceModal({ fabric, onClose, onActivity }) {
               <div>
                 <p className="text-akahl-secondary/60 uppercase tracking-wider text-xs mb-1">Code</p>
                 <p className="text-white font-medium">{fabric.codigo}</p>
-              </div>
-              <div>
-                <p className="text-akahl-secondary/60 uppercase tracking-wider text-xs mb-1">Price per Yard</p>
-                <p className="text-white font-medium">${fabric.basePricePerMeter?.toFixed(2) || '0.00'}</p>
               </div>
             </div>
           </div>
